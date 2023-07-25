@@ -79,18 +79,9 @@ def single_indicator_model(
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-        disease_data = pm.ConstantData(data_str_in, data_in)
         NPI_data = pm.ConstantData("NPI_data", NPI_data_in)
         delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
-
-        # define hyper-parameters
-        mu_factor = 0.2
-        sigma_factor = 0.05
-        mu_mu = 1.0
-        sigma_mu = 0.2
-        mu_sigma = 0.3
-        sigma_sigma = 0.1
 
         # meta-parameters for the convolution function (delay_cases)
         model_in.diff_data_sim = (
@@ -119,17 +110,6 @@ def single_indicator_model(
         # impact of NPI
         ## define priors
         factor_NPI = pm.Normal("z_NPI", mu=mu_factor, sigma=sigma_factor)
-        mu_NPI = pm.LogNormal("mu_NPI", mu=mu_mu, sigma=sigma_mu)
-        sigma_NPI = pm.LogNormal("sigma_NPI", mu=mu_sigma, sigma=sigma_sigma)
-        ## convolution
-        risk = cov19.model.delay_cases(
-            cases=NPI_data,
-            delay_kernel="gamma",
-            median_delay=mu_NPI,
-            scale_delay=sigma_NPI,
-            len_input_arr=len_data,
-            len_output_arr=model_in.sim_len,
-        )
         ## put it together
         exponent = -factor_NPI * risk
         s = pm.Deterministic("s", at.exp(exponent))
@@ -137,13 +117,11 @@ def single_indicator_model(
         # impact of weather: maximum temperature
         factor_weather = pm.LogNormal("z_weather", mu=10, sigma=2)
         ## Gaussian to model the impact of optimal absolute temperature
-        amplitude = pm.Normal("amplitude", mu=19, sigma=2)
-        scale = pm.Normal("scale", mu=0.07, sigma=0.01)
-        offset = pm.Normal("offset", mu=10, sigma=2)
-        shift = pm.Normal("shift", mu=5, sigma=1)
+        amplitude = pm.LogNormal("amplitude", mu=np.log(0.08), tau=1)
+        offset = pm.Normal("offset", mu=25, sigma=2)
+        shift = pm.Normal("shift", mu=-20, sigma=2)
         T_star = generate_Tstar(
             amplitude=amplitude,
-            scale=scale,
             offset=offset,
             shift=shift,
             length=len_data,

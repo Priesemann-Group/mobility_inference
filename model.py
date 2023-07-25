@@ -104,8 +104,6 @@ R_trace = pm.sample(model=R_model, draws=100, tune=100, cores=1, chains=2)
 with R_model:
     pm.compute_log_likelihood(R_trace)
 
-# Saving the results
-tag = "R_model_full"
 # Save the trace
 path = f"results/raw/trace_{tag}.pickle"
 with open(path, "wb") as inference_file:
