@@ -62,22 +62,29 @@ def Gaussian(T, T_star, a):
     return pm.Deterministic("r", at.exp(-a * at.power(T - T_star, 2.0)))
 
 
-# model
-def create_model(
+""" OLD
+# single indicator model
+def single_indicator_model(
+    data_in,
     model_in,
     base_mobility_data_in,
     observed_mobility_data_in,
     NPI_data_in,
     del_weather_data_in,
     avg_weather_data_in,
-    indicators_in,
-    disease_data_in,
+    data_str_in="disease_data",
+    factor_str_in="z",
+    mu_str_in="mu",
+    sigma_str_in="sigma",
+    d_str_in="d",
+    m_str_in="m",
 ):
     # Gaussian = np.vectorize(Gaussian)
-    len_data = observed_mobility_data_in.shape[0]
+    len_data = data_in.shape[0]
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
+        disease_data = pm.ConstantData(data_str_in, data_in)
         NPI_data = pm.ConstantData("NPI_data", NPI_data_in)
         delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
@@ -88,32 +95,23 @@ def create_model(
         )
         model_in.sim_len = len_data - model_in.diff_data_sim
 
-        m = m_base_data
-
         # impact of disease spread
-        mu_z_prior = 0.9 ** len(indicators_in)
-        for indicator in indicators_in:
-            disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
-
-            ## define priors
-            factor_disease = pm.LogNormal(
-                f"z_{indicator}", mu=np.log(mu_z_prior), tau=10
-            )
-            mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1.0), tau=10)
-            sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1.0), tau=10)
-            ## convolution
-            risk = cov19.model.delay_cases(
-                cases=disease_data,
-                delay_kernel="gamma",
-                median_delay=mu_disease,
-                scale_delay=sigma_disease,
-                len_input_arr=len_data,
-                len_output_arr=model_in.sim_len,
-            )
-            ## put it together
-            exponent = -factor_disease * risk
-            d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
-            m = m * d
+        ## define priors
+        factor_disease = pm.LogNormal(factor_str_in, mu=np.log(0.9), tau=10)
+        mu_disease = pm.LogNormal(mu_str_in, mu=np.log(1.0), tau=10)
+        sigma_disease = pm.LogNormal(sigma_str_in, mu=np.log(1.0), tau=10)
+        ## convolution
+        risk = cov19.model.delay_cases(
+            cases=disease_data,
+            delay_kernel="gamma",
+            median_delay=mu_disease,
+            scale_delay=sigma_disease,
+            len_input_arr=len_data,
+            len_output_arr=model_in.sim_len,
+        )
+        ## put it together
+        exponent = -factor_disease * risk
+        d = pm.Deterministic(d_str_in, at.exp(exponent))
 
         # impact of NPI
         ## define priors
@@ -141,14 +139,30 @@ def create_model(
         )
 
         # define likelihood
-        m = pm.Deterministic("m", m * s * w)
+        m = pm.Deterministic(m_str_in, m_base_data * d * s * w)
         model_error = pm.HalfCauchy("sigma_model", beta=0.5)
         likelihood = pm.Normal(
             "likelihood", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )
-
-
 """
+
+
+def return_disease_dicts(indicators_in, disease_data_in):
+    disease_dicts = []
+    for indicator in indicators_in:
+        disease_dicts.append(
+            {
+                "data": disease_data_in[indicator],
+                "data_str": indicator,
+                "z": f"z_{indicator}",
+                "mu": f"mu_{indicator}",
+                "sigma": f"sigma_{indicator}",
+                "d": f"d_{indicator}",
+            }
+        )
+    return disease_dicts
+
+
 # model
 def create_model(
     model_in,
@@ -230,5 +244,3 @@ def create_model(
         likelihood = pm.Normal(
             "likelihood", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )
-
-"""

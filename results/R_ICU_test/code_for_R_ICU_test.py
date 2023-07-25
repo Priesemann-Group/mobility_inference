@@ -16,7 +16,7 @@ import covid19_inference.covid19_inference as cov19
 import utils
 
 
-indicators = ["R", "C", "ICU", "H"]
+indicators = ["R", "ICU"]
 
 
 disease_data = {}
@@ -147,6 +147,20 @@ average_tmax = xr.DataArray(
 )
 
 # Model
+disease_dicts = []
+for indicator in indicators:
+    disease_dicts.append(
+        {
+            "data": disease_data[indicator],
+            "data_str": indicator,
+            "z": f"z_{indicator}",
+            "mu": f"mu_{indicator}",
+            "sigma": f"sigma_{indicator}",
+            "d": f"d_{indicator}",
+        }
+    )
+
+
 model = pm.Model()
 utils.create_model(
     model,
@@ -155,8 +169,7 @@ utils.create_model(
     stay_at_home_2020,
     delta_tmax,
     average_tmax,
-    indicators,
-    disease_data,
+    disease_dicts,
 )
 
 # Inference

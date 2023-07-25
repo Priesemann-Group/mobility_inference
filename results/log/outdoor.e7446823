@@ -1,0 +1,8 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully loaded OurWorldinData.csv.gz from /data.nst/eiftekhar/covid19/, skipping download.
+WARNING  [covid19_inference.covid19_inference.data_retrieval._OWD] Please select a valid filter value. For the full dataset use self.data!
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/model.py", line 93, in <module>
+    case_data = owid._filter(
+  File "/data/eiftekhar/mobility_inference/covid19_inference/covid19_inference/data_retrieval/_OWD.py", line 248, in _filter
+    raise ValueError("No valid value given! " + value)
+ValueError: No valid value given! new_cases_smoothed_per_million

@@ -16,16 +16,13 @@ import covid19_inference.covid19_inference as cov19
 import utils
 
 
-indicators = ["R", "C", "ICU", "H"]
-
-
-disease_data = {}
+indicators = ["ICU"]
 
 # for saving the results
 tags = ""
 for indicator in indicators:
     tags += indicator + "_"
-tag = tags + "test"
+tag = tags + "model_full"
 # We create a directory for the results.
 dir_name = "results/" + tag
 ## We create the target directory if it does not exist yet
@@ -80,10 +77,9 @@ if "R" in indicators:
     df = utils.weekly_formatting(R_df, mobility_dates_2020)
     df = utils.transform_data(df["R_eff median"])
     R_data = df.to_xarray()
-    disease_data["R"] = R_data
 
 ## OWID
-if "ICU" in indicators or "C" in indicators or "H" in indicators:
+if "ICU" in indicators or "C" in indicators:
     cov19.data_retrieval.set_data_dir("/data.nst/eiftekhar/covid19/")
     owid = cov19.data_retrieval.OWD()
     owid.download_all_available_data()
@@ -96,7 +92,6 @@ if "C" in indicators:
     )
     case_data = utils.weekly_formatting(case_data, mobility_dates_2020)
     case_data = utils.transform_data(case_data).to_xarray()
-    disease_data["C"] = case_data
 
 ### ICU
 if "ICU" in indicators:
@@ -106,17 +101,6 @@ if "ICU" in indicators:
     )
     ICU_data = utils.weekly_formatting(ICU_data, mobility_dates_2020)
     ICU_data = utils.transform_data(ICU_data).to_xarray()
-    disease_data["ICU"] = ICU_data
-
-### hospitalisations
-if "H" in indicators:
-    H_data = owid._filter(
-        value="weekly_hosp_admissions_per_million",
-        country="Germany",
-    )
-    H_data = utils.weekly_formatting(H_data, mobility_dates_2020)
-    H_data = utils.transform_data(H_data).to_xarray()
-    disease_data["H"] = H_data
 
 ## NPI
 stay_at_home_2020 = utils.get_NPI_data(
@@ -147,16 +131,28 @@ average_tmax = xr.DataArray(
 )
 
 # Model
+if indicators == ["R"]:
+    data = R_data
+    data_str = "R_eff"
+
+if indicators == ["ICU"]:
+    data = ICU_data
+    data_str = "ICU"
+
+if indicators == ["C"]:
+    data = case_data
+    data_str = "cases"
+
 model = pm.Model()
-utils.create_model(
+utils.single_indicator_model(
+    data,
     model,
     baseline_mobility,
     mobility_data_2020,
     stay_at_home_2020,
     delta_tmax,
     average_tmax,
-    indicators,
-    disease_data,
+    data_str_in=data_str,
 )
 
 # Inference
