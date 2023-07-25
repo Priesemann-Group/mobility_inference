@@ -16,7 +16,7 @@ import covid19_inference.covid19_inference as cov19
 import utils
 
 
-indicators = ["R", "C", "ICU", "H"]
+indicators = ["C"]
 
 
 disease_data = {}

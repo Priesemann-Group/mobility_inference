@@ -147,7 +147,6 @@ average_tmax = xr.DataArray(
 )
 
 # Model
-# disease_dicts = utils.return_disease_dicts(indicators, disease_data)
 model = pm.Model()
 utils.create_model(
     model,

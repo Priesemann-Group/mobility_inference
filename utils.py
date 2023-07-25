@@ -125,7 +125,7 @@ def create_model(
         # impact of weather: maximum temperature
         factor_weather = pm.LogNormal("z_T", mu=np.log(0.01), tau=1)
         ## Gaussian to model the impact of optimal absolute temperature
-        amplitude = pm.LogNormal("amplitude", mu=np.log(0.08), tau=5)
+        amplitude = pm.LogNormal("amplitude", mu=np.log(0.08), tau=20)
         offset = pm.Normal("offset", mu=25, sigma=2)
         shift = pm.Normal("shift", mu=-20, sigma=2)
         T_star = generate_Tstar(

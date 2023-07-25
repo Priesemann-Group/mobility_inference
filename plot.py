@@ -106,6 +106,7 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
     ax.legend()
     fig.tight_layout()
     fig.savefig(f"figures/{tag_in}/gamma_kernel.png")
+    fig.savefig(f"figures/{tag_in}/gamma_kernel.pdf")
 
 
 ## plot temperature time series
@@ -143,6 +144,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
 
     # save figure
     fig.savefig(f"figures/{tag_in}/temperature.png", bbox_inches="tight")
+    fig.savefig(f"figures/{tag_in}/temperature.pdf", bbox_inches="tight")
 
 
 ## plot ood time series
@@ -241,6 +243,7 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
 
     # save figure
     fig.savefig(f"figures/{tag_in}/out_of_home_duration.png", bbox_inches="tight")
+    fig.savefig(f"figures/{tag_in}/out_of_home_duration.pdf", bbox_inches="tight")
 
 
 # plot distribution for single indicator models
@@ -296,6 +299,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
         i += 3
 
     fig.savefig(f"figures/{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"figures/{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
 
 
 def analysis_figures(model_in, trace_in, tag_in, dates_in, indicators_in):
