@@ -48,10 +48,8 @@ mobility_df["week"] = mobility_df.index.isocalendar().week
 
 ### get dates
 mobility_dates = mobility_df.index.values
-mobility_dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
-mobility_dates_2020 = mobility_dates_2020[
-    mobility_dates_2020 > np.datetime64("2020-03-29")
-]
+dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
+mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
 mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
 mobility_dates_2022_shortened = mobility_dates_2022[-len(mobility_dates_2020) :]
 

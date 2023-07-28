@@ -184,106 +184,16 @@ def create_model(
         ## put it together
         exponent = -factor_NPI * NPI_data
         s = pm.Deterministic("s", at.exp(exponent))
+        m = m * s
 
         # impact of pandemic fatigue
         p = pandemic_fatigue_factor_linear(len_data)
         # p = pandemic_fatigue_factor_sigmoid(len_data)
+        m = m * p
 
         # define likelihood
-        m = pm.Deterministic("m", m * s * p)
+        m = pm.Deterministic("m", m)
         model_error = pm.HalfCauchy("sigma_model", beta=0.5)
         likelihood = pm.Normal(
             "likelihood", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )
-
-
-""" Model with temperature and no pandemic fatigue
-
-# model
-def create_model(
-    model_in,
-    base_mobility_data_in,
-    observed_mobility_data_in,
-    NPI_data_in,
-    del_weather_data_in,
-    avg_weather_data_in,
-    indicators_in,
-    disease_data_in,
-):
-    # Gaussian = np.vectorize(Gaussian)
-    len_data = observed_mobility_data_in.shape[0]
-    with model_in:
-        # define data
-        m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-        NPI_data = pm.ConstantData("NPI_data", NPI_data_in)
-        delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
-        avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
-
-        # meta-parameters for the convolution function (delay_cases)
-        model_in.diff_data_sim = (
-            0  # we are only interested in the reported cases, so no delay
-        )
-        model_in.sim_len = len_data - model_in.diff_data_sim
-
-        m = m_base_data
-
-        # impact of disease spread
-        mu_z_prior = 0.9 ** len(indicators_in)
-        for indicator in indicators_in:
-            disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
-
-            ## define priors
-            factor_disease = pm.LogNormal(
-                f"z_{indicator}", mu=np.log(mu_z_prior), tau=10
-            )
-            mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1.0), tau=10)
-            sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1.0), tau=10)
-            ## convolution
-            risk = cov19.model.delay_cases(
-                cases=disease_data,
-                delay_kernel="gamma",
-                median_delay=mu_disease,
-                scale_delay=sigma_disease,
-                len_input_arr=len_data,
-                len_output_arr=model_in.sim_len,
-            )
-            ## put it together
-            exponent = -factor_disease * risk
-            d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
-            m = m * d
-
-        # impact of NPI
-        ## define priors
-        factor_NPI = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
-        ## put it together
-        exponent = -factor_NPI * NPI_data
-        s = pm.Deterministic("s", at.exp(exponent))
-
-        # impact of weather: maximum temperature
-        factor_weather = pm.LogNormal("z_T", mu=np.log(0.01), tau=1)
-        ## Gaussian to model the impact of optimal absolute temperature
-        amplitude = pm.LogNormal("amplitude", mu=np.log(0.08), tau=20)
-        offset = pm.Normal("offset", mu=25, sigma=2)
-        shift = pm.Normal("shift", mu=-20, sigma=2)
-        T_star = generate_Tstar(
-            amplitude=amplitude,
-            offset=offset,
-            shift=shift,
-            length=len_data,
-        )
-        a_r = pm.LogNormal("a_r", mu=np.log(0.01), tau=1)
-        weather_relevance = Gaussian(avg_weather, T_star, a_r)
-        w = pm.Deterministic(
-            "w", at.exp(delta_weather * weather_relevance * factor_weather)
-        )
-
-        # define likelihood
-        m = pm.Deterministic("m", m * s * w)
-        model_error = pm.HalfCauchy("sigma_model", beta=0.5)
-        likelihood = pm.Normal(
-            "likelihood", mu=m, sigma=model_error, observed=observed_mobility_data_in
-        )
-
-
-
-"""
