@@ -4,12 +4,12 @@ import pandas as pd
 import os
 
 # import matplotlib.pyplot as plt
-import arviz as az
+# import arviz as az
 import pickle
 import shutil
 
 # from scipy import stats
-import pytensor.tensor as at
+# import pytensor.tensor as at
 import xarray as xr
 
 import covid19_inference.covid19_inference as cov19
@@ -17,7 +17,7 @@ import utils
 
 
 indicators = ["C"]
-
+name = "test"
 
 disease_data = {}
 
@@ -25,7 +25,7 @@ disease_data = {}
 tags = ""
 for indicator in indicators:
     tags += indicator + "_"
-tag = tags + "test"
+tag = tags + name
 # We create a directory for the results.
 dir_name = "results/" + tag
 ## We create the target directory if it does not exist yet
@@ -48,10 +48,8 @@ mobility_df["week"] = mobility_df.index.isocalendar().week
 
 ### get dates
 mobility_dates = mobility_df.index.values
-mobility_dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
-mobility_dates_2020 = mobility_dates_2020[
-    mobility_dates_2020 > np.datetime64("2020-03-29")
-]
+dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
+mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
 mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
 mobility_dates_2022_shortened = mobility_dates_2022[-len(mobility_dates_2020) :]
 
@@ -125,7 +123,7 @@ stay_at_home_2020 = utils.get_NPI_data(
 stay_at_home_2020 = utils.transform_data(stay_at_home_2020)
 stay_at_home_2020 = stay_at_home_2020["stay_home_requirements"].to_xarray()
 
-## Temperature
+## Weather
 weather_df = pd.read_csv(
     "data/weather/weatherData2020and2022.csv", parse_dates=True, index_col=0
 )
@@ -135,16 +133,23 @@ weather_df_2020 = weather_df[weather_df.index.isin(mobility_dates_2020)]
 weather_df_2022 = weather_df[weather_df.index.isin(mobility_dates_2022_shortened)]
 
 ### calculate differences between the years
-delta_tmax = utils.return_differences(weather_df_2020, weather_df_2022, "tmax")
-delta_tmax = xr.DataArray(
-    delta_tmax, dims="date", coords={"date": mobility_dates_2020}, name="delta_tmax"
+#### temperature
+# delta_tmax = utils.return_differences(weather_df_2020, weather_df_2022, "tmax")
+# delta_tmax = xr.DataArray(
+#     delta_tmax, dims="date", coords={"date": mobility_dates_2020}, name="delta_tmax"
+# )
+#### precipitation
+delta_prcp = utils.return_differences(weather_df_2020, weather_df_2022, "prcp")
+delta_prcp = xr.DataArray(
+    delta_prcp, dims="date", coords={"date": mobility_dates_2020}, name="delta_prcp"
 )
 
 ### calculate average between the years
-average_tmax = utils.return_averages(weather_df_2020, weather_df_2022, "tmax")
-average_tmax = xr.DataArray(
-    average_tmax, dims="date", coords={"date": mobility_dates_2020}, name="average_tmax"
-)
+#### temperature
+# average_tmax = utils.return_averages(weather_df_2020, weather_df_2022, "tmax")
+# average_tmax = xr.DataArray(
+#     average_tmax, dims="date", coords={"date": mobility_dates_2020}, name="average_tmax"
+# )
 
 # Model
 model = pm.Model()
@@ -153,10 +158,11 @@ utils.create_model(
     baseline_mobility,
     mobility_data_2020,
     stay_at_home_2020,
-    delta_tmax,
-    average_tmax,
+    # delta_tmax,
+    # average_tmax,
     indicators,
     disease_data,
+    delta_prcp,
 )
 
 # Inference

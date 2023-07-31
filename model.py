@@ -17,7 +17,7 @@ import utils
 
 
 indicators = ["C"]
-
+name = "test"
 
 disease_data = {}
 
@@ -25,7 +25,7 @@ disease_data = {}
 tags = ""
 for indicator in indicators:
     tags += indicator + "_"
-tag = tags + "test_longer_disease"
+tag = tags + name
 # We create a directory for the results.
 dir_name = "results/" + tag
 ## We create the target directory if it does not exist yet
@@ -48,10 +48,8 @@ mobility_df["week"] = mobility_df.index.isocalendar().week
 
 ### get dates
 mobility_dates = mobility_df.index.values
-mobility_dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
-mobility_dates_2020 = mobility_dates_2020[
-    mobility_dates_2020 > np.datetime64("2020-03-29")
-]
+dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
+mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
 mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
 mobility_dates_2022_shortened = mobility_dates_2022[-len(mobility_dates_2020) :]
 
@@ -71,19 +69,13 @@ baseline_mobility_df.index = mobility_dates_2020
 baseline_mobility_df.index.name = "date"
 baseline_mobility = baseline_mobility_df["outOfHomeDuration"].to_xarray()
 
-## Dates for disease data
-### extend dates_2020 by some weeks before (> 27th of February)
-disease_dates = pd.date_range(start="2020-02-27", end="2020-12-31", freq="W-SUN").values
-### smaller than 2020-12-20
-disease_dates = disease_dates[disease_dates < np.datetime64("2020-12-20")]
-
 ## R
 if "R" in indicators:
     path_R = "data/R/Germany/R_eff_Germany.csv"
     R_df = pd.read_csv(path_R, index_col=1, parse_dates=True)
 
     ### weekly average placed on Sunday
-    df = utils.weekly_formatting(R_df, disease_dates)
+    df = utils.weekly_formatting(R_df, mobility_dates_2020)
     df = utils.transform_data(df["R_eff median"])
     R_data = df.to_xarray()
     disease_data["R"] = R_data
@@ -100,7 +92,7 @@ if "C" in indicators:
         value="new_cases_smoothed_per_million",
         country="Germany",
     )
-    case_data = utils.weekly_formatting(case_data, disease_dates)
+    case_data = utils.weekly_formatting(case_data, mobility_dates_2020)
     case_data = utils.transform_data(case_data).to_xarray()
     disease_data["C"] = case_data
 
@@ -110,7 +102,7 @@ if "ICU" in indicators:
         value="icu_patients_per_million",
         country="Germany",
     )
-    ICU_data = utils.weekly_formatting(ICU_data, disease_dates)
+    ICU_data = utils.weekly_formatting(ICU_data, mobility_dates_2020)
     ICU_data = utils.transform_data(ICU_data).to_xarray()
     disease_data["ICU"] = ICU_data
 
@@ -120,7 +112,7 @@ if "H" in indicators:
         value="weekly_hosp_admissions_per_million",
         country="Germany",
     )
-    H_data = utils.weekly_formatting(H_data, disease_dates)
+    H_data = utils.weekly_formatting(H_data, mobility_dates_2020)
     H_data = utils.transform_data(H_data).to_xarray()
     disease_data["H"] = H_data
 

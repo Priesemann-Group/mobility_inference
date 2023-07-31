@@ -144,18 +144,14 @@ def create_model(
         # delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         # avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
 
-        # meta-parameters for the convolution function (delay_cases)
-        model_in.diff_data_sim = (
-            0  # we are only interested in the reported cases, so no delay
-        )
-        model_in.sim_len = len_data - model_in.diff_data_sim
-
         m = m_base_data
 
         # impact of disease spread
         mu_z_prior = 0.9 ** len(indicators_in)
         for indicator in indicators_in:
             disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
+            ## get length of disease data
+            len_disease_data = disease_data.shape[0]
 
             ## define priors
             factor_disease = pm.LogNormal(
@@ -170,8 +166,9 @@ def create_model(
                 delay_kernel="gamma",
                 median_delay=mu_disease,
                 scale_delay=sigma_disease,
-                len_input_arr=len_data,
-                len_output_arr=model_in.sim_len,
+                len_input_arr=len_disease_data,
+                len_output_arr=len_data,
+                diff_input_output=len_disease_data - len_data,
             )
             ## put it together
             exponent = -factor_disease * risk
