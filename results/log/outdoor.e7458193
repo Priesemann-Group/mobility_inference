@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 39, in <module>
+    shutil.copyfile("model.py", f"{dir_name}/code_for_{tag}.py")
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/shutil.py", line 254, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: 'model.py'

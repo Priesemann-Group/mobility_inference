@@ -28,7 +28,8 @@ colors = {
     # out-of-home duration
     "m": colormap(0.8),
     "m_obs": colormap(0.85),
-    "m_base": colormap(0.9),
+    "o_*": colormap(0.9),
+    "m_base": colormap(0.95),
 }
 
 
@@ -186,14 +187,14 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         label_in="stay-at-home order $s$",
         alpha=0.2,
     )
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["p"],
-        color_in=colors["p"],
-        label_in="pandemic fatigue $p$",
-        alpha=0.2,
-    )
+    # plot_timeseries(
+    #     ax,
+    #     dates_in,
+    #     trace_in.posterior["p"],
+    #     color_in=colors["p"],
+    #     label_in="pandemic fatigue $p$",
+    #     alpha=0.2,
+    # )
     # plot_timeseries(
     #     ax,
     #     dates_in,
@@ -266,7 +267,10 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         marker="o",
     )
     plot_timeseries(ax, dates_in, trace_in.posterior["m"], "inferred $o$", colors["m"])
-    ax.legend(ncol=3, bbox_to_anchor=(1.15, -0.4))
+    plot_timeseries(
+        ax, dates_in, trace_in.posterior["o_*"], "inferred $o_*$", colors["o_*"]
+    )
+    ax.legend(ncol=2, bbox_to_anchor=(1.15, -0.4))
     format_x_axis(ax, dates_in, last=True)
     # set y label
     ax.set_ylabel("Out-of-home\nduration [h]")
@@ -293,10 +297,14 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
     # flatten axes
     axs = axs.flatten()
 
+    cov19.plot.distribution(
+        model_in, trace_in, "delta_o", dist_math="\Delta o", ax=axs[0]
+    )
+
     # pandemic fatigue
     ## linear
-    cov19.plot.distribution(model_in, trace_in, "p0", dist_math="p_0", ax=axs[0])
-    cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
+    # cov19.plot.distribution(model_in, trace_in, "p0", dist_math="p_0", ax=axs[0])
+    # cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
     ## sigmoid
     # cov19.plot.distribution(
     #     model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
@@ -321,7 +329,6 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
     )
     cov19.plot.distribution(model_in, trace_in, "a_r", dist_math="a_r", ax=axs[4])
     """
-
     cov19.plot.distribution(
         model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[4]
     )
