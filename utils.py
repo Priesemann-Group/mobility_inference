@@ -23,13 +23,14 @@ def transform_data(df_in):
     return 1 / (1 + np.exp(-df))
 
 
-def get_NPI_data(filename_in, dates_in):
+def get_NPI_data(filename_in, dates_in, stay_home=True):
     df = pd.read_csv(filename_in, index_col=2, parse_dates=True)
     df = df[df["Entity"] == "Germany"]
     # from 22.10.20 to 01.11.20 it is still just a recommendation not a requirement
     # (see https://github.com/OxCGRT/covid-policy-dataset/blob/main/data/OxCGRT_fullwithnotes_national_2020_v1.csv)
     # set all values between dates "2020-10-22" and "2020-11-01" to 1
-    df.loc["2020-10-22":"2020-11-01", "stay_home_requirements"] = 1
+    if stay_home:
+        df.loc["2020-10-22":"2020-11-01", "stay_home_requirements"] = 1
     df = weekly_formatting(df, dates_in)
     return df
 
