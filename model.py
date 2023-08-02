@@ -107,7 +107,7 @@ def create_model(
         model_in.sim_len = len_data - model_in.diff_data_sim
 
         # kurzarbeit
-        delta_o = pm.LogNormal("delta_o", mu=np.log(4), tau=10)
+        delta_o = pm.LogNormal("delta_o", mu=np.log(5), tau=10)
         m = pm.Deterministic("o_*", m_base_data - delta_o * kurzarbeit_data)
 
         # impact of disease spread
