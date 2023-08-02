@@ -1,63 +1,17 @@
 import numpy as np
-import scipy.stats as stats
-import pandas as pd
 import pymc as pm
 import pytensor.tensor as at
 
 import covid19_inference.covid19_inference as cov19
 
 
-def _cut_off_before_monday(df):
-    while df.index[0].dayofweek != 0:
-        df = df[1:]
-    return df
-
-
-# weekly average placed on Sunday
-def weekly_formatting(df_in, dates_in):
-    df = _cut_off_before_monday(df_in)
-    df = df.resample("7D").mean()
-    df.index = df.index + pd.Timedelta(days=6)
-    return df.filter(items=dates_in, axis=0)
-
-
-# transform data: logistic of z-score
-def transform_data(df_in):
-    df = stats.zscore(df_in)
-    return 1 / (1 + np.exp(-df))
-
-
-def get_NPI_data(filename_in, dates_in):
-    df = pd.read_csv(filename_in, index_col=2, parse_dates=True)
-    df = df[df["Entity"] == "Germany"]
-    # from 22.10.20 to 01.11.20 it is still just a recommendation not a requirement
-    # (see https://github.com/OxCGRT/covid-policy-dataset/blob/main/data/OxCGRT_fullwithnotes_national_2020_v1.csv)
-    # set all values between dates "2020-10-22" and "2020-11-01" to 1
-    df.loc["2020-10-22":"2020-11-01", "stay_home_requirements"] = 1
-    df = weekly_formatting(df, dates_in)
-    return df
-
-
-# calculate differences between the years
-def return_differences(df2020_in, df2022_in, label_in):
-    delta = df2020_in[label_in].values - df2022_in[label_in].values
-    if label_in == "prcp":
-        delta = -delta
-    return delta
-
-
-# calculate average between the years
-def return_averages(df1_in, df2_in, label_in):
-    average = (df1_in[label_in].values + df2_in[label_in].values) / 2
-    return average
-
-
+# For the weather
 def generate_Tstar(amplitude, offset, shift, length):
     x = at.linspace(0, length, length)
     return pm.Deterministic("T_star", -at.power(amplitude * (x + shift), 4.0) + offset)
 
 
-# function for modulating the impact of temperature
+## function for modulating the impact of temperature
 def Gaussian(T, T_star, a):
     return pm.Deterministic("r", at.exp(-a * at.power(T - T_star, 2.0)))
 
@@ -129,9 +83,9 @@ def create_model(
     model_in,
     base_mobility_data_in,
     observed_mobility_data_in,
-    NPI_data_in,
-    # del_weather_data_in,
-    # avg_weather_data_in,
+    S_data_in,
+    school_data_in,
+    kurzarbeit_data_in,
     indicators_in,
     disease_data_in,
     delta_prcp_in=None,
@@ -140,18 +94,21 @@ def create_model(
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-        NPI_data = pm.ConstantData("NPI_data", NPI_data_in)
+        S_data = pm.ConstantData("S", S_data_in)
+        school_data = pm.ConstantData("school_closures", school_data_in)
+        kurzarbeit_data = pm.ConstantData("kurzarbeit", kurzarbeit_data_in)
         # delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         # avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
 
-        m = m_base_data
+        # kurzarbeit
+        delta_o = pm.LogNormal("delta_o", mu=np.log(5), tau=10)
+        m = pm.Deterministic("o_*", m_base_data - delta_o * kurzarbeit_data)
 
         # impact of disease spread
         mu_z_prior = 0.9 ** len(indicators_in)
         for indicator in indicators_in:
             disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
-            ## get length of disease data
-            len_disease_data = disease_data.shape[0]
+            disease_data_len = disease_data.shape[0].eval()
 
             ## define priors
             factor_disease = pm.LogNormal(
@@ -160,33 +117,41 @@ def create_model(
             mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.9), tau=10)
             delta = pm.LogNormal(f"delta_{indicator}", mu=np.log(0.1), tau=1)
             sigma_disease = pm.Deterministic(f"sigma_{indicator}", mu_disease - delta)
-            ## convolution
+            ## convolution: SOMETHING IS AMISS HERE
             risk = cov19.model.delay_cases(
                 cases=disease_data,
                 delay_kernel="gamma",
                 median_delay=mu_disease,
                 scale_delay=sigma_disease,
-                len_input_arr=len_disease_data,
+                len_input_arr=disease_data_len,
                 len_output_arr=len_data,
-                diff_input_output=len_disease_data - len_data,
+                diff_input_output=disease_data_len - len_data,
             )
             ## put it together
             exponent = -factor_disease * risk
             d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
             m = m * d
 
-        # impact of NPI
-        ## define priors
-        factor_NPI = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
-        ## put it together
-        exponent = -factor_NPI * NPI_data
+        # impact of NPIs
+        ## stay-at-home orders
+        ### define priors
+        z_S = pm.LogNormal("z_S", mu=np.log(0.95), tau=10)
+        ### put it together
+        exponent = -z_S * S_data
         s = pm.Deterministic("s", at.exp(exponent))
         m = m * s
+        ## school closures
+        ### define priors
+        z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
+        ### put it together
+        exponent = -z_school * school_data
+        c = pm.Deterministic("c", at.exp(exponent))
+        m = m * c
 
         # impact of pandemic fatigue
-        p = pandemic_fatigue_factor_linear(len_data)
+        # p = pandemic_fatigue_factor_linear(len_data)
         # p = pandemic_fatigue_factor_sigmoid(len_data)
-        m = m * p
+        # m = m * p
 
         # define likelihood
         m = pm.Deterministic("m", m)

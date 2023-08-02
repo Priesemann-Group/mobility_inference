@@ -8,7 +8,7 @@ import data_prep
 
 
 indicators = ["R"]
-name = "school_closures"
+name = "delay"
 
 disease_data = {}
 

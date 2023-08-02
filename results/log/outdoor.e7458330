@@ -1,0 +1,19 @@
+/data/eiftekhar/mobility_inference/data_prep.py:19: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  df = df.resample("7D").mean()
+/data/eiftekhar/mobility_inference/data_prep.py:19: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  df = df.resample("7D").mean()
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 73, in <module>
+    model.create_model(
+  File "/data/eiftekhar/mobility_inference/model.py", line 121, in create_model
+    risk = cov19.model.delay_cases(
+  File "/data/eiftekhar/mobility_inference/covid19_inference/covid19_inference/model/delay.py", line 185, in delay_cases
+    delayed_cases = _delay_kernel(
+  File "/data/eiftekhar/mobility_inference/covid19_inference/covid19_inference/model/delay.py", line 207, in _delay_kernel
+    delay_mat = _make_delay_matrix(
+  File "/data/eiftekhar/mobility_inference/covid19_inference/covid19_inference/model/delay.py", line 272, in _make_delay_matrix
+    size = max(n_rows, n_columns)
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pytensor/tensor/var.py", line 72, in __bool__
+    raise TypeError("Variables do not support boolean operations.")
+TypeError: Variables do not support boolean operations.

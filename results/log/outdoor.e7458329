@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 6, in <module>
+    import model
+  File "/data/eiftekhar/mobility_inference/model.py", line 128
+    len_output_arr=disease_data_len - len_data,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: len_output_arr
