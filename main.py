@@ -8,7 +8,7 @@ import data_prep
 
 
 indicators = ["R"]
-name = "delay"
+name = "test"
 
 disease_data = {}
 

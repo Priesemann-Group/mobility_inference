@@ -78,6 +78,57 @@ def pandemic_fatigue_factor_sigmoid(len_in):
     return p
 
 
+def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
+    disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
+    disease_data_len = disease_data.shape[0].eval()
+
+    ## define priors
+    factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.5), tau=10)
+    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(0.5), tau=10)
+    ## convolution
+    risk = cov19.model.delay_cases(
+        cases=disease_data,
+        delay_kernel="gamma",
+        median_delay=mu_disease,
+        scale_delay=sigma_disease,
+        len_input_arr=disease_data_len,
+        len_output_arr=len_data,
+        diff_input_output=disease_data_len - len_data,
+    )
+    ## put it together
+    exponent = -factor_disease * risk
+    d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
+    return d
+
+
+def disease_factor_sigma_smaller_mu(
+    indicator, disease_data_in, len_data, mu_z_prior=0.9
+):
+    disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
+    disease_data_len = disease_data.shape[0].eval()
+
+    ## define priors
+    factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.9), tau=10)
+    delta = pm.LogNormal(f"delta_{indicator}", mu=np.log(0.1), tau=1)
+    sigma_disease = pm.Deterministic(f"sigma_{indicator}", mu_disease - delta)
+    ## convolution
+    risk = cov19.model.delay_cases(
+        cases=disease_data,
+        delay_kernel="gamma",
+        median_delay=mu_disease,
+        scale_delay=sigma_disease,
+        len_input_arr=disease_data_len,
+        len_output_arr=len_data,
+        diff_input_output=disease_data_len - len_data,
+    )
+    ## put it together
+    exponent = -factor_disease * risk
+    d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
+    return d
+
+
 # model
 def create_model(
     model_in,
@@ -107,29 +158,7 @@ def create_model(
         # impact of disease spread
         mu_z_prior = 0.9 ** len(indicators_in)
         for indicator in indicators_in:
-            disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
-            disease_data_len = disease_data.shape[0].eval()
-
-            ## define priors
-            factor_disease = pm.LogNormal(
-                f"z_{indicator}", mu=np.log(mu_z_prior), tau=10
-            )
-            mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.9), tau=10)
-            delta = pm.LogNormal(f"delta_{indicator}", mu=np.log(0.1), tau=1)
-            sigma_disease = pm.Deterministic(f"sigma_{indicator}", mu_disease - delta)
-            ## convolution: SOMETHING IS AMISS HERE
-            risk = cov19.model.delay_cases(
-                cases=disease_data,
-                delay_kernel="gamma",
-                median_delay=mu_disease,
-                scale_delay=sigma_disease,
-                len_input_arr=disease_data_len,
-                len_output_arr=len_data,
-                diff_input_output=disease_data_len - len_data,
-            )
-            ## put it together
-            exponent = -factor_disease * risk
-            d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
+            d = disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
             m = m * d
 
         # impact of NPIs

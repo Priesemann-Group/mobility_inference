@@ -368,14 +368,14 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
             dist_math=f"\sigma_{indicator}",
             ax=axs[i + 2],
         )
-        cov19.plot.distribution(
-            model_in,
-            trace_in,
-            f"delta_{indicator}",
-            dist_math=f"\delta_{indicator}",
-            ax=axs[i + 3],
-        )
-        i += 4
+        # cov19.plot.distribution(
+        #     model_in,
+        #     trace_in,
+        #     f"delta_{indicator}",
+        #     dist_math=f"\delta_{indicator}",
+        #     ax=axs[i + 3],
+        # )
+        i += 3
 
     fig.savefig(f"figures/{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
     fig.savefig(f"figures/{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
