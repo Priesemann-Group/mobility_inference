@@ -156,12 +156,12 @@ def get_kurzarbeit(dates_2020_in, dates_2022_in):
 
 
 ## R
-def get_R(dates_2020_in):
+def get_R(dates_in):
     path_R = "data/R/Germany/R_eff_Germany.csv"
     R_df = pd.read_csv(path_R, index_col=1, parse_dates=True)
 
     ### weekly average placed on Sunday
-    df = weekly_formatting(R_df, dates_2020_in)
+    df = weekly_formatting(R_df, dates_in)
     df = transform_data(df["R_eff median"])
     R_data = df.to_xarray()
     return R_data
