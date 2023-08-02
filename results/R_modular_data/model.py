@@ -5,13 +5,12 @@ import pytensor.tensor as at
 import covid19_inference.covid19_inference as cov19
 
 
-# For the weather
 def generate_Tstar(amplitude, offset, shift, length):
     x = at.linspace(0, length, length)
     return pm.Deterministic("T_star", -at.power(amplitude * (x + shift), 4.0) + offset)
 
 
-## function for modulating the impact of temperature
+# function for modulating the impact of temperature
 def Gaussian(T, T_star, a):
     return pm.Deterministic("r", at.exp(-a * at.power(T - T_star, 2.0)))
 
@@ -83,8 +82,7 @@ def create_model(
     model_in,
     base_mobility_data_in,
     observed_mobility_data_in,
-    S_data_in,
-    school_data_in,
+    NPI_data_in,
     kurzarbeit_data_in,
     indicators_in,
     disease_data_in,
@@ -94,9 +92,8 @@ def create_model(
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-        S_data = pm.ConstantData("S", S_data_in)
-        school_data = pm.ConstantData("school_closures", school_data_in)
-        kurzarbeit_data = pm.ConstantData("kurzarbeit", kurzarbeit_data_in)
+        NPI_data = pm.ConstantData("NPI_data", NPI_data_in)
+        kurzarbeit_data = pm.ConstantData("kurzarbeit_data", kurzarbeit_data_in)
         # delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         # avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
 
@@ -136,21 +133,13 @@ def create_model(
             d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
             m = m * d
 
-        # impact of NPIs
-        ## stay-at-home orders
-        ### define priors
-        z_S = pm.LogNormal("z_S", mu=np.log(0.95), tau=10)
-        ### put it together
-        exponent = -z_S * S_data
+        # impact of NPI
+        ## define priors
+        factor_NPI = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
+        ## put it together
+        exponent = -factor_NPI * NPI_data
         s = pm.Deterministic("s", at.exp(exponent))
         m = m * s
-        ## school closures
-        ### define priors
-        z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
-        ### put it together
-        exponent = -z_school * school_data
-        c = pm.Deterministic("c", at.exp(exponent))
-        m = m * c
 
         # impact of pandemic fatigue
         # p = pandemic_fatigue_factor_linear(len_data)

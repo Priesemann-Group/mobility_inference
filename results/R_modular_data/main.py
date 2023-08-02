@@ -8,7 +8,7 @@ import data_prep
 
 
 indicators = ["R"]
-name = "school_closures"
+name = "modular_data"
 
 disease_data = {}
 
@@ -29,6 +29,7 @@ else:
 
 # To know for every result how it was produced, we copy this source code into the results directory.
 shutil.copyfile("main.py", f"{dir_name}/main.py")
+shutil.copyfile("utils.py", f"{dir_name}/utils.py")
 shutil.copyfile("model.py", f"{dir_name}/model.py")
 shutil.copyfile("data_prep.py", f"{dir_name}/data_prep.py")
 
@@ -38,6 +39,7 @@ o_2020, o_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
 
 ## Kurzarbeit
 kurzarbeit = data_prep.get_kurzarbeit(dates_2020, dates_2022)
+
 
 ## R
 if "R" in indicators:
@@ -60,10 +62,7 @@ if "H" in indicators:
     disease_data["H"] = data_prep.get_H(owid, dates_2020)
 
 ## NPI
-### stay at home orders
 stay_at_home_2020 = data_prep.get_S(dates_2020)
-### school closures
-schook_closures_2020 = data_prep.get_school_closures(dates_2020)
 
 ## Weather
 # to do later
@@ -75,7 +74,6 @@ model.create_model(
     o_base,
     o_2020,
     stay_at_home_2020,
-    schook_closures_2020,
     kurzarbeit,
     indicators,
     disease_data,
