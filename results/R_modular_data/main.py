@@ -29,6 +29,7 @@ else:
 
 # To know for every result how it was produced, we copy this source code into the results directory.
 shutil.copyfile("main.py", f"{dir_name}/main.py")
+shutil.copyfile("utils.py", f"{dir_name}/utils.py")
 shutil.copyfile("model.py", f"{dir_name}/model.py")
 shutil.copyfile("data_prep.py", f"{dir_name}/data_prep.py")
 
