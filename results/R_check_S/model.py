@@ -139,18 +139,11 @@ def create_model(
         # impact of NPIs
         ## stay-at-home orders
         ### define priors
-        z_S = pm.LogNormal("z_S", mu=np.log(0.95), tau=10)
+        factor_NPI = pm.LogNormal("z_S", mu=np.log(0.95), tau=10)
         ### put it together
-        exponent = -z_S * S_data
+        exponent = -factor_NPI * S_data
         s = pm.Deterministic("s", at.exp(exponent))
         m = m * s
-        ## school closures
-        ### define priors
-        z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
-        ### put it together
-        exponent = -z_school * school_data
-        c = pm.Deterministic("c", at.exp(exponent))
-        m = m * c
 
         # impact of pandemic fatigue
         # p = pandemic_fatigue_factor_linear(len_data)

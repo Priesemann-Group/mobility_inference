@@ -18,8 +18,11 @@ colors = {
     "C": colormap(0.05),
     "ICU": colormap(0.1),
     "H": colormap(0.15),
-    # stay-at-home order
+    # NPI
+    ## stay-at-home order
     "S": colormap(0.2),
+    ## school closures
+    "school": colormap(0.25),
     # temperature
     "T": colormap(0.4),
     "delT": colormap(0.45),
@@ -184,7 +187,15 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         dates_in,
         trace_in.posterior["s"],
         color_in=colors["S"],
-        label_in="stay-at-home order $s$",
+        label_in="stay-at-home orders $s$",
+        alpha=0.2,
+    )
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["c"],
+        color_in=colors["school"],
+        label_in="school closures $c$",
         alpha=0.2,
     )
     # plot_timeseries(
@@ -244,7 +255,7 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         handles=[median_line, ci_94],
         loc="lower right",
         frameon=False,
-        bbox_to_anchor=(1.15, 0.95),
+        bbox_to_anchor=(1.1, 0.95),
     )
     ax.add_artist(legend2)
 
@@ -259,6 +270,9 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         color=colors["m_base"],
         marker="o",
     )
+    plot_timeseries(
+        ax, dates_in, trace_in.posterior["o_*"], "inferred $o_*$", colors["o_*"]
+    )
     ax.plot(
         dates_in,
         trace_in.observed_data["likelihood"],
@@ -267,10 +281,7 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         marker="o",
     )
     plot_timeseries(ax, dates_in, trace_in.posterior["m"], "inferred $o$", colors["m"])
-    plot_timeseries(
-        ax, dates_in, trace_in.posterior["o_*"], "inferred $o_*$", colors["o_*"]
-    )
-    ax.legend(ncol=2, bbox_to_anchor=(1.15, -0.4))
+    ax.legend(ncol=2, bbox_to_anchor=(1.1, -0.4))
     format_x_axis(ax, dates_in, last=True)
     # set y label
     ax.set_ylabel("Out-of-home\nduration [h]")
@@ -329,10 +340,13 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
     )
     cov19.plot.distribution(model_in, trace_in, "a_r", dist_math="a_r", ax=axs[4])
     """
+    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[3])
     cov19.plot.distribution(
-        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[4]
+        model_in, trace_in, "z_school", dist_math="z_{school}", ax=axs[4]
     )
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[5])
+    cov19.plot.distribution(
+        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[5]
+    )
 
     # disease
     i = 6
