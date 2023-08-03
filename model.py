@@ -84,8 +84,8 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
 
     ## define priors
     factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.5), tau=10)
-    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(0.5), tau=10)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), tau=10)
+    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1), tau=10)
     ## convolution
     risk = cov19.model.delay_cases(
         cases=disease_data,
@@ -135,18 +135,19 @@ def create_model(
     base_mobility_data_in,
     observed_mobility_data_in,
     S_data_in,
-    school_data_in,
     kurzarbeit_data_in,
     indicators_in,
     disease_data_in,
     delta_prcp_in=None,
+    school_data_in=None,
 ):
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
         S_data = pm.ConstantData("S", S_data_in)
-        school_data = pm.ConstantData("school_closures", school_data_in)
+        if school_data_in is not None:
+            school_data = pm.ConstantData("school_closures", school_data_in)
         kurzarbeit_data = pm.ConstantData("kurzarbeit", kurzarbeit_data_in)
         # delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         # avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
@@ -169,13 +170,15 @@ def create_model(
         exponent = -z_S * S_data
         s = pm.Deterministic("s", at.exp(exponent))
         m = m * s
+
         ## school closures
-        ### define priors
-        z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
-        ### put it together
-        exponent = -z_school * school_data
-        c = pm.Deterministic("c", at.exp(exponent))
-        m = m * c
+        if school_data_in is not None:
+            ### define priors
+            z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
+            ### put it together
+            exponent = -z_school * school_data
+            c = pm.Deterministic("c", at.exp(exponent))
+            m = m * c
 
         # impact of pandemic fatigue
         # p = pandemic_fatigue_factor_linear(len_data)

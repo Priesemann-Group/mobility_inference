@@ -77,7 +77,20 @@ def german_month_to_num(month):
     return german_months.index(month) + 1
 
 
+## Kurzarbeit
+def get_total_kurzarbeit():
+    df = pd.read_csv("data/kurzarbeit.csv", sep=";")
+    df["year"] = df["Berichtsmonat"].str[-4:]
+    df["month"] = df["Berichtsmonat"].str[:-5]
+
+    ### turn month names into numbers with german_month_to_num function
+    df["month"] = df["month"].apply(german_month_to_num)
+
+    return df
+
+
 def get_weekly_kurzarbeit(df_in, dates_in, year_in):
+    keys = {"2020": "Kurzarbeitende korrigiert", "2022": "Anzahl Kurzarbeitende"}
     # create new df with mobility_dates_2020 as index and Anzahl Kurzarbeitende of the corresponding month as column
     df_out = pd.DataFrame(index=dates_in, columns=["Anzahl Kurzarbeitende"])
     # now assign for each week the number of Kurzarbeitende of the month corresponding to the week
@@ -85,7 +98,7 @@ def get_weekly_kurzarbeit(df_in, dates_in, year_in):
         # get value of 'Anzahl Kurzarbeitende' in df for column 'month' week.month and 'year' 2020
         value = df_in.loc[
             (df_in["month"] == week.month) & (df_in["year"] == year_in),
-            "Anzahl Kurzarbeitende",
+            keys[year_in],
         ].values[0]
         df_out.loc[week, "Anzahl Kurzarbeitende"] = value
     return df_out
@@ -134,13 +147,7 @@ def get_out_of_home_duration():
 
 ## Kurzarbeit
 def get_kurzarbeit(dates_2020_in, dates_2022_in):
-    df = pd.read_csv("data/kurzarbeit.csv", sep=";")
-    df["year"] = df["Berichtsmonat"].str[-4:]
-    df["month"] = df["Berichtsmonat"].str[:-5]
-
-    ### turn month names into numbers with german_month_to_num function
-    df["month"] = df["month"].apply(german_month_to_num)
-
+    df = get_total_kurzarbeit()
     df_kurzarbeit_2020 = get_weekly_kurzarbeit(df, dates_2020_in, "2020")
     df_kurzarbeit_2022 = get_weekly_kurzarbeit(df, dates_2022_in, "2022")
 
@@ -156,12 +163,16 @@ def get_kurzarbeit(dates_2020_in, dates_2022_in):
 
 
 ## R
-def get_R(dates_in):
+def get_R(dates=None):
     path_R = "data/R/Germany/R_eff_Germany.csv"
     R_df = pd.read_csv(path_R, index_col=1, parse_dates=True)
 
+    if dates is None:
+        dates = pd.date_range(start="2020-02-27", end="2020-12-19", freq="W-SUN").values
+
     ### weekly average placed on Sunday
-    df = weekly_formatting(R_df, dates_in)
+    df = weekly_formatting(R_df, dates)
+
     df = transform_data(df["R_eff median"])
     R_data = df.to_xarray()
     return R_data

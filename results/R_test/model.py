@@ -84,8 +84,8 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
 
     ## define priors
     factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(0.5), tau=10)
-    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(0.5), tau=10)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), tau=10)
+    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1), tau=10)
     ## convolution
     risk = cov19.model.delay_cases(
         cases=disease_data,

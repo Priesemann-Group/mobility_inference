@@ -157,7 +157,9 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
 
 
 ## plot ood time series
-def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_in):
+def plot_out_of_home_duration_timeseries(
+    dates_in, trace_in, tag_in, indicators_in, log=False
+):
     fig, axs = plt.subplots(
         2,
         1,
@@ -233,19 +235,20 @@ def plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_
         linestyle="--",
         linewidth=1,
     )
-    ## log scale y axis
-    ax.set_yscale("log")
-    ### format y ticks labels with one decimal
-    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.1f"))
-    ### no y ticks labels for minor ticks
-    ax.yaxis.set_minor_formatter(ticker.NullFormatter())
-    ### select y ticks
-    ax.set_yticks([0.8, 1, 1.3])
-    ### select minor y ticks
-    ax.yaxis.set_minor_locator(ticker.FixedLocator([0.7, 0.9, 1.1, 1.2, 1.4, 1.5]))
+    if log:
+        ## log scale y axis
+        ax.set_yscale("log")
+        ### format y ticks labels with one decimal
+        ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.1f"))
+        ### no y ticks labels for minor ticks
+        ax.yaxis.set_minor_formatter(ticker.NullFormatter())
+        ### select y ticks
+        ax.set_yticks([0.8, 1, 1.3])
+        ### select minor y ticks
+        ax.yaxis.set_minor_locator(ticker.FixedLocator([0.7, 0.9, 1.1, 1.2, 1.4, 1.5]))
     format_x_axis(ax, dates_in)
     ## set y label
-    ax.set_ylabel("Modulation\non baseline\nout-of-home\nduration [log]")
+    ax.set_ylabel("Modulation\non baseline\nout-of-home\nduration")
     ## create custom legend
     ### for median line and 94% CI
     median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")

@@ -63,7 +63,7 @@ if "H" in indicators:
 ### stay at home orders
 stay_at_home_2020 = data_prep.get_S(dates_2020)
 ### school closures
-schook_closures_2020 = data_prep.get_school_closures(dates_2020)
+# schook_closures_2020 = data_prep.get_school_closures(dates_2020)
 
 ## Weather
 # to do later
@@ -75,7 +75,6 @@ model.create_model(
     o_base,
     o_2020,
     stay_at_home_2020,
-    schook_closures_2020,
     kurzarbeit,
     indicators,
     disease_data,
