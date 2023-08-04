@@ -2,23 +2,19 @@ import pymc as pm
 import os
 import pickle
 import shutil
-import itertools
 import pandas as pd
 
 import model
 import data_prep
 import plot
+import utils
 
 
-name = "test_sigmoid"
-pandemic_fatigue = {"bool": True, "type": "sigmoid"}
+name = "test_linear"
+pandemic_fatigue = {"bool": True, "type": "linear"}
 
-base_indicators = ["C", "R", "ICU", "H"]
-all_combinations = []
-for L in range(len(base_indicators) + 1):
-    for subset in itertools.combinations(base_indicators, L):
-        all_combinations.append(subset)
-all_combinations = all_combinations[1:]
+# We create a list of all indicator combinations.
+all_combinations = utils.indicator_combinations()
 
 disease_data = {}
 
@@ -83,6 +79,7 @@ for indicators in all_combinations:
     tag = ""
     for indicator in indicators:
         tag += indicator + "_"
+    tag = tag[:-1]
 
     ## We create a directory for the individual results.
     dir_name = supDir_name + "/" + tag

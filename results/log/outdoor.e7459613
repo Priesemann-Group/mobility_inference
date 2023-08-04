@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/data/eiftekhar/mobility_inference/main.py", line 29, in <module>
-    os.mkdir(supDir_name)
-FileExistsError: [Errno 17] File exists: 'results/test_linear'
