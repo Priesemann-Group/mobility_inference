@@ -127,7 +127,7 @@ def plot_gamma_kernel_kurzarbeit(trace_in, tag_in):
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
 
     # prepare
-    max_x = 5
+    max_x = 4
     x = np.linspace(0, max_x, 100)
     ys = []
 
@@ -142,10 +142,9 @@ def plot_gamma_kernel_kurzarbeit(trace_in, tag_in):
 
     # format
     ax.set_xlabel("Month")
-    ax.set_title("Inferred median\nGamma kernel\nfor Kurzarbeit")
+    ax.set_title("Inferred median Gamma\nkernel for Kurzarbeit")
     ax.set_xlim(0, max_x)
     ax.set_ylim(0, 1.1 * np.max(np.array(ys)))
-    ax.legend()
     fig.tight_layout()
 
     fig.savefig(f"{tag_in}/gamma_kernel_kurzarbeit.png")
@@ -192,7 +191,12 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
 
 ## plot ood time series
 def plot_out_of_home_duration_timeseries(
-    dates_in, trace_in, tag_in, indicators_in, log=False
+    dates_in,
+    trace_in,
+    tag_in,
+    indicators_in,
+    log=False,
+    pandemic_fatigue=False,
 ):
     fig, axs = plt.subplots(
         2,
@@ -234,14 +238,15 @@ def plot_out_of_home_duration_timeseries(
     #     label_in="school closures $c$",
     #     alpha=0.2,
     # )
-    # plot_timeseries(
-    #     ax,
-    #     dates_in,
-    #     trace_in.posterior["p"],
-    #     color_in=colors["p"],
-    #     label_in="pandemic fatigue $p$",
-    #     alpha=0.2,
-    # )
+    if pandemic_fatigue:
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["p"],
+            color_in=colors["p"],
+            label_in="pandemic fatigue $f$",
+            alpha=0.2,
+        )
     # plot_timeseries(
     #     ax,
     #     dates_in,
@@ -332,7 +337,8 @@ def plot_out_of_home_duration_timeseries(
 
 
 # plot distribution for single indicator models
-def plot_distributions(model_in, trace_in, tag_in, indicators_in):
+def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in):
+    # --- base parameters ---
     if len(indicators_in) == 1:
         fig, axs = plt.subplots(2, 5, figsize=(13, 5))
     elif len(indicators_in) == 2:
@@ -362,19 +368,6 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
         model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[4]
     )
 
-    # pandemic fatigue
-    ## linear
-    # cov19.plot.distribution(model_in, trace_in, "p0", dist_math="p_0", ax=axs[0])
-    # cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
-    ## sigmoid
-    # cov19.plot.distribution(
-    #     model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
-    # )
-    # cov19.plot.distribution(model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1])
-    # cov19.plot.distribution(
-    #     model_in, trace_in, "del_p", dist_math="\Delta p", ax=axs[2]
-    # )
-
     # precipitation
     # cov19.plot.distribution(model_in, trace_in, "z_P", dist_math="z_P", ax=axs[3])
 
@@ -401,34 +394,67 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
             model_in,
             trace_in,
             f"mu_{indicator}",
-            dist_math=f"\mu_{indicator}",
+            dist_math=f"\mu_{{{indicator}}}",
             ax=axs[i + 1],
         )
         cov19.plot.distribution(
             model_in,
             trace_in,
             f"sigma_{indicator}",
-            dist_math=f"\sigma_{indicator}",
+            dist_math=f"\sigma_{{{indicator}}}",
             ax=axs[i + 2],
         )
-        # cov19.plot.distribution(
-        #     model_in,
-        #     trace_in,
-        #     f"delta_{indicator}",
-        #     dist_math=f"\delta_{indicator}",
-        #     ax=axs[i + 3],
-        # )
         i += 3
 
     fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
     fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
 
+    # --- pandemic fatigue ---
+    if pandemic_fatigue_in["bool"]:
+        if pandemic_fatigue_in["type"] == "linear":
+            fig, axs = plt.subplots(1, 2, figsize=(5, 2))
+            axs = axs.flatten()
+            cov19.plot.distribution(
+                model_in, trace_in, "p0", dist_math="p_0", ax=axs[0]
+            )
+            cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
+        elif pandemic_fatigue_in["type"] == "sigmoid":
+            fig, axs = plt.subplots(1, 3, figsize=(8, 3))
+            axs = axs.flatten()
+            cov19.plot.distribution(
+                model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
+            )
+            cov19.plot.distribution(
+                model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1]
+            )
+            cov19.plot.distribution(
+                model_in, trace_in, "del_p", dist_math="\Delta p", ax=axs[2]
+            )
+        fig.savefig(
+            f"{tag_in}/distributions_pandemic_fatigue.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        fig.savefig(
+            f"{tag_in}/distributions_pandemic_fatigue.pdf",
+            dpi=300,
+            bbox_inches="tight",
+        )
 
-def analysis_figures(model_in, trace_in, tag_in, dates_in, indicators_in):
+
+def analysis_figures(
+    model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in
+):
     create_figure_dir(tag_in)
 
-    plot_distributions(model_in, trace_in, tag_in, indicators_in)
+    plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
     plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
-    plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_in)
+    plot_out_of_home_duration_timeseries(
+        dates_in,
+        trace_in,
+        tag_in,
+        indicators_in,
+        pandemic_fatigue=pandemic_fatigue_in["bool"],
+    )

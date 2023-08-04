@@ -10,8 +10,8 @@ import data_prep
 import plot
 
 
-name = "test_sigmoid"
-pandemic_fatigue = {"bool": True, "type": "sigmoid"}
+name = "test_linear"
+pandemic_fatigue = {"bool": True, "type": "linear"}
 
 base_indicators = ["C", "R", "ICU", "H"]
 all_combinations = []
