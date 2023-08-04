@@ -3,7 +3,7 @@ import itertools
 
 
 # create list of indicator combinations
-def indicator_combinations(base_indicators=["C", "R", "ICU", "H"]):
+def indicator_combinations(base_indicators=["R", "C", "H", "ICU"]):
     all_combinations = []
     for L in range(len(base_indicators) + 1):
         for subset in itertools.combinations(base_indicators, L):
