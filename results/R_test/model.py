@@ -1,8 +1,10 @@
 import numpy as np
 import pymc as pm
 import pytensor.tensor as at
+import xarray as xr
 
 import covid19_inference.covid19_inference as cov19
+import data_prep
 
 
 # For the weather
@@ -135,25 +137,61 @@ def create_model(
     base_mobility_data_in,
     observed_mobility_data_in,
     S_data_in,
-    school_data_in,
     kurzarbeit_data_in,
     indicators_in,
     disease_data_in,
+    dates_2022_in,
     delta_prcp_in=None,
+    school_data_in=None,
 ):
     len_data = observed_mobility_data_in.shape[0]
+    dates_2020 = observed_mobility_data_in.coords["date"].values
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
         S_data = pm.ConstantData("S", S_data_in)
-        school_data = pm.ConstantData("school_closures", school_data_in)
-        kurzarbeit_data = pm.ConstantData("kurzarbeit", kurzarbeit_data_in)
+        if school_data_in is not None:
+            school_data = pm.ConstantData("school_closures", school_data_in)
+        # kurzarbeit_data = pm.ConstantData("kurzarbeit", kurzarbeit_data_in)
         # delta_weather = pm.ConstantData("delta_weather", del_weather_data_in)
         # avg_weather = pm.ConstantData("avg_weather", avg_weather_data_in)
 
         # kurzarbeit
+        ## be aware that the time series goes from present to past
+        kurzarbeit = kurzarbeit_data_in["Anzahl Kurzarbeitende"].values
+        ## delay / advance kurzarbeit to correct reporting delay
+        mu_K = pm.LogNormal("mu_K", mu=np.log(1), tau=10)
+        sigma_K = pm.LogNormal("sigma_K", mu=np.log(0.6), tau=6)
+        advanced_kurzarbeit = cov19.model.delay_cases(
+            cases=kurzarbeit,
+            delay_kernel="gamma",
+            median_delay=mu_K,
+            scale_delay=sigma_K,
+            len_input_arr=len(kurzarbeit),
+            len_output_arr=len(kurzarbeit),
+            diff_input_output=0,
+        )
+        kurzarbeit_data_in["Kurzarbeitende korrigiert"] = advanced_kurzarbeit.eval()
+        ## get weekly data for 2020 and 2022
+        df_kurzarbeit_2020 = data_prep.get_weekly_kurzarbeit(
+            kurzarbeit_data_in, dates_2020, "2020"
+        )
+        df_kurzarbeit_2022 = data_prep.get_weekly_kurzarbeit(
+            kurzarbeit_data_in, dates_2022_in, "2022"
+        )
+
+        ## get difference between 2020 and 2022 as fraction of population
+        population = 83237124
+        KA_2020 = df_kurzarbeit_2020["Anzahl Kurzarbeitende"].values
+        KA_2022 = df_kurzarbeit_2022["Anzahl Kurzarbeitende"].values
+        KA_diff = (KA_2020 - KA_2022) / population
+
+        ## make xarray of KA_diff with mobility_dates_2020 as index
+        KA_diff_xr = xr.DataArray(KA_diff, coords=[dates_2020], dims=["date"])
+        KA_diff_xr = pm.ConstantData("Kurzarbeit", KA_diff_xr)
+
         delta_o = pm.LogNormal("delta_o", mu=np.log(5), tau=10)
-        m = pm.Deterministic("o_*", m_base_data - delta_o * kurzarbeit_data)
+        m = pm.Deterministic("o_*", m_base_data - delta_o * KA_diff_xr)
 
         # impact of disease spread
         mu_z_prior = 0.9 ** len(indicators_in)
@@ -169,13 +207,15 @@ def create_model(
         exponent = -z_S * S_data
         s = pm.Deterministic("s", at.exp(exponent))
         m = m * s
+
         ## school closures
-        ### define priors
-        z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
-        ### put it together
-        exponent = -z_school * school_data
-        c = pm.Deterministic("c", at.exp(exponent))
-        m = m * c
+        if school_data_in is not None:
+            ### define priors
+            z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
+            ### put it together
+            exponent = -z_school * school_data
+            c = pm.Deterministic("c", at.exp(exponent))
+            m = m * c
 
         # impact of pandemic fatigue
         # p = pandemic_fatigue_factor_linear(len_data)

@@ -23,6 +23,8 @@ colors = {
     "S": colormap(0.2),
     ## school closures
     "school": colormap(0.25),
+    ## kurzarbeit
+    "K": colormap(0.35),
     # temperature
     "T": colormap(0.4),
     "delT": colormap(0.45),
@@ -79,7 +81,8 @@ def format_x_axis(ax_in, x_in, last=False):
 
 def create_figure_dir(tag_in):
     # We create a directory for the results.
-    dir_name = "figures/" + tag_in
+    # dir_name = "figures/" + tag_in
+    dir_name = tag_in
     ## We create the target directory if it does not exist yet
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -114,8 +117,39 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
     ax.set_ylim(0, 1.1 * np.max(np.array(ys)))
     ax.legend()
     fig.tight_layout()
-    fig.savefig(f"figures/{tag_in}/gamma_kernel.png")
-    fig.savefig(f"figures/{tag_in}/gamma_kernel.pdf")
+
+    fig.savefig(f"{tag_in}/gamma_kernel.png")
+    fig.savefig(f"{tag_in}/gamma_kernel.pdf")
+
+
+## plot Gamma distribution with inferred mean and standard deviation
+def plot_gamma_kernel_kurzarbeit(trace_in, tag_in):
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+
+    # prepare
+    max_x = 5
+    x = np.linspace(0, max_x, 100)
+    ys = []
+
+    # plot
+    y = cov19.model._utility.tt_gamma(
+        x,
+        mu=np.median(trace_in.posterior[f"mu_K"]),
+        sigma=np.median(trace_in.posterior[f"sigma_K"]),
+    ).eval()
+    ys.append(y)
+    ax.plot(x, y, linewidth=3, color=colors["K"])
+
+    # format
+    ax.set_xlabel("Month")
+    ax.set_title("Inferred median\nGamma kernel\nfor Kurzarbeit")
+    ax.set_xlim(0, max_x)
+    ax.set_ylim(0, 1.1 * np.max(np.array(ys)))
+    ax.legend()
+    fig.tight_layout()
+
+    fig.savefig(f"{tag_in}/gamma_kernel_kurzarbeit.png")
+    fig.savefig(f"{tag_in}/gamma_kernel_kurzarbeit.pdf")
 
 
 ## plot temperature time series
@@ -152,8 +186,8 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
     plt.subplots_adjust(hspace=0.1)
 
     # save figure
-    fig.savefig(f"figures/{tag_in}/temperature.png", bbox_inches="tight")
-    fig.savefig(f"figures/{tag_in}/temperature.pdf", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/temperature.png", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/temperature.pdf", bbox_inches="tight")
 
 
 ## plot ood time series
@@ -192,14 +226,14 @@ def plot_out_of_home_duration_timeseries(
         label_in="stay-at-home orders $s$",
         alpha=0.2,
     )
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["c"],
-        color_in=colors["school"],
-        label_in="school closures $c$",
-        alpha=0.2,
-    )
+    # plot_timeseries(
+    #     ax,
+    #     dates_in,
+    #     trace_in.posterior["c"],
+    #     color_in=colors["school"],
+    #     label_in="school closures $c$",
+    #     alpha=0.2,
+    # )
     # plot_timeseries(
     #     ax,
     #     dates_in,
@@ -293,8 +327,8 @@ def plot_out_of_home_duration_timeseries(
     fig.tight_layout()
 
     # save figure
-    fig.savefig(f"figures/{tag_in}/out_of_home_duration.png", bbox_inches="tight")
-    fig.savefig(f"figures/{tag_in}/out_of_home_duration.pdf", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/out_of_home_duration.png", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/out_of_home_duration.pdf", bbox_inches="tight")
 
 
 # plot distribution for single indicator models
@@ -311,8 +345,21 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
     # flatten axes
     axs = axs.flatten()
 
+    # kurzarbeit
     cov19.plot.distribution(
         model_in, trace_in, "delta_o", dist_math="\Delta o", ax=axs[0]
+    )
+    cov19.plot.distribution(model_in, trace_in, "mu_K", dist_math="\mu_{K}", ax=axs[1])
+    cov19.plot.distribution(
+        model_in, trace_in, "sigma_K", dist_math="\sigma_{K}", ax=axs[2]
+    )
+
+    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[3])
+    # cov19.plot.distribution(
+    #     model_in, trace_in, "z_school", dist_math="z_{school}", ax=axs[4]
+    # )
+    cov19.plot.distribution(
+        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[4]
     )
 
     # pandemic fatigue
@@ -343,16 +390,9 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
     )
     cov19.plot.distribution(model_in, trace_in, "a_r", dist_math="a_r", ax=axs[4])
     """
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[3])
-    cov19.plot.distribution(
-        model_in, trace_in, "z_school", dist_math="z_{school}", ax=axs[4]
-    )
-    cov19.plot.distribution(
-        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[5]
-    )
 
     # disease
-    i = 6
+    i = 5
     for indicator in indicators_in:
         cov19.plot.distribution(
             model_in, trace_in, f"z_{indicator}", dist_math=f"z_{indicator}", ax=axs[i]
@@ -380,8 +420,8 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in):
         # )
         i += 3
 
-    fig.savefig(f"figures/{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
-    fig.savefig(f"figures/{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
 
 
 def analysis_figures(model_in, trace_in, tag_in, dates_in, indicators_in):
@@ -390,4 +430,5 @@ def analysis_figures(model_in, trace_in, tag_in, dates_in, indicators_in):
     plot_distributions(model_in, trace_in, tag_in, indicators_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
+    plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
     plot_out_of_home_duration_timeseries(dates_in, trace_in, tag_in, indicators_in)
