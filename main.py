@@ -10,8 +10,13 @@ import plot
 import utils
 
 
-name = "test_linear"
-pandemic_fatigue = {"bool": True, "type": "linear"}
+name = "no_weather"
+
+pandemic_fatigue = "linear"
+
+# set to None if to be excluded, else set to anything
+precipitation = None
+temperature = None
 
 # We create a list of all indicator combinations.
 all_combinations = utils.indicator_combinations()
@@ -70,8 +75,16 @@ stay_at_home_2020 = data_prep.get_S(dates_2020)
 ### school closures: will probably not be used anymore
 # schook_closures_2020 = data_prep.get_school_closures(dates_2020)
 
-## Weather
-# to do later
+## weather
+### precipitation
+if precipitation is not None:
+    precipitation = data_prep.get_delta_prcp(dates_2020, dates_2022)
+### temperature
+if temperature is not None:
+    temperature = {
+        "average": data_prep.get_avg_T(dates_2020, dates_2022),
+        "delta": data_prep.get_delta_T(dates_2020, dates_2022),
+    }
 
 # Now to the model runs
 for indicators in all_combinations:
@@ -102,6 +115,8 @@ for indicators in all_combinations:
         disease_data,
         dates_2022,
         pandemic_fatigue,
+        delta_prcp_in=precipitation,
+        temperature_in=temperature,
     )
 
     # Inference

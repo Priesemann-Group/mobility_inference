@@ -29,7 +29,7 @@ colors = {
     "T": colormap(0.4),
     "delT": colormap(0.45),
     # pandemic fatigue
-    "p": colormap(0.6),
+    "f": colormap(0.6),
     # out-of-home duration
     "m": colormap(0.8),
     "m_obs": colormap(0.85),
@@ -213,6 +213,7 @@ def plot_out_of_home_duration_timeseries(
         "H": "hospitalisations $d_H$",
         "R": "Effective Reproduction Number $d_R$",
     }
+    ## plot disease indicators
     for indicator in indicators_in:
         plot_timeseries(
             ax,
@@ -222,6 +223,7 @@ def plot_out_of_home_duration_timeseries(
             label_in=labels[indicator],
             alpha=0.2,
         )
+    ## plot s
     plot_timeseries(
         ax,
         dates_in,
@@ -230,23 +232,15 @@ def plot_out_of_home_duration_timeseries(
         label_in="stay-at-home orders $s$",
         alpha=0.2,
     )
-    # plot_timeseries(
-    #     ax,
-    #     dates_in,
-    #     trace_in.posterior["c"],
-    #     color_in=colors["school"],
-    #     label_in="school closures $c$",
-    #     alpha=0.2,
-    # )
-    if pandemic_fatigue:
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["p"],
-            color_in=colors["p"],
-            label_in="pandemic fatigue $f$",
-            alpha=0.2,
-        )
+    ## pandemic fatigue
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["f"],
+        color_in=colors["f"],
+        label_in="pandemic fatigue $f$",
+        alpha=0.2,
+    )
     # plot_timeseries(
     #     ax,
     #     dates_in,
@@ -410,36 +404,31 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
 
     # --- pandemic fatigue ---
-    if pandemic_fatigue_in["bool"]:
-        if pandemic_fatigue_in["type"] == "linear":
-            fig, axs = plt.subplots(1, 2, figsize=(5, 2))
-            axs = axs.flatten()
-            cov19.plot.distribution(
-                model_in, trace_in, "p0", dist_math="p_0", ax=axs[0]
-            )
-            cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
-        elif pandemic_fatigue_in["type"] == "sigmoid":
-            fig, axs = plt.subplots(1, 3, figsize=(8, 3))
-            axs = axs.flatten()
-            cov19.plot.distribution(
-                model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
-            )
-            cov19.plot.distribution(
-                model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1]
-            )
-            cov19.plot.distribution(
-                model_in, trace_in, "del_p", dist_math="\Delta p", ax=axs[2]
-            )
-        fig.savefig(
-            f"{tag_in}/distributions_pandemic_fatigue.png",
-            dpi=300,
-            bbox_inches="tight",
+    if pandemic_fatigue_in == "linear":
+        fig, axs = plt.subplots(1, 2, figsize=(5, 2))
+        axs = axs.flatten()
+        cov19.plot.distribution(model_in, trace_in, "f0", dist_math="f_0", ax=axs[0])
+        cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
+    elif pandemic_fatigue_in == "sigmoid":
+        fig, axs = plt.subplots(1, 3, figsize=(8, 3))
+        axs = axs.flatten()
+        cov19.plot.distribution(
+            model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
         )
-        fig.savefig(
-            f"{tag_in}/distributions_pandemic_fatigue.pdf",
-            dpi=300,
-            bbox_inches="tight",
+        cov19.plot.distribution(model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1])
+        cov19.plot.distribution(
+            model_in, trace_in, "del_f", dist_math="\Delta f", ax=axs[2]
         )
+    fig.savefig(
+        f"{tag_in}/distributions_pandemic_fatigue.png",
+        dpi=300,
+        bbox_inches="tight",
+    )
+    fig.savefig(
+        f"{tag_in}/distributions_pandemic_fatigue.pdf",
+        dpi=300,
+        bbox_inches="tight",
+    )
 
 
 def analysis_figures(
@@ -456,5 +445,4 @@ def analysis_figures(
         trace_in,
         tag_in,
         indicators_in,
-        pandemic_fatigue=pandemic_fatigue_in["bool"],
     )

@@ -1,0 +1,17 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully loaded OurWorldinData.csv.gz from /data.nst/eiftekhar/covid19/, skipping download.
+/data/eiftekhar/mobility_inference/data_prep.py:19: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  df = df.resample("7D").mean()
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 108, in <module>
+    model.create_model(
+  File "/data/eiftekhar/mobility_inference/model.py", line 237, in create_model
+    m *= precipitation_factor(delta_prcp_in)
+  File "/data/eiftekhar/mobility_inference/model.py", line 48, in precipitation_factor
+    w = pm.Deterministic("p", at.exp(-z_P * delta_prcp))
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pymc/model.py", line 2109, in Deterministic
+    model.add_named_variable(var, dims)
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pymc/model.py", line 1468, in add_named_variable
+    raise ValueError(f"Variable name {var.name} already exists.")
+ValueError: Variable name p already exists.

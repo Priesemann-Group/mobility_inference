@@ -22,4 +22,3 @@ conda activate mobility
 
 # It might be necessary to download the OWID data with the download_OWID.ipynb first because the cluster has no internet
 python main.py
-#python main_one.py

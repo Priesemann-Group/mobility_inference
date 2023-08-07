@@ -1,0 +1,15 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully loaded OurWorldinData.csv.gz from /data.nst/eiftekhar/covid19/, skipping download.
+/data/eiftekhar/mobility_inference/data_prep.py:19: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  df = df.resample("7D").mean()
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+Only 200 samples in chain.
+WARNING  [pymc.sampling.mcmc] Only 200 samples in chain.
+Auto-assigning NUTS sampler...
+INFO     [pymc.sampling.mcmc] Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+INFO     [pymc.sampling.mcmc] Initializing NUTS using jitter+adapt_diag...
+Sequential sampling (4 chains in 1 job)
+INFO     [pymc.sampling.mcmc] Sequential sampling (4 chains in 1 job)
+NUTS: [mu_K, sigma_K, delta_o, z_R, mu_R, sigma_R, z_S, f0, r, z_P, z_T, amplitude, offset, shift, a_rho, sigma_model]
+INFO     [pymc.sampling.mcmc] NUTS: [mu_K, sigma_K, delta_o, z_R, mu_R, sigma_R, z_S, f0, r, z_P, z_T, amplitude, offset, shift, a_rho, sigma_model]
