@@ -106,6 +106,7 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     return d
 
 
+# if you want to enforce that sigma of the kernel is smaller than mu
 def disease_factor_sigma_smaller_mu(
     indicator, disease_data_in, len_data, mu_z_prior=0.9
 ):
