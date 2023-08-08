@@ -337,17 +337,17 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     cov19.plot.distribution(
         model_in, trace_in, "delta_o", dist_math="\Delta o", ax=axs[0]
     )
-    cov19.plot.distribution(model_in, trace_in, "mu_K", dist_math="\mu_{K}", ax=axs[1])
-    cov19.plot.distribution(
-        model_in, trace_in, "sigma_K", dist_math="\sigma_{K}", ax=axs[2]
-    )
+    # cov19.plot.distribution(model_in, trace_in, "mu_K", dist_math="\mu_{K}", ax=axs[1])
+    # cov19.plot.distribution(
+    #     model_in, trace_in, "sigma_K", dist_math="\sigma_{K}", ax=axs[2]
+    # )
 
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[3])
+    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[1])
     # cov19.plot.distribution(
     #     model_in, trace_in, "z_school", dist_math="z_{school}", ax=axs[4]
     # )
     cov19.plot.distribution(
-        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[4]
+        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
     )
 
     # precipitation
@@ -367,7 +367,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     """
 
     # disease
-    i = 5
+    i = 4
     for indicator in indicators_in:
         cov19.plot.distribution(
             model_in, trace_in, f"z_{indicator}", dist_math=f"z_{indicator}", ax=axs[i]
