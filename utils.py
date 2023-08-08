@@ -1,5 +1,6 @@
 import pickle
 import itertools
+import os
 
 
 # create list of indicator combinations
@@ -17,3 +18,13 @@ def load_trace(tag_in, indicator_str_in):
     with open(path, "rb") as inference_file:
         trace = pickle.load(inference_file)
     return trace
+
+
+# make directory
+def make_dir(dir_name_in):
+    # We create the target directory if it does not exist yet.
+    if not os.path.exists(dir_name_in):
+        os.mkdir(dir_name_in)
+        print("Directory ", dir_name_in, " created.")
+    else:
+        print("Directory ", dir_name_in, " already exists.")

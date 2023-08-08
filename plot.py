@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 plt.rcParams.update({"font.size": 20})
 from matplotlib import lines, patches
@@ -10,6 +9,7 @@ from matplotlib import colormaps
 import matplotlib.ticker as ticker
 
 import covid19_inference.covid19_inference as cov19
+import utils
 
 colormap = colormaps["tab20b"]
 colors = {
@@ -77,18 +77,6 @@ def format_x_axis(ax_in, x_in, last=False):
         ax_in.set_xticklabels([])
     # set x limits
     ax_in.set_xlim(x_in[0], x_in[-1])
-
-
-def create_figure_dir(tag_in):
-    # We create a directory for the results.
-    # dir_name = "figures/" + tag_in
-    dir_name = tag_in
-    ## We create the target directory if it does not exist yet
-    if not os.path.exists(dir_name):
-        os.mkdir(dir_name)
-        print("Directory ", dir_name, " created.")
-    else:
-        print("Directory ", dir_name, " already exists.")
 
 
 ## plot Gamma distribution with inferred mean and standard deviation
@@ -434,7 +422,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
 def analysis_figures(
     model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in
 ):
-    create_figure_dir(tag_in)
+    utils.make_dir(tag_in)
 
     plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)

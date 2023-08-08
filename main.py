@@ -1,109 +1,100 @@
+"""
+This Python script models and analyzes the changes in out-of-duration in the year of 2020 given a set of indicators and parameters. 
+The script first sets up the necessary configurations and uses a utility function to create directories for saving results and figures. 
+It then collects various types of data including out-of-home duration, employment changes (Kurzarbeit), 
+    disease reproduction number (R), case counts, ICU occupancy, hospitalization rates, and stay-at-home orders. 
+    If specified, it also collects weather data such as precipitation and temperature changes. 
+Then it iterates through all combinations of indicators and creates a model for each combination.
+The model is then fitted to the data using MCMC sampling.
+The results are saved in the results directory and figures are saved in the figures directory.
+"""
+
+# Import necessary modules
 import pymc as pm
-import os
 import pickle
 import shutil
 import pandas as pd
 
+# Import local modules
 import model
 import data_prep
 import plot
 import utils
 
+# Set up basic configurations
+name = "no_weather"  # Name of the experiment
+pandemic_fatigue = "linear"  # Type of pandemic fatigue function
 
-name = "no_weather"
-
-pandemic_fatigue = "linear"
-
-# set to None if to be excluded, else set to anything
+# Include weather parameters if required by giving any value
+# If not required, set these to None
 precipitation = None
 temperature = None
 
-# We create a list of all indicator combinations.
+# Generate all combinations of indicators
 all_combinations = utils.indicator_combinations()
 
+# Initialize a dictionary to store disease related data
 disease_data = {}
 
-# We create a directory for the results.
+# Set up directory for saving results
 supDir_name = "results/" + name
-## We create the target directory if it does not exist yet
-if not os.path.exists(supDir_name):
-    os.mkdir(supDir_name)
-    print("Directory ", supDir_name, " created.")
-else:
-    print("Directory ", supDir_name, " already exists.")
+utils.make_dir(supDir_name)
 
-# We create a directory for the figures.
+# Set up directory for saving figures
 figdir_name = "figures/" + name
-## We create the target directory if it does not exist yet
-if not os.path.exists(figdir_name):
-    os.mkdir(figdir_name)
-    print("Directory ", figdir_name, " created.")
-else:
-    print("Directory ", figdir_name, " already exists.")
+utils.make_dir(figdir_name)
 
-# To know for every result how it was produced, we copy this source code into the results directory.
+# Copy the source code into the results directory for record keeping
 shutil.copyfile("main.py", f"{supDir_name}/main.py")
 shutil.copyfile("model.py", f"{supDir_name}/model.py")
 shutil.copyfile("data_prep.py", f"{supDir_name}/data_prep.py")
 
-# Data
-## Out of home duration
+# Load and prepare data
+# Get out of home duration data
 o_2020, o_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
 dates = pd.to_datetime(dates_2020)
 
-## Kurzarbeit
+# Get kurzarbeit data
 kurzarbeit_df = data_prep.get_total_kurzarbeit()
 
-## R
+# Get R_effective value for disease data
 disease_data["R"] = data_prep.get_R(dates_2020)
 
-## OWID
+# Get OWID data
 owid = data_prep.get_owid()
 
-### cases
+# Get cases, ICU, and hospitalisations data from OWID
 disease_data["C"] = data_prep.get_C(owid, dates_2020)
-
-### ICU
 disease_data["ICU"] = data_prep.get_ICU(owid, dates_2020)
-
-### hospitalisations
 disease_data["H"] = data_prep.get_H(owid, dates_2020)
 
-## NPI
-### stay at home orders
+# Get stay at home orders data
 stay_at_home_2020 = data_prep.get_S(dates_2020)
-### school closures: will probably not be used anymore
-# schook_closures_2020 = data_prep.get_school_closures(dates_2020)
 
-## weather
-### precipitation
+# If precipitation is included, get precipitation data
 if precipitation is not None:
     precipitation = data_prep.get_delta_prcp(dates_2020, dates_2022)
-### temperature
+
+# If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
         "average": data_prep.get_avg_T(dates_2020, dates_2022),
         "delta": data_prep.get_delta_T(dates_2020, dates_2022),
     }
 
-# Now to the model runs
+# Run model for each combination of indicators
 for indicators in all_combinations:
-    # for saving the results
+    # Generate a tag for saving results
     tag = ""
     for indicator in indicators:
         tag += indicator + "_"
     tag = tag[:-1]
 
-    ## We create a directory for the individual results.
+    # Set up directory for individual results
     dir_name = supDir_name + "/" + tag
-    ### We create the target directory if it does not exist yet
-    if not os.path.exists(dir_name):
-        os.mkdir(dir_name)
-        print("Directory ", dir_name, " created.")
-    else:
-        print("Directory ", dir_name, " already exists.")
+    utils.make_dir(dir_name)
 
-    # Model
+    # Create model
     inference_model = pm.Model()
     model.create_model(
         inference_model,
@@ -119,17 +110,17 @@ for indicators in all_combinations:
         temperature_in=temperature,
     )
 
-    # Inference
+    # Perform inference
     trace = pm.sample(model=inference_model, draws=200, tune=200, cores=1, chains=4)
     with inference_model:
         pm.compute_log_likelihood(trace)
 
-    # Save the trace
+    # Save the inference results
     path = f"{dir_name}/trace_{tag}.pickle"
     with open(path, "wb") as inference_file:
         pickle.dump(trace, inference_file)
 
-    # Plot all figures
+    # Plot results
     subFigDir_name = figdir_name + "/" + tag
     plot.analysis_figures(
         inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue
