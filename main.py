@@ -1,12 +1,12 @@
 """
 This Python script models and analyzes the changes in out-of-duration in the year of 2020 given a set of indicators and parameters. 
 The script first sets up the necessary configurations and uses a utility function to create directories for saving results and figures. 
-It then collects various types of data including out-of-home duration, employment changes (Kurzarbeit), 
-    disease reproduction number (R), case counts, ICU occupancy, hospitalization rates, and stay-at-home orders. 
+Using data_prep.py, it then collects various types of data including out-of-home duration (o), employment changes (Kurzarbeit), 
+    effective reproduction number (R), cases (C), ICU occupancy (ICU), hospitalization rates (H), and stay-at-home orders (S). 
     If specified, it also collects weather data such as precipitation and temperature changes. 
-Then it iterates through all combinations of indicators and creates a model for each combination.
+Then it iterates through all combinations of indicators and creates a model for each combination using the function in model.py.
 The model is then fitted to the data using MCMC sampling.
-The results are saved in the results directory and figures are saved in the figures directory.
+The results are saved in the results directory and figures are saved in the figures directory using plot.py.
 """
 
 # Import necessary modules
