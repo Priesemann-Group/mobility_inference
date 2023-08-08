@@ -7,7 +7,229 @@ import covid19_inference.covid19_inference as cov19
 import data_prep
 
 
-# For the weather
+def return_s(S_in):
+    """Models impact of stay-at-home orders.
+
+    Args:
+        S_in: Stay-at-home order stringency index (pm.ConstantData)
+  
+    Returns:
+        Stay-at-home order modulation factor (pm.Deterministic)
+    """
+
+    z_S = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
+
+    exponent = -z_S * S_in
+    s = pm.Deterministic("s", at.exp(exponent))
+
+    return s
+
+
+def school_closure_factor(school_data_in):
+    """Models impact of school closures.
+
+    Args:
+      school_data_in: School closure policy data (pm.ConstantData)
+
+    Returns:
+      School closure modulation factor (pm.Deterministic)
+    """
+
+    school_data = pm.ConstantData("school_closures", school_data_in)
+
+    z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
+
+    exponent = -z_school * school_data
+    c = pm.Deterministic("c", at.exp(exponent))
+
+    return c
+
+
+def generate_Tstar(amplitude, offset, shift, length):
+    """Generates go-out temperature curve using 4th order polynomial.
+    """
+
+    x = at.linspace(0, length, length)
+    return pm.Deterministic("T_star", -at.power(amplitude * (x + shift), 4.0) + offset)
+
+
+def Gaussian(T, T_star, a):
+    """Models impact of temperature deviation from optimal temperature."""
+
+    return pm.Deterministic("rho", at.exp(-a * at.power(T - T_star, 2.0)))
+
+
+def temperature_factor(len_data_in, temperature_in):
+    """Models impact of temperature on mobility."""
+
+    # Temperature data
+    delta_T = pm.ConstantData("delta_T", temperature_in["delta"])
+    avg_T = pm.ConstantData("avg_T", temperature_in["average"])
+
+    # Generate T_star
+    T_star = generate_Tstar(...)
+
+    # Calculate weather relevance
+    weather_relevance = Gaussian(avg_T, T_star, ...)
+
+    # Combine factors
+    w = pm.Deterministic("theta", ...)
+
+    return w
+
+
+def precipitation_factor(delta_prcp_in):
+  """Models impact of precipitation on mobility.
+  
+  Args:
+    delta_prcp_in: Precipitation data
+    
+  Returns:
+    Precipitation multiplier  
+  """
+
+  delta_prcp = pm.ConstantData("delta_prcp", delta_prcp_in)
+  z_P = pm.LogNormal("z_P", mu=np.log(0.05), tau=0.5)
+  w = pm.Deterministic("p", at.exp(-z_P * delta_prcp))
+
+  return w
+
+def pandemic_fatigue_factor_linear(len_in):
+  """Models linear pandemic fatigue over time.
+  
+  Args:
+    len_in: Length of time series
+    
+  Returns: 
+    Linear pandemic fatigue multiplier
+  """
+
+  x = at.linspace(0, len_in, len_in)
+  max_x = len_in - 1
+  
+  p0 = pm.LogNormal("f0", mu=np.log(1.01), tau=20)
+  r = pm.TruncatedNormal("r", mu=0.2 / max_x, sigma=0.01 / max_x, lower=-p0 / max_x)
+
+  p = pm.Deterministic("f", p0 + r * x)
+
+  return p
+
+def pandemic_fatigue_factor_sigmoid(len_in):
+  """Models sigmoid pandemic fatigue over time.
+  
+  Args:
+    len_in: Length of time series
+    
+  Returns:
+    Sigmoid pandemic fatigue multiplier
+  """
+
+  x = at.linspace(0, len_in, len_in)
+
+  del_t = pm.Normal("del_t", len_in / 2, sigma=len_in / 4)
+  del_p = pm.Normal("del_f", mu=0.2, sigma=0.1)
+  tau = pm.LogNormal("tau", mu=np.log(1), tau=1)
+
+  p = pm.Deterministic("f", sigmoid(x, del_t, del_p, tau))
+
+  return p
+  
+def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
+  """Models impact of disease spread on mobility.
+  
+  Args:
+    indicator: Name of disease indicator
+    disease_data_in: Disease data 
+    len_data: Length of mobility time series
+    mu_z_prior: Prior mean for disease impact
+    
+  Returns:
+    Disease spread multiplier
+  """
+
+  disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
+
+  # Model disease impact and delay distribution
+  factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
+  mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), tau=10)
+  sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1), tau=10)
+
+  # Convolve disease data
+  risk = cov19.model.delay_cases(disease_data, "gamma", mu_disease, sigma_disease, ...)
+
+  # Exponentiate risk to get multiplier
+  exponent = -factor_disease * risk
+  d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
+
+  return d
+
+def disease_factor_sigma_smaller_mu(indicator, disease_data_in, len_data, mu_z_prior=0.9):
+  """Disease factor model with sigma < mu constraint.
+  
+  Args:
+    Same as disease_factor(), enforces sigma < mu
+    
+  Returns:
+    Disease spread multiplier
+  """
+
+  # Modeling as disease_factor but with sigma < mu constraint
+  ...
+  
+def correct_for_kurzarbeit(...):
+  """Adjusts baseline mobility for short-time work changes.
+  
+  Args:
+    kurzarbeit_data_in: Short-time work data
+    dates_2020: 2020 dates
+    dates_2022_in: 2022 dates
+    m_base_data: Baseline mobility
+    
+  Returns:
+    Adjusted baseline mobility
+  """
+
+  # Adjust kurzarbeit data
+  ...
+  
+  # Calculate 2020 vs 2022 difference
+  ...
+  
+  # Create constant data
+  ...
+  
+  # Adjust baseline
+  m = pm.Deterministic("o_*", m_base_data - delta_o * KA_diff_xr)
+
+  return m
+
+# --- Model components --- #
+
+
+# impact of stay-at-home orders
+def return_s(S_in):
+    ## define priors
+    z_S = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
+    ## put it together
+    exponent = -z_S * S_in
+    s = pm.Deterministic("s", at.exp(exponent))
+
+    return s
+
+
+# impact of school closures | can probably be removed
+def school_closure_factor(school_data_in):
+    school_data = pm.ConstantData("school_closures", school_data_in)
+    ### define priors
+    z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
+    ### put it together
+    exponent = -z_school * school_data
+    c = pm.Deterministic("c", at.exp(exponent))
+    return c
+
+
+# Impact of weather
+## function for generating the go-out temperature curve using a 4th order polynomial
 def generate_Tstar(amplitude, offset, shift, length):
     x = at.linspace(0, length, length)
     return pm.Deterministic("T_star", -at.power(amplitude * (x + shift), 4.0) + offset)
