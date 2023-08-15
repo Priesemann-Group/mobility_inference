@@ -1,3 +1,8 @@
+# About
+
+This project is the result of the collaboration between the groups of Kai Nagel, TU Berlin, and Viola Priesemann, MPI for Dynamics and Self-Organisation, as part of the BMBF-funded infoXpand consortium.
+Main contributors: Emil Iftekhar, Sydyney Paltra, Jonas Dehning
+
 # File structure
 This is the source code to analyse the various contributions that lead to changes in out-of-home duration in the year of 2020 compared to baseline years.
 The core method is Bayesian Inference using pymc.
@@ -13,11 +18,13 @@ The code is centered around main.py that uses functions in the following files:
 - plot.py: Contains functions to plot the results the inference
 
 cluster_run.sh is used to run the inference on the cluster.
-Sometimes it is possible that no local data for the disease indicators is stored. As the cluster does not have internet access to download the Our World in Data data, one needs to run 
+Sometimes it is possible that no local data for the disease indicators is stored. As the cluster does not have internet access to download the Our World in Data data, one needs to run the cells of
     download_OWID.ipynb 
 before using the cluster for the inference.
 
 plot_results.ipynb is mainly used to plot model selection figures.
+
+(input_data_analysis.ipynb is a messy notebook to pre-analyse the input data. May be archived at some point.)
 
 ## Directories
 - data: Storage for some of the (raw) input data

@@ -1,0 +1,12 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Failed to download from url https://covid.ourworldindata.org/data/owid-covid-data.csv : <urlopen error [Errno 101] Network is unreachable>
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully downloaded OurWorldinData.csv.gz to /data.nst/eiftekhar/covid19/.
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Local backup to /data.nst/eiftekhar/covid19/OurWorldinData.csv.gz successful.
+WARNING  [covid19_inference.covid19_inference.data_retrieval._OWD] Please select a valid filter value. For the full dataset use self.data!
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 68, in <module>
+    disease_data["C"] = data_prep.get_C(owid, dates_2020)
+  File "/data/eiftekhar/mobility_inference/data_prep.py", line 488, in get_C
+    case_data = owid_in._filter(
+  File "/data/eiftekhar/mobility_inference/covid19_inference/covid19_inference/data_retrieval/_OWD.py", line 248, in _filter
+    raise ValueError("No valid value given! " + value)
+ValueError: No valid value given! new_cases_smoothed_per_million

@@ -1,0 +1,17 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully loaded OurWorldinData.csv.gz from /data.nst/eiftekhar/covid19/, skipping download.
+/data/eiftekhar/mobility_inference/data_prep.py:36: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  df = df.resample("7D").mean()
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 100, in <module>
+    model.create_model(
+  File "/data/eiftekhar/mobility_inference/model.py", line 418, in create_model
+    m = correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data)
+  File "/data/eiftekhar/mobility_inference/model.py", line 329, in correct_for_kurzarbeit
+    ka_data = pm.ConstantData("Kurzarbeit", kurzarbeit_data_in)
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pymc/data.py", line 280, in ConstantData
+    var = Data(
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pymc/data.py", line 425, in Data
+    arr = convert_observed_data(value)
+  File "/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/pymc/pytensorf.py", line 121, in convert_observed_data
+    mask = np.isnan(data)
+TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''

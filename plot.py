@@ -1,4 +1,6 @@
 import numpy as np
+import arviz as az
+
 import matplotlib.pyplot as plt
 
 plt.rcParams.update({"font.size": 20})
@@ -335,17 +337,10 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
 
     # kurzarbeit
     cov19.plot.distribution(
-        model_in, trace_in, "delta_o", dist_math="\Delta o", ax=axs[0]
+        model_in, trace_in, "delta_K", dist_math="\delta_K", ax=axs[0]
     )
-    # cov19.plot.distribution(model_in, trace_in, "mu_K", dist_math="\mu_{K}", ax=axs[1])
-    # cov19.plot.distribution(
-    #     model_in, trace_in, "sigma_K", dist_math="\sigma_{K}", ax=axs[2]
-    # )
 
     cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[1])
-    # cov19.plot.distribution(
-    #     model_in, trace_in, "z_school", dist_math="z_{school}", ax=axs[4]
-    # )
     cov19.plot.distribution(
         model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
     )
@@ -419,6 +414,21 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     )
 
 
+def plot_chains(trace_in, tag_in):
+    def plot(trace_in, tag_in, kind_in):
+        axes = az.plot_trace(trace_in, compact=True, kind=kind_in)
+        fig = axes.ravel()[0].figure
+        for ax in axes.ravel():
+            ax.set_xlabel("")
+        fig.suptitle(kind_in)
+        fig.subplots_adjust(hspace=0.7, wspace=0.0)
+        fig.savefig(f"{tag_in}/{kind_in}.png", dpi=300, bbox_inches="tight")
+        fig.savefig(f"{tag_in}/{kind_in}.pdf", dpi=300, bbox_inches="tight")
+
+    plot(trace_in, tag_in, "trace")
+    plot(trace_in, tag_in, "rank_bars")
+
+
 def analysis_figures(
     model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in
 ):
@@ -427,10 +437,11 @@ def analysis_figures(
     plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
-    plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
+    # plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
     plot_out_of_home_duration_timeseries(
         dates_in,
         trace_in,
         tag_in,
         indicators_in,
     )
+    plot_chains(trace_in, tag_in)
