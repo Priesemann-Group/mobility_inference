@@ -420,8 +420,8 @@ def plot_chains(trace_in, tag_in):
         fig = axes.ravel()[0].figure
         for ax in axes.ravel():
             ax.set_xlabel("")
-        fig.suptitle(kind_in)
-        fig.subplots_adjust(hspace=0.7, wspace=0.0)
+        # fig.suptitle(kind_in)
+        fig.subplots_adjust(hspace=0.7, wspace=0.3)
         fig.savefig(f"{tag_in}/{kind_in}.png", dpi=300, bbox_inches="tight")
         fig.savefig(f"{tag_in}/{kind_in}.pdf", dpi=300, bbox_inches="tight")
 
