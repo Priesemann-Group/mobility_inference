@@ -24,9 +24,8 @@ import data_prep
 
 # --- Model components --- #
 
+
 # NPIs
-
-
 def return_s(S_in):
     """Models impact of stay-at-home orders.
 
@@ -38,7 +37,7 @@ def return_s(S_in):
     """
 
     ## define prior
-    z_S = pm.LogNormal("z_S", mu=np.log(0.9), tau=10)
+    z_S = pm.LogNormal("z_S", mu=np.log(0.5), tau=5)
 
     ## put it together
     exponent = -z_S * S_in
@@ -47,7 +46,7 @@ def return_s(S_in):
     return s
 
 
-## can probably be removed
+## NOT IN USE ANYMORE
 def school_closure_factor(school_data_in):
     """Models impact of school closures.
 
@@ -72,12 +71,8 @@ def school_closure_factor(school_data_in):
 
 
 # impact of weather
-
 ## temperature
-
 ### utility functions for temperature factor
-
-
 def generate_Tstar(amplitude, offset, shift, length):
     """Generates go-out temperature curve using 4th order polynomial.
 
@@ -153,8 +148,6 @@ def temperature_factor(len_data_in, temperature_in):
 
 
 ## precipitation
-
-
 def precipitation_factor(delta_prcp_in):
     """Models impact of precipitation on mobility.
 
@@ -250,7 +243,7 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
 
     ## define priors
     factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), tau=10)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), tau=2.5)
     sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1), tau=10)
 
     ## convolve disease data with delay kernel
@@ -263,6 +256,7 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
         len_output_arr=len_data,
         diff_input_output=disease_data_len - len_data,
     )
+    risk = pm.Deterministic(f"risk_{indicator}", risk)
 
     ## put it together
     exponent = -factor_disease * risk
@@ -271,7 +265,8 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     return d
 
 
-# if you want to enforce that sigma of the kernel is smaller than mu
+## if you want to enforce that sigma of the kernel is smaller than mu use this
+## but check first whether it needs to be updated according to disease_factor()
 def disease_factor_sigma_smaller_mu(
     indicator, disease_data_in, len_data, mu_z_prior=0.9
 ):
@@ -302,7 +297,7 @@ def disease_factor_sigma_smaller_mu(
     return d
 
 
-# Home office and Kurzarbeit
+# NOT IN USE ANYMORE | Home office and Kurzarbeit
 def correct_for_home_office_and_kurzarbeit(ho_ka_data_in, m_base_data):
     """Adjusts baseline out-of-hone duration for short-time work changes.
 
@@ -322,7 +317,42 @@ def correct_for_home_office_and_kurzarbeit(ho_ka_data_in, m_base_data):
 
 
 # Kurzarbeit
-def correct_for_kurzarbeit(kurzarbeit_data_in, dates_2020, dates_2022_in, m_base_data):
+def correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data):
+    """Adjusts baseline out-of-home duration for short-time work changes.
+
+    Args:
+        kurzarbeit_data_in: Difference in short-time work rate between 2020 and 2022 (Xarray.DataArray)
+        m_base_data: Baseline mobility (pm.ConstantData)
+
+    Returns:
+        Adjusted baseline mobility (pymc variable)
+    """
+    ka_data = pm.ConstantData("Kurzarbeit", kurzarbeit_data_in)
+    ## correct baseline out-of-home duration
+    delta_k = pm.LogNormal("delta_k", mu=np.log(8), tau=10)
+    return m_base_data - delta_k * ka_data
+
+
+def correct_for_home_office(home_office_data_in, m_base_data):
+    """Adjusts baseline out-of-home duration for home office patterns.
+
+    Args:
+        home_office_data_in: Difference in home office rate between 2020 and 2022 (Xarray.DataArray)
+        m_base_data: Baseline mobility (pm.ConstantData)
+
+    Returns:
+        Adjusted baseline mobility (pymc variable)
+    """
+    ho_data = pm.ConstantData("home_office", home_office_data_in)
+    ## correct baseline out-of-home duration
+    delta_h = pm.LogNormal("delta_h", mu=np.log(8), tau=10)
+    return m_base_data - delta_h * ho_data
+
+
+## NOT IN USE ANYMORE
+def correct_for_OLD_kurzarbeit(
+    kurzarbeit_data_in, dates_2020, dates_2022_in, m_base_data
+):
     """Adjusts baseline out-of-hone duration for short-time work changes.
 
     Args:
@@ -385,26 +415,25 @@ def create_model(
     base_mobility_data_in,
     observed_mobility_data_in,
     S_data_in,
-    home_office_kurzarbeit_data_in,
+    kurzarbeit_data_in,
+    homeOffice_data_in,
     indicators_in,
     disease_data_in,
-    dates_2022_in,
     pandemic_fatigue="sigmoid",
     delta_prcp_in=None,
     temperature_in=None,
     school_data_in=None,
 ):
     len_data = observed_mobility_data_in.shape[0]
-    dates_2020 = observed_mobility_data_in.coords["date"].values
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
         S_data = pm.ConstantData("S", S_data_in)
 
         # kurzarbeit
-        m = correct_for_home_office_and_kurzarbeit(
-            home_office_kurzarbeit_data_in, m_base_data
-        )
+        m = correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data)
+        m = correct_for_home_office(homeOffice_data_in, m)
+        m = pm.Deterministic("o_*", m)
 
         # impact of disease spread
         mu_z_prior = 0.9 ** len(indicators_in)

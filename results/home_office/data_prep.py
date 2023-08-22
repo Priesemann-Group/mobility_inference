@@ -2,11 +2,23 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import scipy.stats as stats
+import datetime
 
 import covid19_inference.covid19_inference as cov19
 
 
 # --- Utils ---
+def population_string_to_number(string_in):
+    """Converts a string with a number and a unit to an integer.
+
+    Parameters:
+        string_in (str): string with a number and a unit
+    Returns:
+        int: number without unit"""
+    string = string_in.replace("\xa0", "")
+    return int(string)
+
+
 def _cut_off_before_monday(df):
     """Cut off data before Monday.
 
@@ -113,6 +125,7 @@ def return_averages(df1_in, df2_in, label_in):
     return average
 
 
+## for Kurzarbeit
 def german_month_to_num(month):
     """Convert month name to number.
     Args:
@@ -137,7 +150,34 @@ def german_month_to_num(month):
     return german_months.index(month) + 1
 
 
-## Kurzarbeit
+def parse_month(date_str):
+    """Parse month from date string.
+
+    Args:
+        date_str (str): Date as string in format "Month Year", e.g. "Januar 2020".
+    Returns:
+        int: Month number.
+    """
+
+    strings = date_str.split(" ")
+    month = german_month_to_num(strings[0])
+    return month
+
+
+def parse_year(date_str):
+    """Parse year from date string.
+
+    Args:
+        date_str (str): Date as string in format "Month Year", e.g. "Januar 2020".
+    Returns:
+        int: Year.
+    """
+
+    strings = date_str.split(" ")
+    year = int(strings[1])
+    return year
+
+
 def get_total_kurzarbeit():
     """Get total data of number of Kurzarbeitende from IAB.
 
@@ -200,6 +240,9 @@ def get_home_office_kurzarbeit(dates_in):
     return df_out
 
 
+## Home office
+
+
 # --- Get data ---
 ## Out of home duration
 def get_out_of_home_duration():
@@ -248,6 +291,154 @@ def get_out_of_home_duration():
     )
 
 
+## Home office
+def get_home_office_infas(dates_2020_in):
+    """Get weekly data of home office rate from infas.
+    Source: Corona Datenplattform (2021): Themenreport 02, Homeoffice im Verlauf der Corona-Pandemie, Ausgabe Juli 2021, Bonn.
+    (Exact data is not publicly available for free.)
+
+    Args:
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Pandas data frame: Weekly data of people in home office in percent.
+    """
+    df = pd.read_csv("data/home_office/home_office_infas.csv", sep="\t")
+
+    # parse to proper dates
+    def str_to_date(date_str):
+        """Convert string to date.
+
+        Args:
+            date_str (str): Date as string in format " %b %y", e.g. " Jan 20".
+        Returns:
+            datetime: Date.
+        """
+        return datetime.datetime.strptime(date_str, " %b %y")
+
+    df["date"] = df["Month"].apply(str_to_date)
+    df["year"] = df["date"].apply(lambda x: x.year)
+    df["month"] = df["date"].apply(lambda x: x.month)
+
+    # filter for 2020 data
+    df_2020 = df[df["year"] == 2020]
+
+    # make weekly data out of monthly data
+    column_name = "WFH_rate"
+    df_2020 = pd.DataFrame(index=dates_2020_in, columns=[column_name])
+    for week in df_2020.index:
+        value = df.loc[(df["month"] == week.month), column_name].values[0]
+        df_2020.loc[week, column_name] = value
+
+    return df_2020
+
+
+def get_home_office_ifo(dates_2020_in):
+    """Get weekly data of home office rate from ifo.
+    Source: ifo institute, December 2022.
+
+    Args:
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Pandas data frame: Weekly data of people in home office in percent.
+    """
+
+    def str_to_date(date_str):
+        return datetime.datetime.strptime(date_str, " %m/%Y")
+
+    df = pd.read_csv("data/home_office/home_office_ifo.csv", sep="\t")
+
+    # apply str_to_date to the Date column
+    df["date"] = df["Date"].apply(str_to_date)
+    df["year"] = df["date"].apply(lambda x: x.year)
+    df["month"] = df["date"].apply(lambda x: x.month)
+
+    # filter for rows with year == 2022
+    df_2022 = df[df["year"] == 2022]
+
+    # identify which months are missing in df_2022 using the 'date' column
+    missing_months = [
+        month for month in range(1, 13) if month not in df_2022["month"].unique()
+    ]
+
+    # for every missing month in df_2022, create a new row with the missing month using .concat()
+    for month in missing_months:
+        df_2022 = pd.concat([df_2022, pd.DataFrame({"month": [month]})])
+
+    # sort df_2020 by the 'date' column
+    df_2022 = df_2022.sort_values(by="month")
+
+    # for the 'Percent' column interpolate the missing values
+    df_2022["Percent"] = df_2022["Percent"].interpolate()
+
+    # make weekly data out of monthly data
+    column_name = "Percent"
+    df_out = pd.DataFrame(index=dates_2020_in, columns=[column_name])
+    for week in df_out.index:
+        value = df_2022.loc[(df_2022["month"] == week.month), column_name].values[0]
+        df_out.loc[week, column_name] = value
+
+    return df_out
+
+
+def get_home_office_difference(dates_2020_in):
+    """Get weekly data of difference in home office rate between 2020 and 2022.
+
+    Args:
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Array: Difference in home office rate between 2020 and 2022.
+    """
+
+    df_2020 = get_home_office_infas(dates_2020_in)
+    df_2022 = get_home_office_ifo(dates_2020_in)
+    ho_diff = (df_2020.values - df_2022.values) / 100
+    ho_diff = ho_diff.flatten()
+    return xr.DataArray(ho_diff, coords=[dates_2020_in], dims=["date"])
+
+
+## Kurzarbeit
+def get_kurzarbeit(dates_2020_in):
+    """Get weekly data of difference in fraction of Kurzarbeitende.
+    Source: Statistik der Bundesagentur für Arbeit
+        Tabellen, Realisierte Kurzarbeit (hochgerechnet) (Monatszahlen), Nürnberg, August 2023
+        http://statistik.arbeitsagentur.de
+
+    Args:
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Xarray: Difference in Kurzarbeit between 2020 and 2022 as fraction of population.
+    """
+
+    df = pd.read_csv("data/kurzarbeit/IAB_kurzarbeit.csv", sep="\t")
+    df["month"] = df["Datum"].apply(parse_month)
+    df["year"] = df["Datum"].apply(parse_year)
+
+    # get 2020 data
+    df_2020 = df[df["year"] == 2020]
+    # get 2022 data
+    df_2022 = df[df["year"] == 2022]
+    # calculate the difference between 2020 and 2022
+    delta_kurzarbeit = (
+        df_2020["Kurzarbeiterquote"].values - df_2022["Kurzarbeiterquote"].values
+    )
+
+    # make weekly data out of monthly data
+    column_name = "Differenz Kurzarbeiteranteil"
+    df_diff = pd.DataFrame(index=df_2020["month"])
+    df_diff[column_name] = delta_kurzarbeit / 100
+    df_out = pd.DataFrame(index=dates_2020_in, columns=[column_name])
+    for week in df_out.index:
+        value = df_diff.loc[(df_diff.index == week.month), column_name].values[0]
+        df_out.loc[week, column_name] = round(value, 3)
+    df_out[column_name] = df_out[column_name].astype(float)
+
+    # to xarray
+    array = df_out.to_xarray()
+    array = array.rename_dims({"index": "date"})
+
+    return df_out[column_name].values
+
+
 ## Kurzarbeit and home office
 def get_people_home(dates_2020_in, dates_2022_in):
     """Get weekly data of additinal people at home in 2020 due to home office or Kurzarbeit.
@@ -282,7 +473,7 @@ def get_people_home(dates_2020_in, dates_2022_in):
     return diff_xr
 
 
-def get_kurzarbeit(dates_2020_in, dates_2022_in):
+def get_OLD_kurzarbeit(dates_2020_in, dates_2022_in):
     """Get weekly data of difference in number of Kurzarbeitende.
 
     Args:
@@ -420,6 +611,49 @@ def get_H(owid_in, dates_2020_in):
 ## NPI
 ### stay at home orders
 def get_S(dates_2020_in):
+    df = pd.read_csv("data/NPIs/StayAtHomeOrders - Werte.csv")
+
+    # iterate through every row of the data frame to make date column
+    for index, row in df.iterrows():
+        # create date object from Day, Month, Year columns
+        date = datetime.date(row["Year"], row["Month"], row["Day"])
+        # make date to pandas datetime format
+        date = pd.to_datetime(date)
+        # add date object to new column
+        df.loc[index, "Date"] = date
+
+    # create empty dataframe with dates as index
+    df_new = pd.DataFrame(index=df["Date"].values)
+
+    # only get columns with values
+    for column_name in df.columns.values:
+        if column_name[:5] == "Value":
+            _, state = column_name.split(" ")
+            df_new[state] = df[column_name].values
+
+    population = pd.read_csv("data/population_bundesland.csv", sep=";", index_col=0)
+    population["Einwohner"] = population["Einwohner"].apply(population_string_to_number)
+
+    weighted_averages = []
+
+    for index, row in df_new.iterrows():
+        value = 0
+        for column in df_new.columns.values:
+            value += population.loc[column]["Einwohner"] * row[column]
+        value /= population["Einwohner"].sum()
+        weighted_averages.append(value)
+
+    # add new row to dataframe
+    df_new["stay_at_home_orders"] = weighted_averages
+
+    # filter rows for dates_2020_in
+    df_new = df_new[df_new.index.isin(dates_2020_in)]
+
+    # make xarray out of column
+    return df_new["stay_at_home_orders"].to_xarray()
+
+
+def get_S_OxCGRT(dates_2020_in):
     """Get weekly stay at home order data from Oxford data set.
 
     Args:
@@ -433,6 +667,7 @@ def get_S(dates_2020_in):
     return stay_at_home_2020
 
 
+### NOT NEEDED ANYMORE
 def get_school_closures(dates_2020_in):
     """Get weekly school closure data from Oxford data set.
 

@@ -1,5 +1,7 @@
 import numpy as np
 import arviz as az
+import xarray as xr
+import warnings
 
 import matplotlib.pyplot as plt
 
@@ -45,8 +47,11 @@ def concatenate_chains_and_draws(xarray_in):
     return array.reshape(-1, array.shape[-1])
 
 
-def plot_timeseries(ax_in, x_in, xarray_in, label_in, color_in, alpha=0.5):
-    array = concatenate_chains_and_draws(xarray_in)
+def plot_timeseries(ax_in, x_in, array_in, label_in, color_in, alpha=0.5):
+    if type(array_in) == xr.DataArray:
+        array = concatenate_chains_and_draws(array_in)
+    else:
+        array = array_in
     ax_in.plot(
         x_in, np.median(array, axis=0), label=label_in, color=color_in, linewidth=3
     )
@@ -59,9 +64,7 @@ def plot_timeseries(ax_in, x_in, xarray_in, label_in, color_in, alpha=0.5):
     )
 
 
-def format_x_axis(ax_in, x_in, last=False):
-    # choose number of x ticks
-    n_xticks = 6
+def format_x_axis(ax_in, x_in, last=False, n_xticks=6):
     # get x tick locations
     xticks = np.linspace(0, len(x_in) - 1, n_xticks, dtype=int)
     # get x tick labels
@@ -81,22 +84,159 @@ def format_x_axis(ax_in, x_in, last=False):
     ax_in.set_xlim(x_in[0], x_in[-1])
 
 
+def Gamma(x, mu=None, sigma=None, alpha=None, beta=None):
+    """
+    Calculates a gamma distribution pdf for integer spaced x input. Parametrized similarly to
+    :class:`pymc.Gamma`
+    """
+    assert (alpha is None and beta is None) != (mu is None and sigma is None)
+    if alpha is None and beta is None:
+        alpha = mu**2 / (sigma**2 + 1e-8)
+        beta = mu / (sigma**2 + 1e-8)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*invalid value encountered.*")
+        distr = beta**alpha * x ** (alpha - 1) * np.exp(-beta * x)
+    distr = np.where(np.isnan(distr), np.zeros_like(distr), distr)
+    distr = np.where(np.isinf(distr), np.zeros_like(distr), distr)
+
+    # normalize, add a small offset in case the sum is zero
+    return distr / (np.sum(distr, axis=0) + 1e-8)
+
+
+def get_values(tag_in, variable_in, trace):
+    array = np.array(trace.posterior[f"{variable_in}_{tag_in}"])
+    return array.reshape(-1)
+
+
+def plot_convolution(tag, axs, last, trace, dates):
+    # get kernel data
+    mus = get_values(tag, "mu", trace)
+    sigmas = get_values(tag, "sigma", trace)
+
+    mu_median = round(np.median(mus), 1)
+    xmax = 2 * mu_median
+    x = np.linspace(0, xmax, 100)
+    ys = []
+    for i in range(len(mus)):
+        mu = mus[i]
+        sigma = sigmas[i]
+        y = Gamma(
+            x,
+            mu=mu,
+            sigma=sigma,
+        )
+        ys.append(y)
+    # make ndarray of ys
+    ys = np.array(ys)
+
+    # plot the gamma kernel
+    ax = axs[0]
+    plot_timeseries(ax, x, ys, "", colors[tag])
+    ymax = 5 * np.median(ys)
+    ax.vlines(mu_median, 0, ymax, linestyle="--", color="grey")
+    ax.text(
+        mu_median * 1.1,
+        0.8 * ymax,
+        f"$\\tilde{{\mu}}_{tag}={mu_median}$",
+        ha="left",
+        va="bottom",
+    )
+    ax.set_xlim(0, xmax)
+    ax.set_ylim(0, ymax)
+
+    # plot the 'data'
+    ax = axs[1]
+    # plot input data
+    ax.plot(
+        dates,
+        trace.constant_data[tag].values[: len(dates)],
+        marker="o",
+        label="input",
+        color=colors[tag],
+        # ls='--'
+    )
+    # plot the convolution
+    plot_timeseries(ax, dates, trace.posterior[f"risk_{tag}"], "convolved", colors[tag])
+    format_x_axis(ax, dates, last=last)
+    ax.set_ylim(0, 1)
+
+    labels = {
+        "C": "Cases $C$",
+        "ICU": "ICU patients ${ICU}$",
+        "H": "Hospitalisations $H$",
+        "R": "Effective Reproduction Number $R$",
+    }
+    ax.set_title(labels[tag], x=0, y=1.1)
+
+
+def convolution_figure(indicators, trace, dates, directory):
+    # prepare plot
+    fig, axs = plt.subplots(
+        len(indicators), 2, figsize=(12, 3 * len(indicators)), width_ratios=[1, 2]
+    )
+    axs = axs.flatten()
+    for i in range(len(indicators)):
+        if i == len(indicators) - 1:
+            last = True
+        else:
+            last = False
+        plot_convolution(
+            indicators[i], (axs[2 * i], axs[2 * i + 1]), last, trace, dates
+        )
+    # add vertical padding
+    fig.subplots_adjust(hspace=0.6)
+    fig.suptitle("Perceived disease spread: memory kernel and convolution", y=1.19)
+
+    # create custom legends
+    ## convolved
+    ax = axs[1]
+    ### for median line and 94% CI
+    convolved = lines.Line2D([], [], color="black", linewidth=3, label="convolved")
+    input = lines.Line2D([], [], color="black", linewidth=1, marker="o", label="input")
+    ### create legend
+    legend1 = ax.legend(
+        handles=[input, convolved], frameon=True, bbox_to_anchor=(1.1, 1.7), ncol=2
+    )
+    ax.add_artist(legend1)
+    ## median
+    ax = axs[0]
+    ### for median line and 94% CI
+    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    ### create legend
+    legend2 = ax.legend(
+        handles=[median_line, ci_94], frameon=False, bbox_to_anchor=(1.4, 1.7), ncol=2
+    )
+    ax.add_artist(legend2)
+
+    # save figure
+    fig.savefig(f"{directory}/convolution.png", bbox_inches="tight")
+    fig.savefig(f"{directory}/convolution.pdf", bbox_inches="tight")
+
+
 ## plot Gamma distribution with inferred mean and standard deviation
 def plot_gamma_kernel(trace_in, tag_in, indicators_in):
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
 
     # prepare
-    max_x = 2
+    mu_median, sigma_median = 0, 0
+    for indicator in indicators_in:
+        if mu_median < np.median(trace_in.posterior[f"mu_{indicator}"]):
+            mu_median = np.median(trace_in.posterior[f"mu_{indicator}"])
+            sigma_median = np.median(trace_in.posterior[f"sigma_{indicator}"])
+    max_x = (2 + sigma_median) * mu_median
     x = np.linspace(0, max_x, 100)
     ys = []
 
     # plot
     for indicator in indicators_in:
-        y = cov19.model._utility.tt_gamma(
+        mu_median = np.median(trace_in.posterior[f"mu_{indicator}"])
+        sigma_median = np.median(trace_in.posterior[f"sigma_{indicator}"])
+        y = Gamma(
             x,
-            mu=np.median(trace_in.posterior[f"mu_{indicator}"]),
-            sigma=np.median(trace_in.posterior[f"sigma_{indicator}"]),
-        ).eval()
+            mu=mu_median,
+            sigma=sigma_median,
+        )
         ys.append(y)
         ax.plot(x, y, linewidth=3, label=f"${indicator}$", color=colors[indicator])
 
@@ -112,7 +252,7 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
     fig.savefig(f"{tag_in}/gamma_kernel.pdf")
 
 
-## plot Gamma distribution with inferred mean and standard deviation
+## NOT IN USE ANYMORE | plot Gamma distribution with inferred mean and standard deviation
 def plot_gamma_kernel_kurzarbeit(trace_in, tag_in):
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
 
@@ -179,7 +319,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
     fig.savefig(f"{tag_in}/temperature.pdf", bbox_inches="tight")
 
 
-## plot ood time series
+## plot o time series
 def plot_out_of_home_duration_timeseries(
     dates_in,
     trace_in,
@@ -285,7 +425,7 @@ def plot_out_of_home_duration_timeseries(
     )
     ax.add_artist(legend2)
 
-    legend1 = ax.legend(bbox_to_anchor=(0.7, 1.8))
+    legend1 = ax.legend(bbox_to_anchor=(0.7, 2))
 
     # lower plot
     ax = axs[1]
@@ -337,10 +477,14 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
 
     # kurzarbeit
     cov19.plot.distribution(
-        model_in, trace_in, "delta_K", dist_math="\delta_K", ax=axs[0]
+        model_in, trace_in, "delta_k", dist_math="\delta_k", ax=axs[0]
+    )
+    # home office
+    cov19.plot.distribution(
+        model_in, trace_in, "delta_h", dist_math="\delta_h", ax=axs[1]
     )
 
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[1])
+    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
     cov19.plot.distribution(
         model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
     )
@@ -421,7 +565,7 @@ def plot_chains(trace_in, tag_in):
         for ax in axes.ravel():
             ax.set_xlabel("")
         # fig.suptitle(kind_in)
-        fig.subplots_adjust(hspace=0.7, wspace=0.3)
+        fig.subplots_adjust(hspace=0.7, wspace=0.2)
         fig.savefig(f"{tag_in}/{kind_in}.png", dpi=300, bbox_inches="tight")
         fig.savefig(f"{tag_in}/{kind_in}.pdf", dpi=300, bbox_inches="tight")
 
@@ -434,6 +578,7 @@ def analysis_figures(
 ):
     utils.make_dir(tag_in)
 
+    convolution_figure(indicators_in, trace_in, dates_in, tag_in)
     plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
