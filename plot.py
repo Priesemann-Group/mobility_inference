@@ -25,8 +25,8 @@ colors = {
     # NPI
     ## stay-at-home order
     "S": colormap(0.2),
-    ## school closures
-    "school": colormap(0.25),
+    ## home office
+    "h": colormap(0.25),
     ## kurzarbeit
     "K": colormap(0.35),
     # temperature
@@ -558,6 +558,251 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     )
 
 
+def plot_all_timeseries(
+    dates_in,
+    trace_in,
+    tag_in,
+    indicators_in,
+    pandemic_fatigue_in,
+    log=False,
+):
+    fig, axs = plt.subplots(
+        3,
+        1,
+        figsize=(12, 14),
+        sharex=True,
+    )
+
+    # upper plot
+    ax = axs[0]
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["k"],
+        color_in=colors["K"],
+        label_in="short-term work $k$",
+    )
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["h"],
+        color_in=colors["h"],
+        label_in="home office $h$",
+    )
+    ax.hlines(
+        0,
+        xmin=dates_in[0],
+        xmax=dates_in[-1],
+        color="grey",
+        linestyle="--",
+        linewidth=1,
+    )
+    format_x_axis(ax, dates_in)
+    ## set y label
+    ax.set_ylabel("Subtractive impact on\nout-of-home duration")
+    ax.legend(ncol=2)
+
+    # middle plot
+    ax = axs[1]
+    labels = {
+        "C": "cases $d_C$",
+        "ICU": "ICU $d_{ICU}$",
+        "H": "hospitalisations $d_H$",
+        "R": "Effective Reproduction Number $d_R$",
+    }
+    ## plot disease indicators
+    for indicator in indicators_in:
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior[f"d_{indicator}"],
+            color_in=colors[indicator],
+            label_in=labels[indicator],
+            alpha=0.2,
+        )
+    ## plot s
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["s"],
+        color_in=colors["S"],
+        label_in="stay-at-home orders $s$",
+        alpha=0.2,
+    )
+    ## pandemic fatigue
+    if pandemic_fatigue_in == "linear" or pandemic_fatigue_in == "sigmoid":
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["f"],
+            color_in=colors["f"],
+            label_in="pandemic fatigue $f$",
+            alpha=0.2,
+        )
+
+    ax.hlines(
+        1,
+        xmin=dates_in[0],
+        xmax=dates_in[-1],
+        color="grey",
+        linestyle="--",
+        linewidth=1,
+    )
+    format_x_axis(ax, dates_in)
+    ## set y label
+    ax.set_ylabel("Multiplicative impact on\nout-of-home duration")
+    ## create custom legend
+    ### for median line and 94% CI
+    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    ### create legend
+    legend2 = ax.legend(
+        handles=[median_line, ci_94],
+        frameon=False,
+        # bbox_to_anchor=(1.1, 0.95),
+    )
+    ax.add_artist(legend2)
+
+    legend1 = ax.legend(
+        # ncol=2,
+        # bbox_to_anchor=(0.7, 2)
+    )
+
+    # lower plot
+    ax = axs[2]
+    ax.plot(
+        dates_in,
+        trace_in.constant_data["m_base"],
+        label="baseline $o_{base}$",
+        color=colors["m_base"],
+        marker="o",
+    )
+    plot_timeseries(
+        ax, dates_in, trace_in.posterior["o_*"], "inferred $o_*$", colors["o_*"]
+    )
+    ax.plot(
+        dates_in,
+        trace_in.observed_data["likelihood"],
+        label="input $o_{obs}$",
+        color=colors["m_obs"],
+        marker="o",
+    )
+    plot_timeseries(ax, dates_in, trace_in.posterior["m"], "inferred $o$", colors["m"])
+    ax.legend(
+        ncol=2,
+        # bbox_to_anchor=(1.1, -0.4)
+    )
+    format_x_axis(ax, dates_in, last=True)
+    # set y label
+    ax.set_ylabel("Out-of-home duration [h]")
+
+    # plt.subplots_adjust(hspace=0.1)
+    fig.tight_layout()
+
+    # save figure
+    fig.savefig(f"{tag_in}/timeseries.png", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/timeseries.pdf", bbox_inches="tight")
+
+
+# plot distribution for single indicator models
+def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in):
+    # --- base parameters ---
+    if len(indicators_in) == 1:
+        fig, axs = plt.subplots(2, 5, figsize=(13, 5))
+    elif len(indicators_in) == 2:
+        fig, axs = plt.subplots(3, 5, figsize=(13, 8))
+    elif len(indicators_in) == 3:
+        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
+    else:
+        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
+
+    # flatten axes
+    axs = axs.flatten()
+
+    # kurzarbeit
+    cov19.plot.distribution(
+        model_in, trace_in, "delta_k", dist_math="\delta_k", ax=axs[0]
+    )
+    # home office
+    cov19.plot.distribution(
+        model_in, trace_in, "delta_h", dist_math="\delta_h", ax=axs[1]
+    )
+
+    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
+    cov19.plot.distribution(
+        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
+    )
+
+    # precipitation
+    # cov19.plot.distribution(model_in, trace_in, "z_P", dist_math="z_P", ax=axs[3])
+
+    # temperature
+    """
+    cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
+    cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="a_T", ax=axs[1])
+    cov19.plot.distribution(
+        model_in, trace_in, "offset", dist_math="T_{*,max}", ax=axs[2]
+    )
+    cov19.plot.distribution(
+        model_in, trace_in, "shift", dist_math="\Delta t", ax=axs[3]
+    )
+    cov19.plot.distribution(model_in, trace_in, "a_r", dist_math="a_r", ax=axs[4])
+    """
+
+    # disease
+    i = 4
+    for indicator in indicators_in:
+        cov19.plot.distribution(
+            model_in, trace_in, f"z_{indicator}", dist_math=f"z_{indicator}", ax=axs[i]
+        )
+        cov19.plot.distribution(
+            model_in,
+            trace_in,
+            f"mu_{indicator}",
+            dist_math=f"\mu_{{{indicator}}}",
+            ax=axs[i + 1],
+        )
+        cov19.plot.distribution(
+            model_in,
+            trace_in,
+            f"sigma_{indicator}",
+            dist_math=f"\sigma_{{{indicator}}}",
+            ax=axs[i + 2],
+        )
+        i += 3
+
+    fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
+
+    # --- pandemic fatigue ---
+    if pandemic_fatigue_in == "linear":
+        fig, axs = plt.subplots(1, 2, figsize=(5, 2))
+        axs = axs.flatten()
+        cov19.plot.distribution(model_in, trace_in, "f0", dist_math="f_0", ax=axs[0])
+        cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
+    elif pandemic_fatigue_in == "sigmoid":
+        fig, axs = plt.subplots(1, 3, figsize=(8, 3))
+        axs = axs.flatten()
+        cov19.plot.distribution(
+            model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
+        )
+        cov19.plot.distribution(model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1])
+        cov19.plot.distribution(
+            model_in, trace_in, "del_f", dist_math="\Delta f", ax=axs[2]
+        )
+    if pandemic_fatigue_in == "linear" or pandemic_fatigue_in == "sigmoid":
+        fig.savefig(
+            f"{tag_in}/distributions_pandemic_fatigue.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        fig.savefig(
+            f"{tag_in}/distributions_pandemic_fatigue.pdf",
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+
 def plot_chains(trace_in, tag_in):
     def plot(trace_in, tag_in, kind_in):
         axes = az.plot_trace(trace_in, compact=True, kind=kind_in)
@@ -583,10 +828,17 @@ def analysis_figures(
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
     # plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
-    plot_out_of_home_duration_timeseries(
+    # plot_out_of_home_duration_timeseries(
+    #     dates_in,
+    #     trace_in,
+    #     tag_in,
+    #     indicators_in,
+    # )
+    plot_all_timeseries(
         dates_in,
         trace_in,
         tag_in,
         indicators_in,
+        pandemic_fatigue_in,
     )
     plot_chains(trace_in, tag_in)

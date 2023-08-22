@@ -1,0 +1,4 @@
+INFO     [covid19_inference.covid19_inference.data_retrieval.retrieval] Successfully loaded OurWorldinData.csv.gz from /data.nst/eiftekhar/covid19/, skipping download.
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+Only 200 samples in chain.
+WARNING  [pymc.sampling.mcmc] Only 200 samples in chain.
