@@ -442,3 +442,12 @@ Sampling: [sigma_R]
 INFO     [pymc.sampling.forward] Sampling: [sigma_R]
 /data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/arviz/stats/density_utils.py:487: UserWarning: Your data appears to have a single value or no finite values
   warnings.warn("Your data appears to have a single value or no finite values")
+/data.nst/eiftekhar/mambaforge/envs/mobility/lib/python3.10/site-packages/arviz/stats/density_utils.py:487: UserWarning: Your data appears to have a single value or no finite values
+  warnings.warn("Your data appears to have a single value or no finite values")
+INFO     [covid19_inference.covid19_inference.model.delay] Delaying cases
+Traceback (most recent call last):
+  File "/data/eiftekhar/mobility_inference/main.py", line 152, in <module>
+    trace = utils.load_trace(name, tag)
+  File "/data/eiftekhar/mobility_inference/utils.py", line 31, in load_trace
+    with open(path, "rb") as inference_file:
+FileNotFoundError: [Errno 2] No such file or directory: 'results/no_f/C/trace_C.pickle'
