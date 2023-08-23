@@ -499,13 +499,17 @@ def get_OLD_kurzarbeit(dates_2020_in, dates_2022_in):
     return KA_diff_xr
 
 
-def get_disease_dates():
+def get_disease_dates(ICU=False):
     """Get dates for disease data.
 
     Returns:
         Array of np.datetime64: Maximum dates for 2020.
     """
-    return pd.date_range(start="2020-03-06", end="2020-12-19", freq="W-SUN").values
+    if ICU:
+        start_date = "2020-03-22"
+    else:
+        start_date = "2020-03-06"
+    return pd.date_range(start=start_date, end="2020-12-19", freq="W-SUN").values
 
 
 ## R
@@ -598,7 +602,7 @@ def get_ICU(owid_in, dates_2020_in=None):
         country="Germany",
     )
     if dates_2020_in is None:
-        dates_2020_in = get_disease_dates()
+        dates_2020_in = get_disease_dates(ICU=True)
     ICU_data = weekly_formatting(ICU_data, dates_2020_in)
     ICU_data = transform_data(ICU_data).to_xarray()
     return ICU_data

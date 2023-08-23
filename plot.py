@@ -20,8 +20,8 @@ colors = {
     # diseaes
     "R": colormap(0.0),
     "C": colormap(0.05),
-    "ICU": colormap(0.1),
-    "H": colormap(0.15),
+    "ICU": colormap(0.15),
+    "H": colormap(0.1),
     # NPI
     ## stay-at-home order
     "S": colormap(0.2),
@@ -341,7 +341,7 @@ def plot_out_of_home_duration_timeseries(
         "C": "cases $d_C$",
         "ICU": "ICU $d_{ICU}$",
         "H": "hospitalisations $d_H$",
-        "R": "Effective Reproduction Number $d_R$",
+        "R": "Reproduction Number $d_R$",
     }
     ## plot disease indicators
     for indicator in indicators_in:
@@ -460,104 +460,6 @@ def plot_out_of_home_duration_timeseries(
     fig.savefig(f"{tag_in}/out_of_home_duration.pdf", bbox_inches="tight")
 
 
-# plot distribution for single indicator models
-def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in):
-    # --- base parameters ---
-    if len(indicators_in) == 1:
-        fig, axs = plt.subplots(2, 5, figsize=(13, 5))
-    elif len(indicators_in) == 2:
-        fig, axs = plt.subplots(3, 5, figsize=(13, 8))
-    elif len(indicators_in) == 3:
-        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
-    else:
-        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
-
-    # flatten axes
-    axs = axs.flatten()
-
-    # kurzarbeit
-    cov19.plot.distribution(
-        model_in, trace_in, "delta_k", dist_math="\delta_k", ax=axs[0]
-    )
-    # home office
-    cov19.plot.distribution(
-        model_in, trace_in, "delta_h", dist_math="\delta_h", ax=axs[1]
-    )
-
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
-    cov19.plot.distribution(
-        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
-    )
-
-    # precipitation
-    # cov19.plot.distribution(model_in, trace_in, "z_P", dist_math="z_P", ax=axs[3])
-
-    # temperature
-    """
-    cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
-    cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="a_T", ax=axs[1])
-    cov19.plot.distribution(
-        model_in, trace_in, "offset", dist_math="T_{*,max}", ax=axs[2]
-    )
-    cov19.plot.distribution(
-        model_in, trace_in, "shift", dist_math="\Delta t", ax=axs[3]
-    )
-    cov19.plot.distribution(model_in, trace_in, "a_r", dist_math="a_r", ax=axs[4])
-    """
-
-    # disease
-    i = 4
-    for indicator in indicators_in:
-        cov19.plot.distribution(
-            model_in, trace_in, f"z_{indicator}", dist_math=f"z_{indicator}", ax=axs[i]
-        )
-        cov19.plot.distribution(
-            model_in,
-            trace_in,
-            f"mu_{indicator}",
-            dist_math=f"\mu_{{{indicator}}}",
-            ax=axs[i + 1],
-        )
-        cov19.plot.distribution(
-            model_in,
-            trace_in,
-            f"sigma_{indicator}",
-            dist_math=f"\sigma_{{{indicator}}}",
-            ax=axs[i + 2],
-        )
-        i += 3
-
-    fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
-    fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
-
-    # --- pandemic fatigue ---
-    if pandemic_fatigue_in == "linear":
-        fig, axs = plt.subplots(1, 2, figsize=(5, 2))
-        axs = axs.flatten()
-        cov19.plot.distribution(model_in, trace_in, "f0", dist_math="f_0", ax=axs[0])
-        cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
-    elif pandemic_fatigue_in == "sigmoid":
-        fig, axs = plt.subplots(1, 3, figsize=(8, 3))
-        axs = axs.flatten()
-        cov19.plot.distribution(
-            model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
-        )
-        cov19.plot.distribution(model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1])
-        cov19.plot.distribution(
-            model_in, trace_in, "del_f", dist_math="\Delta f", ax=axs[2]
-        )
-    fig.savefig(
-        f"{tag_in}/distributions_pandemic_fatigue.png",
-        dpi=300,
-        bbox_inches="tight",
-    )
-    fig.savefig(
-        f"{tag_in}/distributions_pandemic_fatigue.pdf",
-        dpi=300,
-        bbox_inches="tight",
-    )
-
-
 def plot_all_timeseries(
     dates_in,
     trace_in,
@@ -618,10 +520,10 @@ def plot_all_timeseries(
     # middle plot
     ax = axs[1]
     labels = {
-        "C": "cases $d_C$",
-        "ICU": "ICU $d_{ICU}$",
+        "C": "new cases $d_C$",
+        "ICU": "ICU patients $d_{ICU}$",
         "H": "hospitalisations $d_H$",
-        "R": "Effective Reproduction Number $d_R$",
+        "R": "Reproduction Number $d_R$",
     }
     ## plot disease indicators
     for indicator in indicators_in:
@@ -713,7 +615,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     elif len(indicators_in) == 2:
         fig, axs = plt.subplots(3, 5, figsize=(13, 8))
     elif len(indicators_in) == 3:
-        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
+        fig, axs = plt.subplots(3, 5, figsize=(13, 8))
     else:
         fig, axs = plt.subplots(4, 5, figsize=(13, 10))
 
