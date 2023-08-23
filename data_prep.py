@@ -276,12 +276,12 @@ def get_home_office_infas(dates_2020_in):
 
     # make weekly data out of monthly data
     column_name = "WFH_rate"
-    df_2020 = pd.DataFrame(index=dates_2020_in, columns=[column_name])
-    for week in df_2020.index:
-        value = df.loc[(df["month"] == week.month), column_name].values[0]
-        df_2020.loc[week, column_name] = value
+    df_out = pd.DataFrame(index=dates_2020_in, columns=[column_name])
+    for week in df_out.index:
+        value = df_2020.loc[(df_2020["month"] == week.month), column_name].values[0]
+        df_out.loc[week, column_name] = value
 
-    return df_2020
+    return df_out
 
 
 def get_home_office_ifo(dates_2020_in):
