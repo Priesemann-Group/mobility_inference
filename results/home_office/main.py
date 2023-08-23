@@ -14,6 +14,7 @@ import pymc as pm
 import pickle
 import shutil
 import pandas as pd
+import arviz as az
 
 # Import local modules
 import model
@@ -25,6 +26,8 @@ import utils
 name = "home_office"  # Name of the experiment
 pandemic_fatigue = "linear"  # Type of pandemic fatigue function
 test = True  # Whether to run a test with fewer samples
+single = True  # Whether to run a single model
+run = True  # Whether to run the model or load the trace from a file
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
@@ -55,8 +58,11 @@ shutil.copyfile("data_prep.py", f"{supDir_name}/data_prep.py")
 o_2020, o_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
 dates = pd.to_datetime(dates_2020)
 
-# Get kurzarbeit + home office data
-ho_ka_df = data_prep.get_people_home(dates_2020, dates_2022)
+# Get kurzarbeit data
+kurzarbeit_df = data_prep.get_kurzarbeit(dates_2020)
+
+# Get home office data
+home_office_df = data_prep.get_home_office_difference(dates_2020)
 
 # Get R_effective value for disease data
 disease_data["R"] = data_prep.get_R(dates_2020)
@@ -83,6 +89,14 @@ if temperature is not None:
         "delta": data_prep.get_delta_T(dates_2020, dates_2022),
     }
 
+if single:
+    all_combinations = [
+        [
+            # "R",
+            "C"
+        ]
+    ]
+
 # Run model for each combination of indicators
 for indicators in all_combinations:
     # Generate a tag for saving results
@@ -102,29 +116,39 @@ for indicators in all_combinations:
         o_base,
         o_2020,
         stay_at_home_2020,
-        ho_ka_df,
+        kurzarbeit_df,
+        home_office_df,
         indicators,
         disease_data,
-        dates_2022,
         pandemic_fatigue,
         delta_prcp_in=precipitation,
         temperature_in=temperature,
     )
 
-    # Perform inference
-    if test:
-        trace = pm.sample(model=inference_model, draws=200, tune=200, cores=1, chains=4)
-    else:
-        trace = pm.sample(
-            model=inference_model, draws=1000, tune=1000, cores=1, chains=4
-        )
-    with inference_model:
-        pm.compute_log_likelihood(trace)
+    if run:
+        # Perform inference
+        if test:
+            trace = pm.sample(
+                model=inference_model, draws=200, tune=200, cores=1, chains=4
+            )
+        else:
+            trace = pm.sample(
+                model=inference_model, draws=1000, tune=1000, cores=1, chains=4
+            )
+        with inference_model:
+            pm.compute_log_likelihood(trace)
 
-    # Save the inference results
-    path = f"{dir_name}/trace_{tag}.pickle"
-    with open(path, "wb") as inference_file:
-        pickle.dump(trace, inference_file)
+        # Save inference results
+        ## trace
+        path = f"{dir_name}/trace_{tag}.pickle"
+        with open(path, "wb") as inference_file:
+            pickle.dump(trace, inference_file)
+        ## summary
+        summary = az.summary(trace, round_to=2)
+        path = f"{dir_name}/summary_{tag}.csv"
+        summary.to_csv(path)
+    else:
+        trace = utils.load_trace(name, tag)
 
     # Plot results
     subFigDir_name = figdir_name + "/" + tag
