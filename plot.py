@@ -569,7 +569,7 @@ def plot_all_timeseries(
     fig, axs = plt.subplots(
         3,
         1,
-        figsize=(12, 14),
+        figsize=(11, 13),
         sharex=True,
     )
 
@@ -600,6 +600,19 @@ def plot_all_timeseries(
     format_x_axis(ax, dates_in)
     ## set y label
     ax.set_ylabel("Subtractive impact on\nout-of-home duration")
+    ## create custom legend
+    ### for median line and 94% CI
+    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    ### create legend
+    legend2 = ax.legend(
+        handles=[median_line, ci_94],
+        frameon=False,
+        loc="lower left",
+        # bbox_to_anchor=(1.1, 0.95),
+    )
+    ax.add_artist(legend2)
+
     ax.legend(ncol=2)
 
     # middle plot
@@ -651,19 +664,7 @@ def plot_all_timeseries(
     format_x_axis(ax, dates_in)
     ## set y label
     ax.set_ylabel("Multiplicative impact on\nout-of-home duration")
-    ## create custom legend
-    ### for median line and 94% CI
-    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
-    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
-    ### create legend
-    legend2 = ax.legend(
-        handles=[median_line, ci_94],
-        frameon=False,
-        # bbox_to_anchor=(1.1, 0.95),
-    )
-    ax.add_artist(legend2)
-
-    legend1 = ax.legend(
+    ax.legend(
         # ncol=2,
         # bbox_to_anchor=(0.7, 2)
     )
