@@ -23,7 +23,7 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "none_mu=5_sigma=4"  # Name of the experiment
+name = "none_mu=3_sigma=1_5"  # Name of the experiment
 pandemic_fatigue = "no"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model

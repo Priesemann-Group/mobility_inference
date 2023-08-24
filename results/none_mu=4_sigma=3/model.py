@@ -244,8 +244,8 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     ## define priors
     factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
     # mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(5), tau=5)
-    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(4), tau=5)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(4), tau=5)
+    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(3), tau=5)
 
     ## convolve disease data with delay kernel
     risk = cov19.model.delay_cases(
