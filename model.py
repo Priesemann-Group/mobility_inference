@@ -174,10 +174,10 @@ def pandemic_fatigue_factor_linear(len_in):
     """Models linear pandemic fatigue over time.
 
     Args:
-    len_in: Length of time series (int)
+        len_in: Length of time series (int)
 
     Returns:
-    Linear pandemic modulation factor (pymc variable)
+        Linear pandemic modulation factor (pymc variable)
     """
 
     x = at.linspace(0, len_in, len_in)
@@ -213,12 +213,12 @@ def pandemic_fatigue_factor_sigmoid(len_in):
     ## location of the change point
     del_t = pm.Normal("del_t", len_in / 2, sigma=len_in / 4)
     ## maximum increase in pandemic fatigue
-    del_p = pm.Normal("del_f", mu=0.2, sigma=0.1)
+    del_f = pm.Normal("del_f", mu=0.2, sigma=0.1)
     ## time scale of pandemic fatigue
     tau = pm.LogNormal("tau", mu=np.log(1), tau=1)
 
     ## pandemic fatigue
-    p = pm.Deterministic("f", sigmoid(x, del_t, del_p, tau))
+    p = pm.Deterministic("f", sigmoid(x, del_t, del_f, tau))
 
     return p
 
@@ -244,8 +244,12 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     ## define priors
     factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
     # mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(2), tau=5)
-    sigma_disease = pm.LogNormal(f"sigma_{indicator}", mu=np.log(1), tau=5)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), sigma=0.5)
+    # sigma_disease = pm.Uniform(f"sigma_{indicator}", lower=1 / 7, upper=12)
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(2), sigma=0.25)
+    sigma_disease = pm.Deterministic(
+        f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease)
+    )
 
     ## convolve disease data with delay kernel
     risk = cov19.model.delay_cases(
