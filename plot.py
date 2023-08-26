@@ -108,6 +108,26 @@ def get_values(tag_in, variable_in, trace):
     return array.reshape(-1)
 
 
+def plot_gamma_parameters(trace, indicators, tag_in):
+    for indicator in indicators:
+        # make scatter plot of mu and sigma of gamma kernel
+        fig, ax = plt.subplots(1, 1, figsize=(2, 2))
+
+        # get kernel data
+        mus = get_values(indicator, "mu", trace)
+        sigmas = get_values(indicator, "sigma", trace)
+
+        # plot
+        ax.scatter(mus, sigmas, color=colors[indicator], alpha=0.1)
+        ax.set_xlabel(f"$\\mu_{indicator}$")
+        ax.set_ylabel(f"$\\sigma_{indicator}$")
+        # ax.set_title(f"Gamma kernel\nparameters for {indicator}")
+
+        # save figure
+        fig.savefig(f"{tag_in}/gamma_parameters_{indicator}.png", bbox_inches="tight")
+        fig.savefig(f"{tag_in}/gamma_parameters_{indicator}.pdf", bbox_inches="tight")
+
+
 def plot_convolution(tag, axs, last, trace, dates):
     # get kernel data
     mus = get_values(tag, "mu", trace)
@@ -250,35 +270,6 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
 
     fig.savefig(f"{tag_in}/gamma_kernel.png")
     fig.savefig(f"{tag_in}/gamma_kernel.pdf")
-
-
-## NOT IN USE ANYMORE | plot Gamma distribution with inferred mean and standard deviation
-def plot_gamma_kernel_kurzarbeit(trace_in, tag_in):
-    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
-
-    # prepare
-    max_x = 4
-    x = np.linspace(0, max_x, 100)
-    ys = []
-
-    # plot
-    y = cov19.model._utility.tt_gamma(
-        x,
-        mu=np.median(trace_in.posterior[f"mu_K"]),
-        sigma=np.median(trace_in.posterior[f"sigma_K"]),
-    ).eval()
-    ys.append(y)
-    ax.plot(x, y, linewidth=3, color=colors["K"])
-
-    # format
-    ax.set_xlabel("Month")
-    ax.set_title("Inferred median Gamma\nkernel for Kurzarbeit")
-    ax.set_xlim(0, max_x)
-    ax.set_ylim(0, 1.1 * np.max(np.array(ys)))
-    fig.tight_layout()
-
-    fig.savefig(f"{tag_in}/gamma_kernel_kurzarbeit.png")
-    fig.savefig(f"{tag_in}/gamma_kernel_kurzarbeit.pdf")
 
 
 ## plot temperature time series
@@ -615,7 +606,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     elif len(indicators_in) == 2:
         fig, axs = plt.subplots(3, 5, figsize=(13, 8))
     elif len(indicators_in) == 3:
-        fig, axs = plt.subplots(3, 5, figsize=(13, 8))
+        fig, axs = plt.subplots(4, 5, figsize=(13, 10))
     else:
         fig, axs = plt.subplots(4, 5, figsize=(13, 10))
 
@@ -672,7 +663,14 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
             dist_math=f"\sigma_{{{indicator}}}",
             ax=axs[i + 2],
         )
-        i += 3
+        cov19.plot.distribution(
+            model_in,
+            trace_in,
+            f"alpha_{indicator}",
+            dist_math=f"\\alpha_{{{indicator}}}",
+            ax=axs[i + 3],
+        )
+        i += 4
 
     fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
     fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
@@ -730,7 +728,7 @@ def analysis_figures(
     plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_kernel(trace_in, tag_in, indicators_in)
-    # plot_gamma_kernel_kurzarbeit(trace_in, tag_in)
+    plot_gamma_parameters(trace_in, indicators_in, tag_in)
     # plot_out_of_home_duration_timeseries(
     #     dates_in,
     #     trace_in,
