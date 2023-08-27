@@ -23,16 +23,16 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "both"  # Name of the experiment
+name = "precipitation"  # Name of the experiment
 pandemic_fatigue = "none"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
-run = True  # Whether to run the model or load the trace from a file
+run = False  # Whether to run the model or load the trace from a file
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = True
-temperature = True
+temperature = False
 
 # Generate all combinations of indicators
 all_combinations = utils.indicator_combinations()
@@ -154,5 +154,5 @@ for indicators in all_combinations:
     # Plot results
     subFigDir_name = figdir_name + "/" + tag
     plot.analysis_figures(
-        inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue
+        inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue, temperature, precipitation
     )

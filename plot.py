@@ -32,6 +32,8 @@ colors = {
     # temperature
     "T": colormap(0.4),
     "delT": colormap(0.45),
+    # precipitation
+    "p": colormap(0.55),
     # pandemic fatigue
     "f": colormap(0.6),
     # out-of-home duration
@@ -457,6 +459,8 @@ def plot_all_timeseries(
     tag_in,
     indicators_in,
     pandemic_fatigue_in,
+    temperature_in,
+    precipitation_in,
     log=False,
 ):
     fig, axs = plt.subplots(
@@ -545,6 +549,27 @@ def plot_all_timeseries(
             label_in="pandemic fatigue $f$",
             alpha=0.2,
         )
+    ## temperature
+    if temperature_in == "temperature":
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["theta"],
+            color_in=colors["T"],
+            label_in="temperature $\\theta$",
+            alpha=0.2,
+        )
+    ## precipitation
+    if precipitation_in == "precipitation":
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["p"],
+            color_in=colors["p"],
+            label_in="precipitation $p$",
+            alpha=0.2,
+        )
+
 
     ax.hlines(
         1,
@@ -558,7 +583,7 @@ def plot_all_timeseries(
     ## set y label
     ax.set_ylabel("Multiplicative impact on\nout-of-home duration")
     ax.legend(
-        # ncol=2,
+        ncol=2,
         # bbox_to_anchor=(0.7, 2)
     )
 
@@ -720,7 +745,7 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in
+    model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in, temperature_in, precipitation_in
 ):
     utils.make_dir(tag_in)
 
@@ -741,5 +766,7 @@ def analysis_figures(
         tag_in,
         indicators_in,
         pandemic_fatigue_in,
+        temperature_in,
+        precipitation_in,
     )
     plot_chains(trace_in, tag_in)
