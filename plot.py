@@ -466,7 +466,7 @@ def plot_all_timeseries(
     fig, axs = plt.subplots(
         3,
         1,
-        figsize=(11, 13),
+        figsize=(12, 13),
         sharex=True,
     )
 
@@ -520,6 +520,15 @@ def plot_all_timeseries(
         "H": "hospitalisations $d_H$",
         "R": "Reproduction Number $d_R$",
     }
+    ## plot s
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["s"],
+        color_in=colors["S"],
+        label_in="stay-at-home orders $s$",
+        alpha=0.2,
+    )
     ## plot disease indicators
     for indicator in indicators_in:
         plot_timeseries(
@@ -530,15 +539,6 @@ def plot_all_timeseries(
             label_in=labels[indicator],
             alpha=0.2,
         )
-    ## plot s
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["s"],
-        color_in=colors["S"],
-        label_in="stay-at-home orders $s$",
-        alpha=0.2,
-    )
     ## pandemic fatigue
     if pandemic_fatigue_in == "linear" or pandemic_fatigue_in == "sigmoid":
         plot_timeseries(
@@ -550,7 +550,7 @@ def plot_all_timeseries(
             alpha=0.2,
         )
     ## temperature
-    if temperature_in == "temperature":
+    if temperature_in is not None:
         plot_timeseries(
             ax,
             dates_in,
@@ -560,7 +560,7 @@ def plot_all_timeseries(
             alpha=0.2,
         )
     ## precipitation
-    if precipitation_in == "precipitation":
+    if precipitation_in is not None:
         plot_timeseries(
             ax,
             dates_in,

@@ -23,16 +23,16 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "precipitation"  # Name of the experiment
+name = "both"  # Name of the experiment
 pandemic_fatigue = "none"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
-run = False  # Whether to run the model or load the trace from a file
+run = True  # Whether to run the model or load the trace from a file
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
-precipitation = True
-temperature = False
+precipitation = 1
+temperature = 1
 
 # Generate all combinations of indicators
 all_combinations = utils.indicator_combinations()
