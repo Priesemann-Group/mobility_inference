@@ -66,7 +66,7 @@ def plot_timeseries(ax_in, x_in, array_in, label_in, color_in, alpha=0.5):
     )
 
 
-def format_x_axis(ax_in, x_in, last=False, n_xticks=6):
+def format_x_axis(ax_in, x_in, last=False, n_xticks=6, year=2020):
     # get x tick locations
     xticks = np.linspace(0, len(x_in) - 1, n_xticks, dtype=int)
     # get x tick labels
@@ -78,7 +78,7 @@ def format_x_axis(ax_in, x_in, last=False, n_xticks=6):
     if last:
         # set x tick labels
         ax_in.set_xticklabels(xticklabels)
-        ax_in.set_xlabel("Year 2020")
+        ax_in.set_xlabel(f"Year {year}")
     else:
         # set x tick labels
         ax_in.set_xticklabels([])
@@ -466,7 +466,7 @@ def plot_all_timeseries(
     fig, axs = plt.subplots(
         3,
         1,
-        figsize=(12, 13),
+        figsize=(13, 13),
         sharex=True,
     )
 
