@@ -15,11 +15,11 @@ The overall workflow is:
 import numpy as np
 import pymc as pm
 import pytensor.tensor as at
-import xarray as xr
+#import xarray as xr
 
 # local modules
 import covid19_inference.covid19_inference as cov19
-import data_prep
+#import data_prep
 
 
 # --- Model components --- #
@@ -44,30 +44,6 @@ def return_s(S_in):
     s = pm.Deterministic("s", at.exp(exponent))
 
     return s
-
-
-## NOT IN USE ANYMORE
-def school_closure_factor(school_data_in):
-    """Models impact of school closures.
-
-    Args:
-      school_data_in: School closure policy data (pm.ConstantData)
-
-    Returns:
-      School closure modulation factor (pymc variable)
-    """
-
-    ## data
-    school_data = pm.ConstantData("school_closures", school_data_in)
-
-    ## prior
-    z_school = pm.LogNormal("z_school", mu=np.log(0.95), tau=10)
-
-    ## put it together
-    exponent = -z_school * school_data
-    c = pm.Deterministic("c", at.exp(exponent))
-
-    return c
 
 
 # impact of weather
@@ -341,10 +317,6 @@ def create_model(
         # impact of NPIs
         ## stay-at-home orders
         m = m * return_s(S_data)
-
-        ## school closures | can be removed
-        if school_data_in is not None:
-            m = m * school_closure_factor(school_data_in)
 
         # impact of pandemic fatigue
         if pandemic_fatigue == "linear":

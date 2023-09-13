@@ -749,17 +749,12 @@ def analysis_figures(
 ):
     utils.make_dir(tag_in)
 
-    convolution_figure(indicators_in, trace_in, dates_in, tag_in)
+    if indicators_in:
+        convolution_figure(indicators_in, trace_in, dates_in, tag_in)
+        plot_gamma_kernel(trace_in, tag_in, indicators_in)
     plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
     # plot_temperature_timeseries(dates_in, trace_in, tag_in)
-    plot_gamma_kernel(trace_in, tag_in, indicators_in)
     plot_gamma_parameters(trace_in, indicators_in, tag_in)
-    # plot_out_of_home_duration_timeseries(
-    #     dates_in,
-    #     trace_in,
-    #     tag_in,
-    #     indicators_in,
-    # )
     plot_all_timeseries(
         dates_in,
         trace_in,
