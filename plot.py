@@ -208,9 +208,13 @@ def convolution_figure(indicators, trace, dates, directory):
     fig.subplots_adjust(hspace=0.6)
     # title
     if len(indicators) == 1:
-        y = 1.25
+        y = 1.5
+    elif len(indicators) == 2:
+        y = 1.16
+    elif len(indicators) == 3:
+        y = 1.1
     else:
-        y = 1.17
+        y = 1.05
     fig.suptitle("Perceived disease spread: memory kernel and convolution", y=y)
 
     # create custom legends
@@ -224,6 +228,7 @@ def convolution_figure(indicators, trace, dates, directory):
         height = 1.5
     else:
         height = 1.7
+        
     ### create legend
     legend1 = ax.legend(
         handles=[input, convolved], frameon=True, bbox_to_anchor=(1.1, height), ncol=2
@@ -629,17 +634,17 @@ def analysis_figures(
 
     if indicators_in:
         convolution_figure(indicators_in, trace_in, dates_in, tag_in)
-        plot_gamma_kernel(trace_in, tag_in, indicators_in)
-    plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
-    plot_temperature_timeseries(dates_in, trace_in, tag_in)
-    plot_gamma_parameters(trace_in, indicators_in, tag_in)
-    plot_all_timeseries(
-        dates_in,
-        trace_in,
-        tag_in,
-        indicators_in,
-        pandemic_fatigue_in,
-        temperature_in,
-        precipitation_in,
-    )
-    plot_chains(trace_in, tag_in)
+    #     plot_gamma_kernel(trace_in, tag_in, indicators_in)
+    # plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
+    # plot_temperature_timeseries(dates_in, trace_in, tag_in)
+    # plot_gamma_parameters(trace_in, indicators_in, tag_in)
+    # plot_all_timeseries(
+    #     dates_in,
+    #     trace_in,
+    #     tag_in,
+    #     indicators_in,
+    #     pandemic_fatigue_in,
+    #     temperature_in,
+    #     precipitation_in,
+    # )
+    # plot_chains(trace_in, tag_in)
