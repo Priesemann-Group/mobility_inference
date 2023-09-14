@@ -10,7 +10,7 @@ from matplotlib import lines, patches
 from matplotlib import colormaps
 
 # to import FormatStrFormatter
-import matplotlib.ticker as ticker
+#import matplotlib.ticker as ticker
 
 import covid19_inference.covid19_inference as cov19
 import utils
@@ -33,9 +33,11 @@ colors = {
     "T": colormap(0.4),
     "delT": colormap(0.45),
     # precipitation
-    "p": colormap(0.55),
+    "p": colormap(0.5),
+    "w_2022": colormap(0.55),
     # pandemic fatigue
     "f": colormap(0.6),
+    "sigmoid": colormap(0.75),
     # out-of-home duration
     "m": colormap(0.8),
     "m_obs": colormap(0.85),

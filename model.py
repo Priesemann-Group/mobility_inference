@@ -187,7 +187,7 @@ def pandemic_fatigue_factor_sigmoid(len_in):
     x = at.linspace(0, len_in, len_in)
 
     ## location of the change point
-    del_t = pm.Normal("del_t", len_in / 2, sigma=len_in / 4)
+    del_t = pm.Normal("del_t", -len_in / 2, sigma=len_in / 4)
     ## maximum increase in pandemic fatigue
     del_f = pm.Normal("del_f", mu=0.2, sigma=0.1)
     ## time scale of pandemic fatigue
