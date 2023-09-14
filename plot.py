@@ -159,7 +159,7 @@ def plot_convolution(tag, axs, last, trace, dates):
     ax.text(
         mu_median * 1.1,
         0.8 * ymax,
-        f"$\\tilde{{\mu}}_{tag}={mu_median}$",
+        f"$\\tilde{{\mu}}_{{{tag}}}={mu_median}$",
         ha="left",
         va="bottom",
     )
@@ -171,11 +171,10 @@ def plot_convolution(tag, axs, last, trace, dates):
     # plot input data
     ax.plot(
         dates,
-        trace.constant_data[tag].values[: len(dates)],
+        trace.constant_data[tag].values[-len(dates):],
         marker="o",
         label="input",
         color=colors[tag],
-        # ls='--'
     )
     # plot the convolution
     plot_timeseries(ax, dates, trace.posterior[f"risk_{tag}"], "convolved", colors[tag])
@@ -207,7 +206,12 @@ def convolution_figure(indicators, trace, dates, directory):
         )
     # add vertical padding
     fig.subplots_adjust(hspace=0.6)
-    fig.suptitle("Perceived disease spread: memory kernel and convolution", y=1.19)
+    # title
+    if len(indicators) == 1:
+        y = 1.25
+    else:
+        y = 1.17
+    fig.suptitle("Perceived disease spread: memory kernel and convolution", y=y)
 
     # create custom legends
     ## convolved
@@ -215,9 +219,14 @@ def convolution_figure(indicators, trace, dates, directory):
     ### for median line and 94% CI
     convolved = lines.Line2D([], [], color="black", linewidth=3, label="convolved")
     input = lines.Line2D([], [], color="black", linewidth=1, marker="o", label="input")
+    ### legend height
+    if len(indicators) == 1:
+        height = 1.5
+    else:
+        height = 1.7
     ### create legend
     legend1 = ax.legend(
-        handles=[input, convolved], frameon=True, bbox_to_anchor=(1.1, 1.7), ncol=2
+        handles=[input, convolved], frameon=True, bbox_to_anchor=(1.1, height), ncol=2
     )
     ax.add_artist(legend1)
     ## median
@@ -227,7 +236,7 @@ def convolution_figure(indicators, trace, dates, directory):
     ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
     ### create legend
     legend2 = ax.legend(
-        handles=[median_line, ci_94], frameon=False, bbox_to_anchor=(1.4, 1.7), ncol=2
+        handles=[median_line, ci_94], frameon=False, bbox_to_anchor=(1.4, height), ncol=2
     )
     ax.add_artist(legend2)
 
