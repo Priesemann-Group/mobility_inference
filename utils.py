@@ -4,7 +4,7 @@ import os
 
 
 # create list of indicator combinations
-def indicator_combinations(base_indicators=["R", "C", "H", "ICU"]):
+def indicator_combinations(base_indicators=["R", "C", "H", "ICU", "D"]):
     """Creates a list of all possible combinations of indicators.
 
     Parameters:

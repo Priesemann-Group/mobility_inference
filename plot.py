@@ -20,8 +20,9 @@ colors = {
     # diseaes
     "R": colormap(0.0),
     "C": colormap(0.05),
-    "ICU": colormap(0.15),
     "H": colormap(0.1),
+    "ICU": colormap(0.15),
+    "D": (0.803921568627451, 0.807843137254902, 0.9294117647058824, 1),
     # NPI
     ## stay-at-home order
     "S": colormap(0.2),
@@ -188,6 +189,7 @@ def plot_convolution(tag, axs, last, trace, dates):
         "ICU": "ICU patients ${ICU}$",
         "H": "Hospitalisations $H$",
         "R": "Effective Reproduction Number $R$",
+        "D": "Deaths $D$",
     }
     ax.set_title(labels[tag], x=0, y=1.1)
 
@@ -394,6 +396,7 @@ def plot_all_timeseries(
         "ICU": "ICU patients $d_{ICU}$",
         "H": "hospitalisations $d_H$",
         "R": "Reproduction Number $d_R$",
+        "D": "deaths $d_D$",
     }
     ## plot s
     plot_timeseries(
@@ -499,7 +502,7 @@ def plot_all_timeseries(
 
 
 # plot distribution for single indicator models
-def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in):
+def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in, temperature_in):
     # --- base parameters ---
     if len(indicators_in) == 1:
         fig, axs = plt.subplots(2, 5, figsize=(13, 5))
@@ -507,8 +510,10 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
         fig, axs = plt.subplots(3, 5, figsize=(13, 8))
     elif len(indicators_in) == 3:
         fig, axs = plt.subplots(4, 5, figsize=(13, 10))
-    else:
+    elif len(indicators_in) == 4:
         fig, axs = plt.subplots(4, 5, figsize=(13, 10))
+    elif len(indicators_in) == 5:
+        fig, axs = plt.subplots(5, 5, figsize=(13, 12))
 
     # flatten axes
     axs = axs.flatten()
@@ -588,27 +593,28 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
         )
 
     # --- temperature ---
-    fig, axs = plt.subplots(1, 5, figsize=(13, 2))
-    axs = axs.flatten()
-    cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
-    cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="a_T", ax=axs[1])
-    cov19.plot.distribution(
-        model_in, trace_in, "offset", dist_math="T_{*,max}", ax=axs[2]
-    )
-    cov19.plot.distribution(
-        model_in, trace_in, "shift", dist_math="\Delta t", ax=axs[3]
-    )
-    cov19.plot.distribution(model_in, trace_in, "a_rho", dist_math="a_\\rho", ax=axs[4])
-    fig.savefig(
-        f"{tag_in}/distributions_temperature.png",
-        dpi=300,
-        bbox_inches="tight",
-    )
-    fig.savefig(
-        f"{tag_in}/distributions_temperature.pdf",
-        dpi=300,
-        bbox_inches="tight",
-    )
+    if temperature_in:
+        fig, axs = plt.subplots(1, 5, figsize=(13, 2))
+        axs = axs.flatten()
+        cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
+        cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="a_T", ax=axs[1])
+        cov19.plot.distribution(
+            model_in, trace_in, "offset", dist_math="T_{*,max}", ax=axs[2]
+        )
+        cov19.plot.distribution(
+            model_in, trace_in, "shift", dist_math="\Delta t", ax=axs[3]
+        )
+        cov19.plot.distribution(model_in, trace_in, "a_rho", dist_math="a_\\rho", ax=axs[4])
+        fig.savefig(
+            f"{tag_in}/distributions_temperature.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        fig.savefig(
+            f"{tag_in}/distributions_temperature.pdf",
+            dpi=300,
+            bbox_inches="tight",
+        )
     
 
 
@@ -635,8 +641,9 @@ def analysis_figures(
     if indicators_in:
         convolution_figure(indicators_in, trace_in, dates_in, tag_in)
         plot_gamma_kernel(trace_in, tag_in, indicators_in)
-    plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in)
-    plot_temperature_timeseries(dates_in, trace_in, tag_in)
+    plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in, temperature_in)
+    if temperature_in:
+        plot_temperature_timeseries(dates_in, trace_in, tag_in)
     plot_gamma_parameters(trace_in, indicators_in, tag_in)
     plot_all_timeseries(
         dates_in,

@@ -310,7 +310,7 @@ def create_model(
         m = pm.Deterministic("o_*", m)
 
         # impact of disease spread
-        mu_z_prior = 0.5 ** len(indicators_in)
+        mu_z_prior = np.power(0.9, 1/len(indicators_in))
         for indicator in indicators_in:
             m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
 

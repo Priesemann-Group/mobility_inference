@@ -506,6 +506,26 @@ def get_H(owid_in, dates_2020_in=None):
     return H_data
 
 
+def get_D(owid_in, dates_2020_in=None):
+    """Get weekly death data from OWID data set.
+
+    Args:
+        owid_in (OWID data retrieval object): OWID data retrieval object.
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Xarray: Weekly death data.
+    """
+    D_data = owid_in._filter(
+        value="new_deaths_smoothed_per_million",
+        country="Germany",
+    )
+    if dates_2020_in is None:
+        dates_2020_in = get_disease_dates()
+    D_data = weekly_formatting(D_data, dates_2020_in)
+    D_data = transform_data(D_data).to_xarray()
+    return D_data
+
+
 ## NPI
 ### Stay-at-home orders
 def get_S(dates_2020_in):
