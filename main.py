@@ -23,17 +23,17 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "sigmoid_test"  # Name of the experiment
-pandemic_fatigue = "sigmoid"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
-test = True  # Whether to run a test with fewer samples
-single = True  # Whether to run a single model
+name = "linear_temperature"  # Name of the experiment
+pandemic_fatigue = "linear"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
+test = False  # Whether to run a test with fewer samples
+single = False  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
 disease_indicator = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = None
-temperature = None
+temperature = 1
 
 # Generate all combinations of indicators
 if disease_indicator:
