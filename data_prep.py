@@ -97,7 +97,9 @@ def get_NPI_data(filename_in, dates_in, stay_home=True):
 
 ## calculate differences between the years
 def return_differences(df2020_in, df2022_in, label_in):
-    """
+    """ Calculate difference between two time series: '2020 - 2022'.
+
+
     Args:
         df2020_in (pd.DataFrame): Dataframe with dates as index.
         df2022_in (pd.DataFrame): Dataframe with dates as index.

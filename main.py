@@ -23,7 +23,7 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "..."  # Name of the experiment
+name = "none"  # Name of the experiment
 pandemic_fatigue = "none"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
@@ -74,10 +74,11 @@ disease_data["R"] = data_prep.get_R()
 # Get OWID data
 owid = data_prep.get_owid()
 
-# Get cases, ICU, and hospitalisations data from OWID
+# Get cases, ICU, deaths and hospitalisations data from OWID
 disease_data["C"] = data_prep.get_C(owid)
 disease_data["ICU"] = data_prep.get_ICU(owid)
 disease_data["H"] = data_prep.get_H(owid)
+disease_data["D"] = data_prep.get_D(owid)
 
 # Get stay at home orders data
 stay_at_home_2020 = data_prep.get_S(dates_2020)
