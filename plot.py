@@ -168,6 +168,7 @@ def plot_convolution(tag, axs, last, trace, dates):
     )
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
+    ax.set_xlabel("Week")
 
     # plot the 'data'
     ax = axs[1]
