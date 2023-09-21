@@ -269,6 +269,19 @@ def get_home_office_ifo(dates_2020_in):
     return df_out
 
 
+def get_disease_dates(ICU=False):
+    """Get dates for disease data.
+
+    Returns:
+        Array of np.datetime64: Maximum dates for 2020.
+    """
+    if ICU:
+        start_date = "2020-03-22"
+    else:
+        start_date = "2020-03-06"
+    return pd.date_range(start=start_date, end="2020-12-19", freq="W-SUN").values
+
+
 # --- Get data ---
 ## Out of home duration
 def get_out_of_home_duration():
@@ -375,20 +388,6 @@ def get_kurzarbeit(dates_2020_in):
     array = array.rename_dims({"index": "date"})
 
     return df_out[column_name].values
-
-
-
-def get_disease_dates(ICU=False):
-    """Get dates for disease data.
-
-    Returns:
-        Array of np.datetime64: Maximum dates for 2020.
-    """
-    if ICU:
-        start_date = "2020-03-22"
-    else:
-        start_date = "2020-03-06"
-    return pd.date_range(start=start_date, end="2020-12-19", freq="W-SUN").values
 
 
 ## R

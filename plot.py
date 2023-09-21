@@ -26,6 +26,7 @@ colors = {
     # NPI
     ## stay-at-home order
     "S": colormap(0.2),
+    "S_ox": colormap(0.25),
     ## home office
     "h": colormap(0.25),
     ## kurzarbeit
