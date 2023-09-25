@@ -29,6 +29,7 @@ test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
 run = False  # Whether to run the model or load the trace from a file
 disease_indicator = True
+#posterior_predictive = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
@@ -157,7 +158,7 @@ for indicators in all_combinations:
         trace = utils.load_trace(name, tag)
 
     # Plot results
-    subFigDir_name = figdir_name + "/" + tag
-    plot.analysis_figures(
-        inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue, temperature, precipitation
-    )
+        subFigDir_name = figdir_name + "/" + tag
+        plot.analysis_figures(
+            inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue, temperature, precipitation
+        )

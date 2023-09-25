@@ -115,10 +115,10 @@ def temperature_factor(len_data_in, temperature_in):
     )
     ## calculate relevance of temperature differences
     a_r = pm.LogNormal("a_rho", mu=np.log(0.01), tau=1)
-    weather_relevance = Gaussian(avg_T, T_star, a_r)
+    temperature_relevance = Gaussian(avg_T, T_star, a_r)
 
     # put it together
-    w = pm.Deterministic("theta", at.exp(delta_T * weather_relevance * factor_weather))
+    w = pm.Deterministic("theta", 1 + delta_T * temperature_relevance * factor_weather)
 
     return w
 
@@ -139,7 +139,7 @@ def precipitation_factor(delta_prcp_in):
     z_P = pm.LogNormal("z_P", mu=np.log(0.05), tau=0.5)
 
     # put it together
-    w = pm.Deterministic("p", at.exp(-z_P * delta_prcp))
+    w = pm.Deterministic("p", 1 - z_P * delta_prcp)
 
     return w
 
@@ -336,5 +336,5 @@ def create_model(
         m = pm.Deterministic("m", m)
         model_error = pm.HalfCauchy("sigma_model", beta=0.5)
         likelihood = pm.Normal(
-            "likelihood", mu=m, sigma=model_error, observed=observed_mobility_data_in
+            "o", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )
