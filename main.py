@@ -121,12 +121,16 @@ for indicators in all_combinations:
     utils.make_dir(dir_name)
 
     for i in range(L, len(o_2020)-M):
+        # replace observed data after i with nan
+        o_obs = o_2020.copy()
+        o_obs[i:] = float("nan")
+
         # Create model
         inference_model = pm.Model()
         model.create_model(
             inference_model,
             o_base,
-            o_2020[:i],
+            o_obs,
             stay_at_home_2020,
             kurzarbeit_df,
             home_office_df,
@@ -142,14 +146,15 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                trace = pm.sample(
-                    model=inference_model, draws=200, tune=200, cores=1, chains=4
-                )
+                draws = 200
+                tune = 200
             else:
-                trace = pm.sample(
-                    model=inference_model, draws=1000, tune=1000, cores=1, chains=4, 
-                    idata_kwargs={"include_transformed": True}
-                )
+                draws = 1000
+                tune = 1000
+            trace = pm.sample(
+                model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
+                idata_kwargs={"include_transformed": True}
+            )
             with inference_model:
                 pm.compute_log_likelihood(trace)
 
@@ -163,7 +168,7 @@ for indicators in all_combinations:
             path = f"{dir_name}/summary_{tag2}.csv"
             summary.to_csv(path)
         else:
-            trace = utils.load_trace(name, tag2)
+            trace = utils.load_trace(name, tag, tag2)
 
     # Plot results
     if plot_figures:

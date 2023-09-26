@@ -21,7 +21,7 @@ def indicator_combinations(base_indicators=["R", "C", "H", "ICU", "D"], limit=5)
 
 
 # load trace from file
-def load_trace(tag_in, indicator_str_in):
+def load_trace(tag_in, dir_str_in, indicator_str_in):
     """Loads a trace from a pickle file.
 
     Parameters:
@@ -29,7 +29,7 @@ def load_trace(tag_in, indicator_str_in):
         indicator_str_in (str): string of indicators
     Returns:
         trace: trace of the model"""
-    path = f"results/{tag_in}/{indicator_str_in}/trace_{indicator_str_in}.pickle"
+    path = f"results/{tag_in}/{dir_str_in}/trace_{indicator_str_in}.pickle"
     with open(path, "rb") as inference_file:
         trace = pickle.load(inference_file)
     return trace
