@@ -23,18 +23,18 @@ import plot
 import utils
 
 # Set up basic configurations
-name = "temperature"  # Name of the experiment
-pandemic_fatigue = "sigmoid"  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
+name = "none"  # Name of the experiment
+pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
-run = False  # Whether to run the model or load the trace from a file
+run = True  # Whether to run the model or load the trace from a file
 disease_indicator = True
 #posterior_predictive = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = None
-temperature = 1
+temperature = None
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -140,7 +140,8 @@ for indicators in all_combinations:
             )
         else:
             trace = pm.sample(
-                model=inference_model, draws=1000, tune=1000, cores=1, chains=4
+                model=inference_model, draws=1000, tune=1000, cores=1, chains=4, 
+                idata_kwargs={"include_transformed": True}
             )
         with inference_model:
             pm.compute_log_likelihood(trace)
