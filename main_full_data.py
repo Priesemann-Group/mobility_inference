@@ -25,15 +25,11 @@ import utils
 # Set up basic configurations
 name = "none"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
-test = True  # Whether to run a test with fewer samples
+test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
 disease_indicator = True
-plot_figures = False
-
-# Parameters for ELPD calculation runs
-L = 10
-M = 10
+#posterior_predictive = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
@@ -120,53 +116,49 @@ for indicators in all_combinations:
     dir_name = supDir_name + "/" + tag
     utils.make_dir(dir_name)
 
-    for i in range(L, len(o_2020)-M):
-        # Create model
-        inference_model = pm.Model()
-        model.create_model(
-            inference_model,
-            o_base,
-            o_2020[:i],
-            stay_at_home_2020,
-            kurzarbeit_df,
-            home_office_df,
-            indicators,
-            disease_data,
-            pandemic_fatigue,
-            delta_prcp_in=precipitation,
-            temperature_in=temperature,
-        )
+    # Create model
+    inference_model = pm.Model()
+    model.create_model(
+        inference_model,
+        o_base,
+        o_2020,
+        stay_at_home_2020,
+        kurzarbeit_df,
+        home_office_df,
+        indicators,
+        disease_data,
+        pandemic_fatigue,
+        delta_prcp_in=precipitation,
+        temperature_in=temperature,
+    )
 
-        tag2 = tag + "_" + str(i)
-
-        if run:
-            # Perform inference
-            if test:
-                trace = pm.sample(
-                    model=inference_model, draws=200, tune=200, cores=1, chains=4
-                )
-            else:
-                trace = pm.sample(
-                    model=inference_model, draws=1000, tune=1000, cores=1, chains=4, 
-                    idata_kwargs={"include_transformed": True}
-                )
-            with inference_model:
-                pm.compute_log_likelihood(trace)
-
-            # Save inference results
-            ## trace
-            path = f"{dir_name}/trace_{tag2}.pickle"
-            with open(path, "wb") as inference_file:
-                pickle.dump(trace, inference_file)
-            ## summary
-            summary = az.summary(trace, round_to=2)
-            path = f"{dir_name}/summary_{tag2}.csv"
-            summary.to_csv(path)
+    if run:
+        # Perform inference
+        if test:
+            trace = pm.sample(
+                model=inference_model, draws=200, tune=200, cores=1, chains=4
+            )
         else:
-            trace = utils.load_trace(name, tag2)
+            trace = pm.sample(
+                model=inference_model, draws=1000, tune=1000, cores=1, chains=4, 
+                idata_kwargs={"include_transformed": True}
+            )
+        with inference_model:
+            pm.compute_log_likelihood(trace)
+
+        # Save inference results
+        ## trace
+        path = f"{dir_name}/trace_{tag}.pickle"
+        with open(path, "wb") as inference_file:
+            pickle.dump(trace, inference_file)
+        ## summary
+        summary = az.summary(trace, round_to=2)
+        path = f"{dir_name}/summary_{tag}.csv"
+        summary.to_csv(path)
+    else:
+        trace = utils.load_trace(name, tag)
 
     # Plot results
-    if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot.analysis_figures(
             inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue, temperature, precipitation
