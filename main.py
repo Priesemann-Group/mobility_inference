@@ -21,19 +21,17 @@ import model
 import data_prep
 import plot
 import utils
+import model_comparison
 
 # Set up basic configurations
-name = "none"  # Name of the experiment
+name = "no_indicator"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
-test = True  # Whether to run a test with fewer samples
+test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
-disease_indicator = True
+disease_indicator = False
 plot_figures = False
-
-# Parameters for ELPD calculation runs
-L = 10
-M = 10
+ELPD = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
@@ -42,7 +40,10 @@ temperature = None
 
 # Generate all combinations of indicators
 if disease_indicator:
-    all_combinations = utils.indicator_combinations(base_indicators=["H"], limit=1)
+    all_combinations = utils.indicator_combinations(
+        #base_indicators=["H"], 
+        #limit=1
+        )
 else:
     all_combinations = [[]]
 
@@ -108,6 +109,14 @@ if single:
         ],
     ]
 
+# Parameters for ELPD calculation runs
+if ELPD:
+    L = 10
+    M = 10
+else:
+    L = len(o_2020) - 1
+    M = 0
+
 # Run model for each combination of indicators
 for indicators in all_combinations:
     # Generate a tag for saving results
@@ -120,10 +129,15 @@ for indicators in all_combinations:
     dir_name = supDir_name + "/" + tag
     utils.make_dir(dir_name)
 
+    traces = {}
     for i in range(L, len(o_2020)-M):
         # replace observed data after i with nan
         o_obs = o_2020.copy()
-        o_obs[i:] = float("nan")
+        if ELPD:
+            o_obs[i:] = float("nan")
+            tag2 = tag + "_" + str(i)
+        else:
+            tag2 = tag
 
         # Create model
         inference_model = pm.Model()
@@ -140,8 +154,6 @@ for indicators in all_combinations:
             delta_prcp_in=precipitation,
             temperature_in=temperature,
         )
-
-        tag2 = tag + "_" + str(i)
 
         if run:
             # Perform inference
@@ -169,6 +181,12 @@ for indicators in all_combinations:
             summary.to_csv(path)
         else:
             trace = utils.load_trace(name, tag, tag2)
+
+        traces[i] = trace
+
+    # Save ELPD result to file
+    if ELPD:
+        model_comparison.save_ELPD_LFO(inference_model, traces, L, M, len(o_2020), dir_name)
 
     # Plot results
     if plot_figures:
