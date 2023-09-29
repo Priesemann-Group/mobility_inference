@@ -24,6 +24,9 @@ def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_sam
     # Take exp to get probability density per sample
     probabilities = np.exp(relevant_logp)
 
+    if i_in == 26:
+        print(log_likelihood)
+
     return np.mean(probabilities)
 
 
@@ -48,3 +51,30 @@ def save_ELPD_LFO(inference_model, traces, L, M, N, dir_name):
     ELPD_df = pd.DataFrame.from_dict(ELPD_components, orient="index")
     ELPD_df.columns = ["ELPD_LFO"]
     ELPD_df.to_csv(dir_name + "/ELPD_LFO.csv")
+
+
+def read_ELPD(name_in, indicator_tag_in):
+    path = f"results/{name_in}/{indicator_tag_in}/ELPD_LFO.csv"
+    ELPD_df = pd.read_csv(path, index_col=0)
+    return ELPD_df
+
+
+def SE_ELPD(differences_in, L=10, M=10, N=37): # hard code L, M, N for now
+    factor = (N-M-L) / (N-M-L-1)
+
+    summ = 0
+    for i in range(L, N-M):
+        difference = float(differences_in.loc[str(i)])
+        summ += (difference - float(differences_in.loc["mean"]))**2
+
+    return np.sqrt(factor * summ)
+
+
+def calculate_ELPD_differences(label1_in, label2_in, indicator1="", indicator2=""):
+    ELPD1 = read_ELPD(label1_in, indicator1)
+    ELPD2 = read_ELPD(label2_in, indicator2)
+    ELPD_differences = ELPD1 - ELPD2
+    mean = float(ELPD_differences.loc["mean"])
+    SE = SE_ELPD(ELPD_differences)
+    return mean, SE
+    

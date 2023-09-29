@@ -24,11 +24,11 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "bare_model"  # Name of the experiment
+name = "no_indicator"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
-run = True  # Whether to run the model or load the trace from a file
+run = False  # Whether to run the model or load the trace from a file
 disease_indicator = False
 plot_figures = False
 ELPD = True
