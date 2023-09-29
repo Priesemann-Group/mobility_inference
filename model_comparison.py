@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def approximate_probability_density(inference_model, trace, i_in, M, N_in, dir_name_in, n_samples=500):
+def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_samples=200):
     # Calculate the log probability densities of the data given the inferred parameters
     log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[:-1]+inference_model.observed_RVs, sum=False)
     ## Only get log p function for observed variables

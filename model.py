@@ -335,6 +335,6 @@ def create_model(
         # define likelihood
         m = pm.Deterministic("m", m)
         model_error = pm.HalfCauchy("sigma_model", beta=0.5)
-        likelihood = pm.Normal(
+        o = pm.Normal(
             "o", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )
