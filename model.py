@@ -296,13 +296,11 @@ def create_model(
     pandemic_fatigue="sigmoid",
     delta_prcp_in=None,
     temperature_in=None,
-    school_data_in=None,
 ):
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
         # define data
         m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-        S_data = pm.ConstantData("S", S_data_in)
 
         # kurzarbeit
         m = correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data)
@@ -316,7 +314,9 @@ def create_model(
 
         # impact of NPIs
         ## stay-at-home orders
-        m = m * return_s(S_data)
+        if S_data_in is not None:
+            S_data = pm.ConstantData("S", S_data_in)
+            m = m * return_s(S_data)
 
         # impact of pandemic fatigue
         if pandemic_fatigue == "linear":

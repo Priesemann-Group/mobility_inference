@@ -30,6 +30,7 @@ test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
 run = False  # Whether to run the model or load the trace from a file
 disease_indicator = False
+stay_at_home = 1 # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = False
 ELPD = True
 
@@ -87,7 +88,8 @@ disease_data["H"] = data_prep.get_H(owid)
 disease_data["D"] = data_prep.get_D(owid)
 
 # Get stay at home orders data
-stay_at_home_2020 = data_prep.get_S(dates_2020)
+if stay_at_home is not None:
+    stay_at_home = data_prep.get_S(dates_2020)
 
 # If precipitation is included, get precipitation data
 if precipitation is not None:
@@ -129,8 +131,9 @@ for indicators in all_combinations:
     dir_name = supDir_name + "/" + tag
     utils.make_dir(dir_name)
 
+    models = {}
     traces = {}
-    for i in range(L, len(o_2020)-M):
+    for i in range(L, len(o_2020)-M+1):
         # replace observed data after i with nan
         o_obs = o_2020.copy()
         if ELPD:
@@ -145,7 +148,7 @@ for indicators in all_combinations:
             inference_model,
             o_base,
             o_obs,
-            stay_at_home_2020,
+            stay_at_home,
             kurzarbeit_df,
             home_office_df,
             indicators,
@@ -154,6 +157,7 @@ for indicators in all_combinations:
             delta_prcp_in=precipitation,
             temperature_in=temperature,
         )
+        models[i] = inference_model
 
         if run:
             # Perform inference
@@ -186,7 +190,7 @@ for indicators in all_combinations:
 
     # Save ELPD result to file
     if ELPD:
-        model_comparison.save_ELPD_LFO(inference_model, traces, L, M, len(o_2020), dir_name)
+        model_comparison.save_ELPD_LFO(models, traces, L, M, len(o_2020), dir_name)
 
     # Plot results
     if plot_figures:

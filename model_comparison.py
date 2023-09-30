@@ -3,40 +3,39 @@ import pandas as pd
 
 def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_samples=200):
     # Calculate the log probability densities of the data given the inferred parameters
-    log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[:-1]+inference_model.observed_RVs, sum=False)
+    log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[-1], sum=False)
+    
+    #log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[:-1]+inference_model.observed_RVs, sum=False)
     ## Only get log p function for observed variables
     log_likelihood_func = lambda x: log_likelihood_func_tmp(x)[len(inference_model.free_RVs)-1:len(inference_model.free_RVs)-1+N_in]
 
     log_likelihood = []
-    for chain in range(1):
+    for chain in range(4):
         for draw in range(n_samples):
             variables = trace.posterior.isel(chain=chain, draw=draw).items()
-            relevant_vars = inference_model.continuous_value_vars[:-1]
+            relevant_vars = inference_model.continuous_value_vars#[:-1]
             var_dict = {key: var for key, var in variables if key in map(str, relevant_vars)}
-            log_likelihood.append(log_likelihood_func(var_dict))
+            log_p_density = log_likelihood_func_tmp(var_dict)[0]
+            log_likelihood.append(log_p_density)
 
     # Take sum from i+1 to i+M per sample to get relevant logp density
     relevant_logp = []
-    for ls in log_likelihood:
-        sample = ls[0]
-        relevant_logp.append(np.sum(sample[i_in:i_in+M]))
+    for sample in log_likelihood:
+        relevant_logp.append(np.sum(sample[:M]))
 
     # Take exp to get probability density per sample
     probabilities = np.exp(relevant_logp)
 
-    if i_in == 26:
-        print(log_likelihood)
-
     return np.mean(probabilities)
 
 
-def calculate_ELPD_LFO(model_in, traces_in, L_in, M_in, N_in):
+def calculate_ELPD_LFO(models_in, traces_in, L_in, M_in, N_in):
     ELPDs = {}
     sum = 0
     # sum over log probability densities of all 'predictions'
-    for i in range(L_in, N_in - M_in):
+    for i in range(L_in, N_in - M_in + 1):
         trace = traces_in[i]
-        prob = approximate_probability_density(model_in, trace, i, M_in, N_in, n_samples=1000)
+        prob = approximate_probability_density(models_in[i], trace, i, M_in, N_in, n_samples=1000)
         component = np.log(prob)
         ELPDs[i] = component
         sum += component
