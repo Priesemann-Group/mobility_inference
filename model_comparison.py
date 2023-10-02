@@ -2,19 +2,17 @@ import numpy as np
 import pandas as pd
 
 def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_samples=200):
-    # Calculate the log probability densities of the data given the inferred parameters
+    # Calculate the log probability densities of the unobserved data given the inferred parameters
     log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[-1], sum=False)
     
-    #log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[:-1]+inference_model.observed_RVs, sum=False)
-    ## Only get log p function for observed variables
-    log_likelihood_func = lambda x: log_likelihood_func_tmp(x)[len(inference_model.free_RVs)-1:len(inference_model.free_RVs)-1+N_in]
-
     log_likelihood = []
     for chain in range(4):
         for draw in range(n_samples):
+            # collect inferred parameters / variables
             variables = trace.posterior.isel(chain=chain, draw=draw).items()
             relevant_vars = inference_model.continuous_value_vars#[:-1]
             var_dict = {key: var for key, var in variables if key in map(str, relevant_vars)}
+
             log_p_density = log_likelihood_func_tmp(var_dict)[0]
             log_likelihood.append(log_p_density)
 
