@@ -337,6 +337,7 @@ def plot_all_timeseries(
     trace_in,
     tag_in,
     indicators_in,
+    stay_at_home,
     pandemic_fatigue_in,
     temperature_in,
     precipitation_in,
@@ -401,14 +402,15 @@ def plot_all_timeseries(
         "D": "deaths $d_D$",
     }
     ## plot s
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["s"],
-        color_in=colors["S"],
-        label_in="stay-at-home orders $s$",
-        alpha=0.2,
-    )
+    if stay_at_home is not None:
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["s"],
+            color_in=colors["S"],
+            label_in="stay-at-home orders $s$",
+            alpha=0.2,
+        )
     ## plot disease indicators
     for indicator in indicators_in:
         plot_timeseries(
@@ -504,7 +506,7 @@ def plot_all_timeseries(
 
 
 # plot distribution for single indicator models
-def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in, temperature_in):
+def plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in):
     # --- base parameters ---
     if len(indicators_in) == 1:
         fig, axs = plt.subplots(2, 5, figsize=(13, 5))
@@ -528,8 +530,8 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatig
     cov19.plot.distribution(
         model_in, trace_in, "delta_h", dist_math="\delta_h", ax=axs[1]
     )
-
-    cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
+    if stay_at_home is not None:
+        cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
     cov19.plot.distribution(
         model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
     )
@@ -636,22 +638,23 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, indicators_in, pandemic_fatigue_in, temperature_in, precipitation_in
+    model_in, trace_in, tag_in, dates_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in, precipitation_in
 ):
     utils.make_dir(tag_in)
 
     if indicators_in:
         convolution_figure(indicators_in, trace_in, dates_in, tag_in)
         plot_gamma_kernel(trace_in, tag_in, indicators_in)
-    plot_distributions(model_in, trace_in, tag_in, indicators_in, pandemic_fatigue_in, temperature_in)
+        plot_gamma_parameters(trace_in, indicators_in, tag_in)
+    plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in)
     if temperature_in:
         plot_temperature_timeseries(dates_in, trace_in, tag_in)
-    plot_gamma_parameters(trace_in, indicators_in, tag_in)
     plot_all_timeseries(
         dates_in,
         trace_in,
         tag_in,
-        indicators_in,
+        indicators_in, 
+        stay_at_home,
         pandemic_fatigue_in,
         temperature_in,
         precipitation_in,

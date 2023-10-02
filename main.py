@@ -24,15 +24,15 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "disease"  # Name of the experiment
+name = "bare_model"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
-run = True  # Whether to run the model or load the trace from a file
-disease_indicator = True
+run = False  # Whether to run the model or load the trace from a file
+disease_indicator = False
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
-plot_figures = False
-ELPD = True
+plot_figures = True
+ELPD = False
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
@@ -196,5 +196,5 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, indicators, pandemic_fatigue, temperature, precipitation
+            inference_model, trace, subFigDir_name, dates, indicators, stay_at_home, pandemic_fatigue, temperature, precipitation
         )
