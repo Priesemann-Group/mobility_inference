@@ -508,6 +508,8 @@ def plot_all_timeseries(
 # plot distribution for single indicator models
 def plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in):
     # --- base parameters ---
+    if len(indicators_in) == 0:
+        fig, axs = plt.subplots(1, 5, figsize=(13, 2))
     if len(indicators_in) == 1:
         fig, axs = plt.subplots(2, 5, figsize=(13, 5))
     elif len(indicators_in) == 2:
