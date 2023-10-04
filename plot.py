@@ -483,7 +483,7 @@ def plot_all_timeseries(
     )
     ax.plot(
         dates_in,
-        trace_in.observed_data["likelihood"],
+        trace_in.observed_data["o"],
         label="input $o_{obs}$",
         color=colors["m_obs"],
         marker="o",

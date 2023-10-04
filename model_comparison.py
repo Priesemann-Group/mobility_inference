@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_samples=200):
+def approximate_probability_density(inference_model, trace, M, n_samples=200):
     # Calculate the log probability densities of the unobserved data given the inferred parameters
     log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[-1], sum=False)
     
@@ -10,7 +10,7 @@ def approximate_probability_density(inference_model, trace, i_in, M, N_in, n_sam
         for draw in range(n_samples):
             # collect inferred parameters / variables
             variables = trace.posterior.isel(chain=chain, draw=draw).items()
-            relevant_vars = inference_model.continuous_value_vars#[:-1]
+            relevant_vars = inference_model.continuous_value_vars
             var_dict = {key: var for key, var in variables if key in map(str, relevant_vars)}
 
             log_p_density = log_likelihood_func_tmp(var_dict)[0]
@@ -33,17 +33,19 @@ def calculate_ELPD_LFO(models_in, traces_in, L_in, M_in, N_in):
     # sum over log probability densities of all 'predictions'
     for i in range(L_in, N_in - M_in + 1):
         trace = traces_in[i]
-        prob = approximate_probability_density(models_in[i], trace, i, M_in, N_in, n_samples=1000)
+        prob = approximate_probability_density(models_in[i], trace, M_in, n_samples=1000)
         component = np.log(prob)
         ELPDs[i] = component
         sum += component
 
-    return sum, ELPDs
+    mean = sum / (N_in - M_in - L_in)
+    return mean, sum, ELPDs
 
 
 def save_ELPD_LFO(inference_model, traces, L, M, N, dir_name):
     # save ELPD results to file
-    mean_ELPD, ELPD_components = calculate_ELPD_LFO(inference_model, traces, L, M, N)
+    mean_ELPD, sum_ELPD, ELPD_components = calculate_ELPD_LFO(inference_model, traces, L, M, N)
+    ELPD_components["sum"] = sum_ELPD
     ELPD_components["mean"] = mean_ELPD
     ELPD_df = pd.DataFrame.from_dict(ELPD_components, orient="index")
     ELPD_df.columns = ["ELPD_LFO"]
@@ -67,11 +69,12 @@ def SE_ELPD(differences_in, L=10, M=10, N=37): # hard code L, M, N for now
     return np.sqrt(factor * summ)
 
 
-def calculate_ELPD_differences(label1_in, label2_in, indicator1="", indicator2=""):
+def calculate_ELPD_differences(label1_in, label2_in, indicator1="", indicator2="", M=10):
     ELPD1 = read_ELPD(label1_in, indicator1)
     ELPD2 = read_ELPD(label2_in, indicator2)
     ELPD_differences = ELPD1 - ELPD2
     mean = float(ELPD_differences.loc["mean"])
-    SE = SE_ELPD(ELPD_differences)
-    return mean, SE
+    SE = SE_ELPD(ELPD_differences, M=M)
+    sum = float(ELPD_differences.loc["sum"])
+    return mean, SE, sum
     
