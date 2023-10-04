@@ -38,7 +38,7 @@ def calculate_ELPD_LFO(models_in, traces_in, L_in, M_in, N_in):
         ELPDs[i] = component
         sum += component
 
-    mean = sum / (N_in - M_in - L_in)
+    mean = sum / (N_in - M_in - L_in + 1)
     return mean, sum, ELPDs
 
 
@@ -59,10 +59,10 @@ def read_ELPD(name_in, indicator_tag_in):
 
 
 def SE_ELPD(differences_in, L=10, M=10, N=37): # hard code L, M, N for now
-    factor = (N-M-L) / (N-M-L-1)
+    factor = (N-M-L+1) / (N-M-L)
 
     summ = 0
-    for i in range(L, N-M):
+    for i in range(L, N-M+1):
         difference = float(differences_in.loc[str(i)])
         summ += (difference - float(differences_in.loc["mean"]))**2
 

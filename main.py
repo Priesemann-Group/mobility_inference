@@ -24,7 +24,7 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "stay_at_home_LFO_M=1"  # Name of the experiment
+name = "no_indicator"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
@@ -114,7 +114,7 @@ if single:
 # Parameters for ELPD calculation runs
 if ELPD:
     L = 10
-    M = 1
+    M = 10
 else:
     L = len(o_2020) - 1
     M = 0
