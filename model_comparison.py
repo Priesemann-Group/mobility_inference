@@ -58,7 +58,7 @@ def read_ELPD(name_in, indicator_tag_in):
     return ELPD_df
 
 
-def SE_ELPD(differences_in, L=10, M=10, N=37): # hard code L, M, N for now
+def SE_ELPD(differences_in, L=10, M=10, N=37): 
     factor = (N-M-L+1) / (N-M-L)
 
     summ = 0
@@ -76,5 +76,5 @@ def calculate_ELPD_differences(label1_in, label2_in, indicator1="", indicator2="
     mean = float(ELPD_differences.loc["mean"])
     SE = SE_ELPD(ELPD_differences, M=M)
     sum = float(ELPD_differences.loc["sum"])
-    return mean, SE, sum
+    return mean, SE, sum, ELPD_differences
     
