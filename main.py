@@ -24,19 +24,19 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "disease_M=1"  # Name of the experiment
+name = "precipitation"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
-disease_indicator = True
+disease_indicator = False
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = False
 ELPD = True
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
-precipitation = None
+precipitation = 1
 temperature = None
 
 # Generate all combinations of indicators
@@ -114,7 +114,7 @@ if single:
 # Parameters for ELPD calculation runs
 if ELPD:
     L = 10
-    M = 1
+    M = 10
 else:
     L = len(o_2020) - 1
     M = 0

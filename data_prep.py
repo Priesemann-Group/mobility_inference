@@ -127,6 +127,18 @@ def return_averages(df1_in, df2_in, label_in):
     return average
 
 
+## normalise data
+def normalise(array_in):
+    """Normalise data to range [-1,1].
+
+    Args:
+        array_in (array or list): Data.
+    Returns:
+        Array: Normalised data.
+    """
+    return array_in / np.max(array_in)
+
+
 ## for Kurzarbeit
 def german_month_to_num(month):
     """Convert month name to number.
@@ -624,7 +636,7 @@ def get_delta_T(dates_2020_in, dates_2022_in):
     weather_df_2020, weather_df_2022 = get_weather_dfs(dates_2020_in, dates_2022_in)
     delta_tmax = return_differences(weather_df_2020, weather_df_2022, "tmax")
     delta_tmax = xr.DataArray(
-        delta_tmax, dims="date", coords={"date": dates_2020_in}, name="delta_tmax"
+        normalise(delta_tmax), dims="date", coords={"date": dates_2020_in}, name="delta_tmax"
     )
     return delta_tmax
 
@@ -666,6 +678,6 @@ def get_delta_prcp(dates_2020_in, dates_2022_in):
     weather_df_2020, weather_df_2022 = get_weather_dfs(dates_2020_in, dates_2022_in)
     delta_prcp = return_differences(weather_df_2020, weather_df_2022, "prcp")
     delta_prcp = xr.DataArray(
-        delta_prcp, dims="date", coords={"date": dates_2020_in}, name="delta_prcp"
+        normalise(delta_prcp), dims="date", coords={"date": dates_2020_in}, name="delta_prcp"
     )
     return delta_prcp
