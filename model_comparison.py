@@ -69,12 +69,12 @@ def SE_ELPD(differences_in, L, M, N):
     return np.sqrt(factor * summ)
 
 
-def calculate_ELPD_differences(label1_in, label2_in, M, indicator1="", indicator2=""):
-    ELPD1 = read_ELPD(label1_in, indicator1)
-    ELPD2 = read_ELPD(label2_in, indicator2)
+def calculate_ELPD_differences(label1_in, label2_in, method_tag_in, L, M, N, indicator1="", indicator2=""):
+    ELPD1 = read_ELPD(label1_in, indicator1, method_tag_in)
+    ELPD2 = read_ELPD(label2_in, indicator2, method_tag_in)
     ELPD_differences = ELPD1 - ELPD2
     mean = float(ELPD_differences.loc["mean"])
-    SE = SE_ELPD(ELPD_differences, M=M)
+    SE = SE_ELPD(ELPD_differences, L, M, N)
     sum = float(ELPD_differences.loc["sum"])
     return mean, SE, sum, ELPD_differences
     

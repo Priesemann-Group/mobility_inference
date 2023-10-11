@@ -24,7 +24,7 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "bare_model"  # Name of the experiment
+name = "temperature"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
@@ -32,13 +32,13 @@ run = True  # Whether to run the model or load the trace from a file
 disease_indicator = False # Whether to include disease indicators
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = False    # Whether to plot figures
-ELPD_method = "LFO"   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
+ELPD_method = "k-fold_CV"   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = None
-temperature = None
+temperature = 1
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -141,10 +141,10 @@ for indicators in all_combinations:
         o_obs = o_2020.copy()
         if ELPD_method == "LFO":
             o_obs[i+1:] = float("nan")
-            tag2 = tag + "_" + str(i)
+            tag2 = tag + f"_{ELPD_method}_" + str(i)
         elif ELPD_method == "k-fold_CV":
             o_obs[i+1 : i+1 + M] = float("nan")
-            tag2 = tag + "_" + str(i)
+            tag2 = tag + f"_{ELPD_method}_" + str(i)
         else:
             tag2 = tag
 
