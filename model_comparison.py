@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def approximate_probability_density(inference_model, trace, M, n_samples=200):
     # Calculate the log probability densities of the unobserved data given the inferred parameters
     log_likelihood_func_tmp = inference_model.compile_logp(vars=inference_model.free_RVs[-1], sum=False)
@@ -27,13 +28,12 @@ def approximate_probability_density(inference_model, trace, M, n_samples=200):
     return np.mean(probabilities)
 
 
-def calculate_ELPD_LFO(models_in, traces_in, L_in, M_in, N_in):
+def calculate_ELPD(models_in, traces_in, L_in, M_in, N_in, draws_in):
     ELPDs = {}
     sum = 0
     # sum over log probability densities of all 'predictions'
-    for i in range(L_in, N_in - M_in + 1):
-        trace = traces_in[i]
-        prob = approximate_probability_density(models_in[i], trace, M_in, n_samples=1000)
+    for i in range(L_in-1, N_in - M_in):
+        prob = approximate_probability_density(models_in[i], traces_in[i], M_in, n_samples=draws_in)
         component = np.log(prob)
         ELPDs[i] = component
         sum += component
@@ -42,34 +42,34 @@ def calculate_ELPD_LFO(models_in, traces_in, L_in, M_in, N_in):
     return mean, sum, ELPDs
 
 
-def save_ELPD_LFO(inference_model, traces, L, M, N, dir_name):
+def save_ELPD(inference_model, traces, L, M, N, dir_name, draws, method_tag):
     # save ELPD results to file
-    mean_ELPD, sum_ELPD, ELPD_components = calculate_ELPD_LFO(inference_model, traces, L, M, N)
+    mean_ELPD, sum_ELPD, ELPD_components = calculate_ELPD(inference_model, traces, L, M, N, draws)
     ELPD_components["sum"] = sum_ELPD
     ELPD_components["mean"] = mean_ELPD
     ELPD_df = pd.DataFrame.from_dict(ELPD_components, orient="index")
-    ELPD_df.columns = ["ELPD_LFO"]
-    ELPD_df.to_csv(dir_name + "/ELPD_LFO.csv")
+    ELPD_df.columns = ["ELPD"]
+    ELPD_df.to_csv(dir_name + f"/ELPD_{method_tag}.csv")
 
 
-def read_ELPD(name_in, indicator_tag_in):
-    path = f"results/{name_in}/{indicator_tag_in}/ELPD_LFO.csv"
+def read_ELPD(name_in, indicator_tag_in, method_tag_in):
+    path = f"results/{name_in}/{indicator_tag_in}/ELPD_{method_tag_in}.csv"
     ELPD_df = pd.read_csv(path, index_col=0)
     return ELPD_df
 
 
-def SE_ELPD(differences_in, L=10, M=10, N=37): 
+def SE_ELPD(differences_in, L, M, N): 
     factor = (N-M-L+1) / (N-M-L)
 
     summ = 0
-    for i in range(L, N-M+1):
+    for i in range(L-1, N-M):
         difference = float(differences_in.loc[str(i)])
         summ += (difference - float(differences_in.loc["mean"]))**2
 
     return np.sqrt(factor * summ)
 
 
-def calculate_ELPD_differences(label1_in, label2_in, indicator1="", indicator2="", M=10):
+def calculate_ELPD_differences(label1_in, label2_in, M, indicator1="", indicator2=""):
     ELPD1 = read_ELPD(label1_in, indicator1)
     ELPD2 = read_ELPD(label2_in, indicator2)
     ELPD_differences = ELPD1 - ELPD2

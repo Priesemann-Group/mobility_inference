@@ -24,7 +24,7 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "precipitation"  # Name of the experiment
+name = "bare_model"  # Name of the experiment
 pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
 test = False  # Whether to run a test with fewer samples
 single = False  # Whether to run a single model
@@ -32,12 +32,12 @@ run = True  # Whether to run the model or load the trace from a file
 disease_indicator = False # Whether to include disease indicators
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = False    # Whether to plot figures
-ELPD = False    # Whether to calculate ELPD
-M = 1   # Number of days to predict into the future in ELPD-LFO calculation
+ELPD_method = "LFO"   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
+M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
-precipitation = 2
+precipitation = None
 temperature = None
 
 # Generate all combinations of indicators
@@ -113,12 +113,10 @@ if single:
     ]
 
 # Parameters for ELPD calculation runs
-if ELPD:
+if ELPD_method == "LFO":
     L = 10
-    M = M
-else:
-    L = len(o_2020) - 1
-    M = 0
+elif ELPD_method == "k-fold_CV":
+    L = 1
 
 # Run model for each combination of indicators
 for indicators in all_combinations:
@@ -134,11 +132,18 @@ for indicators in all_combinations:
 
     models = {}
     traces = {}
-    for i in range(L, len(o_2020)-M+1):
+    if ELPD_method is not None:
+        iterable = range(L-1, len(o_2020) - M)
+    else:
+        iterable = [0]
+    for i in iterable:
         # replace observed data after i with nan
         o_obs = o_2020.copy()
-        if ELPD:
-            o_obs[i:] = float("nan")
+        if ELPD_method == "LFO":
+            o_obs[i+1:] = float("nan")
+            tag2 = tag + "_" + str(i)
+        elif ELPD_method == "k-fold_CV":
+            o_obs[i+1 : i+1 + M] = float("nan")
             tag2 = tag + "_" + str(i)
         else:
             tag2 = tag
@@ -190,8 +195,8 @@ for indicators in all_combinations:
         traces[i] = trace
 
     # Save ELPD result to file
-    if ELPD:
-        model_comparison.save_ELPD_LFO(models, traces, L, M, len(o_2020), dir_name)
+    if ELPD_method is not None:
+        model_comparison.save_ELPD(models, traces, L, M, len(o_2020), dir_name, draws, ELPD_method)
 
     # Plot results
     if plot_figures:
