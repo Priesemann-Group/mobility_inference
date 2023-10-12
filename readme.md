@@ -16,13 +16,14 @@ The code is centered around main.py that uses functions in the following files:
 - model.py: Contains functions to build and return the inference model
 - utils.py: Contains a few utility functions
 - plot.py: Contains functions to plot the results the inference
+- model_comparison.py: Contains functions to calculate the ELPDs
 
 cluster_run.sh is used to run the inference on the cluster.
 Sometimes it is possible that no local data for the disease indicators is stored. As the cluster does not have internet access to download the Our World in Data data, one needs to run the cells of
     download_OWID.ipynb 
 before using the cluster for the inference.
 
-plot_results.ipynb is mainly used to plot model selection figures.
+plot_results.ipynb is mainly used to plot model comparison figures. (It is quite messy right now.)
 
 (input_data_analysis.ipynb is a messy notebook to pre-analyse the input data. May be archived at some point.)
 
@@ -30,6 +31,6 @@ plot_results.ipynb is mainly used to plot model selection figures.
 - data: Storage for some of the (raw) input data
 - results: Storage for the inference results, e.g. traces and source files
 - figures: Storage for all the produced figures
-- archive: old files
+- archived: old files
 
 
