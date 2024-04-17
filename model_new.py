@@ -1,6 +1,7 @@
 # general modules
 import numpy as np
 import pymc as pm
+from pyparsing import alphanums
 import pytensor.tensor as at
 #import xarray as xr
 
@@ -15,13 +16,29 @@ def duration_base(d_base):
     Returns:
     Base duration
     """
-
-
     d_factor = pm.Normal("d_factor", mu=12, sigma=1)
 
     d_base = pm.Deterministic("d_base", d_base*d_factor)
 
     return d_base
+
+def pop_density_factor(pop_density_in):
+    """
+    Args:
+    pop_density_in: Population density data
+
+    Returns:
+    Population density data modulation factor (pymc variable)
+    """
+
+    alpha = pm.Normal("alpha_pop", mu = 0.00001, sigma = 0.001)
+    beta = pm.Normal("beta_pop", mu = 1, sigma = 0.000001)
+
+    pop_density_data = pm.ConstantData("pop_density_data_in", pop_density_in["pop_density"])
+
+    pop = pm.Deterministic("pop_density_factor", alpha * pop_density_data + beta)
+
+    return pop
 
 def vacation_factor(vacation_data_in):
     """
@@ -56,49 +73,51 @@ def holiday_factor(holiday_data_in):
 
 
 ## temperature factor
-def generate_Tstar(amplitude, offset, shift, slope, length):
-    """
-    Args:
-        Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-        length: Length of curve or data (int)
+#sigmoid
+# def temperature_factor(temperature_in):
+#     """
+#     Args:
+#        temperature_data_in: Temperature data
 
-    Returns:
-        T_star: Temperature sensitivity
+#     Returns:
+#         T_star: Temperature sensitivity
 
-    """
+#     """
 
-    x = at.linspace(0, length, length)
-    return pm.Deterministic("T_star", amplitude/(1+np.exp(slope*(x+shift)))+offset)
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+
+#     amplitude = pm.Normal("amplitude", mu=1, sigma = 0.1)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
+
+#     return pm.Deterministic("temperature_factor", 1/(1+np.exp(-amplitude*(Tmax_2020+shift))))
+
+#sine
+# def temperature_factor(temperature_in):
+#     """
+#     Args:
+#        temperature_data_in: Temperature data
+
+#     Returns:
+#         T_star: Temperature sensitivity
+
+#     """
+
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+
+#     amplitude = pm.Normal("amplitude", mu=0.5, sigma = 0.1)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
+
+#     return pm.Deterministic("temperature_factor", np.sin(amplitude*(Tmax_2020+shift)))
 
 ## temperature factor
 ##x^4
-def temperature_factor(temperature_in):
-    """Generates go-out temperature curve using 4th order polynomial.
-
-    Args:
-        Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-        length: Length of curve or data (int)
-
-    Returns:
-        T_star: Go-out temperature curve (pymc variable)
-
-    """
-
-    Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
-
-    amplitude = pm.Normal("amplitude", mu=0.02, sigma = 0.002)
-    offset = pm.Normal("offset", mu=1, sigma=0.1)
-    shift = pm.Normal("shift", mu=-20, sigma=2)
-
-    return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
-
-##x^2
 # def temperature_factor(temperature_in):
 #     """Generates go-out temperature curve using 4th order polynomial.
 
 #     Args:
-#         Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-#         length: Length of curve or data (int)
+#         temperature_data_in: Temperature data
 
 #     Returns:
 #         T_star: Go-out temperature curve (pymc variable)
@@ -107,51 +126,31 @@ def temperature_factor(temperature_in):
 
 #     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-#     amplitude = pm.Normal("amplitude", mu=0.05, sigma = 0.005)
-#     offset = pm.Normal("offset", mu=1, sigma=0.01)
+#     amplitude = pm.Normal("amplitude", mu=0.02, sigma = 0.002)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
 #     shift = pm.Normal("shift", mu=-20, sigma=2)
 
-#     return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
+#     return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 4.0) + offset)
 
-#First T_star, then temp_factor
-def generate_Tstar(amplitude, shift, temperature_in):
-    """
+##x^2
+def temperature_factor(temperature_in):
+    """Generates go-out temperature curve using 4th order polynomial.
+
     Args:
-        Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-        length: Length of curve or data (int)
+       temperature_data_in: Temperature data
 
     Returns:
-        T_star: Temperature sensitivity
+        T_star: Go-out temperature curve (pymc variable)
 
     """
+
     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-    return pm.Deterministic("T_star", at.power(amplitude * (Tmax_2020 + shift), 4.0))
+    amplitude = pm.Normal("amplitude", mu=0.05, sigma = 0.005)
+    offset = pm.Normal("offset", mu=1, sigma=0.01)
+    shift = pm.Normal("shift", mu=-20, sigma=2)
 
-# def temperature_factor(temperature_in):
-#     """Generates go-out temperature curve using 4th order polynomial.
-
-#     Args:
-#         Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-#         length: Length of curve or data (int)
-
-#     Returns:
-#         T_star: Go-out temperature curve (pymc variable)
-
-#     """
-
-#     amplitude = pm.Normal("amplitude", mu=0.5, sigma = 0.05)
-#     shift = pm.Normal("shift", mu=-27, sigma=2)
-
-#     T_star = generate_Tstar(
-#         amplitude=amplitude,
-#         shift = shift,
-#         temperature_in=temperature_in
-#     )
-
-#     z_w = pm.LogNormal("z_w", mu=np.log(0.01), tau=1)
-
-#     return pm.Deterministic("temperature_factor", np.exp(-z_w*T_star))
+    return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
 
 def precipitation_factor(precipitation_data_in):
     """
@@ -168,8 +167,40 @@ def precipitation_factor(precipitation_data_in):
     
     return p
 
+# def daylight_factor(daylight_data_in):
+#     """
+#     Args:
+#     daylight_data_in: Precipitation data
+
+#     Returns:
+#     Daylight modulation factor (pymc variable)
+#     """
+#     daylight_data = pm.ConstantData("daylight_data_in", daylight_data_in["daylight"])
+
+#     alpha = pm.Normal("alpha_day", mu = 0.2, sigma = 0.01)
+#     beta = pm.Normal("beta_day", mu = -2, sigma = 0.1)
+#     day = pm.Deterministic("daylight_factor", alpha * daylight_data + beta)
+
+#     return day
+
+def daylight_factor(daylight_data_in):
+    """
+    Args:
+    daylight_data_in: Precipitation data
+
+    Returns:
+    Daylight modulation factor (pymc variable)
+    """
+    daylight_data = pm.ConstantData("daylight_data_in", daylight_data_in["daylight"])
+
+    alpha = pm.Normal("alpha_day", mu = 0.02, sigma = 0.005) #TODO: Find adequate non-neg. distribution
+    beta = pm.Normal("beta_day", mu = 0.1, sigma = 0.05)
+    day = pm.Deterministic("daylight_factor", beta*np.exp(alpha*(daylight_data-12.23188)/beta) + (1-beta))
+
+    return day
+
 #Impact of disease spread
-def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
+def disease_factor(indicator, disease_data_in, len_data, mu_z_prior_1=0.7, mu_z_prior_2=0.8):
     """Models impact of disease spread on mobility.
 
     Args:
@@ -185,9 +216,11 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     ## data
     disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
     disease_data_len = disease_data.shape[0].eval()
+    idx = np.arange(0,37,1)
 
     ## define priors
-    factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
+    factor_disease_1 = pm.LogNormal(f"z1_{indicator}", mu=np.log(mu_z_prior_1), tau=10)
+    factor_disease_2 = pm.LogNormal(f"z2_{indicator}", mu=np.log(mu_z_prior_2), tau=10)
     # mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
     mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(15), sigma=0.5)
     # sigma_disease = pm.Uniform(f"sigma_{indicator}", lower=1 / 7, upper=12)
@@ -209,6 +242,7 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     risk = pm.Deterministic(f"risk_{indicator}", risk)
 
     ## put it together
+    factor_disease = pm.math.switch(15 > idx, factor_disease_1, factor_disease_2)
     exponent = -factor_disease * risk
     d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
 
@@ -227,6 +261,8 @@ def create_model(
     holiday_in,
     precipitation_in=None,
     temperature_in=None,
+    daylight_in=None,
+    pop_density_in=None
 ):
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
@@ -234,9 +270,13 @@ def create_model(
         m = duration_base(base_mobility_data_in)
 
         # impact of disease spread
-        for indicator in indicators_in:
-            mu_z_prior = np.power(0.9, 1/len(indicators_in))
-            m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
+        if indicators_in is not None:
+            for indicator in indicators_in:
+                mu_z_prior = np.power(0.9, 1/len(indicators_in))
+                m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
+
+        if pop_density_in is not None:
+            m *= pop_density_factor(pop_density_in)
 
         #impact of school vacations
         if school_in is not None:
@@ -254,6 +294,10 @@ def create_model(
         ## temperature
         if temperature_in is not None:
             m *= temperature_factor(temperature_in)
+
+        ## daylight
+        if daylight_in is not None:
+            m *= daylight_factor(daylight_in)
 
         # define likelihood
         m = pm.Deterministic("m", m)

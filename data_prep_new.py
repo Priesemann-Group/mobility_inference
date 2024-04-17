@@ -1,3 +1,4 @@
+from math import log10
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -49,7 +50,6 @@ def weekly_formatting(df_in, dates_in):
     df.index = df.index + pd.Timedelta(days=6)
 
     return df.filter(items=dates_in, axis=0)
-
 
 ## transform data: logistic of z-score
 def transform_data(df_in):
@@ -250,7 +250,7 @@ def get_out_of_home_duration():
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0, delimiter=";"
     )
-    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Deutschland"]
+    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Bayern"]
     mobility_df["week"] = mobility_df.index.isocalendar().week
 
     ### get dates
@@ -275,7 +275,7 @@ def get_out_of_home_duration():
     )
 
 ## R
-def get_R(dates=None):
+def get_R_raw(dates=None):
     """Get weekly R_eff data from the RKI Nowcasting data set.
 
     Args:
@@ -292,10 +292,27 @@ def get_R(dates=None):
     ### weekly average placed on Sunday
     df = weekly_formatting(R_df, dates)
 
-    df = transform_data(df["PS_7_Tage_R_Wert"])
-    R_data = df.to_xarray()
+    #df = transform_data(df["PS_7_Tage_R_Wert"])
+    R_data = df["PS_7_Tage_R_Wert"].to_xarray()
     return R_data
 
+def get_logR_raw(R_raw, dates=None):
+
+    logR = np.log10(R_raw)
+
+    return logR
+
+def get_R_transformed(R_raw, dates=None):
+
+    R_transformed = transform_data(R_raw)
+
+    return R_transformed
+
+def get_logR_transformed(logR, dates=None):
+
+    logR_transformed = transform_data(logR)
+
+    return logR_transformed
 
 def get_R_inferred(dates=None):
     """Get weekly R_eff data.
@@ -329,14 +346,14 @@ def get_owid():
 
 
 ### Cases
-def get_C(owid_in, dates_2020=None):
+def get_C_raw(owid_in, dates_2020=None):
     """Get weekly case data from OWID data set.
 
     Args:
-        owid_in (OWID data retrieval object): OWID data retrieval object.
+        TODO owid_in (OWID data retrieval object): OWID data retrieval object.
         dates_2020_in (array or list): List of considered dates in 2020.
     Returns:
-        Xarray: Weekly case data.
+       TODO Xarray: Weekly case data.
     """
     case_data = owid_in._filter(
         value="new_cases_smoothed_per_million",
@@ -345,12 +362,37 @@ def get_C(owid_in, dates_2020=None):
     if dates_2020 is None:
         dates_2020 = get_disease_dates()
     case_data = weekly_formatting(case_data, dates_2020)
-    case_data = transform_data(case_data).to_xarray()
+    case_data = case_data.to_xarray()
+
     return case_data
 
+def get_logC_raw(case_data, dates_2020=None):
+
+    logC_raw = np.log10(case_data)
+
+    return logC_raw
+
+def get_C_transformed(case_data, dates_2020=None):
+    """Get weekly case data from OWID data set.
+
+    Args:
+        TODO
+    Returns:
+        TODO
+    """
+
+    case_data = transform_data(case_data)
+   
+    return case_data
+
+def get_logC_transformed (logC_raw, dates_2020=None):
+    
+    logC_transformed = transform_data(logC_raw)
+
+    return logC_transformed
 
 ### ICU
-def get_ICU(owid_in, dates_2020_in=None):
+def get_ICU_raw(owid_in, dates_2020_in=None):
     """Get weekly ICU data from OWID data set.
 
     Args:
@@ -366,12 +408,36 @@ def get_ICU(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates(ICU=True)
     ICU_data = weekly_formatting(ICU_data, dates_2020_in)
-    ICU_data = transform_data(ICU_data).to_xarray()
+    ICU_data = ICU_data.to_xarray()
     return ICU_data
 
+def get_logICU_raw(ICU_data, dates_2020_in=None):
+
+    logICU_raw = np.log10(ICU_data)
+
+    return logICU_raw
+
+def get_ICU_transformed(ICU_data, dates_2020_in=None):
+    """Get weekly ICU data from OWID data set.
+
+    Args:
+        TODO
+    Returns:
+        Xarray: TODO
+    """
+
+    ICU_data = transform_data(ICU_data)
+    
+    return ICU_data
+
+def get_logICU_transformed(logICU_raw, dates_2020_in=None):
+
+    logICU_transformed = transform_data(logICU_raw)
+
+    return logICU_transformed
 
 ### Hospitalisations
-def get_H(owid_in, dates_2020_in=None):
+def get_H_raw(owid_in, dates_2020_in=None):
     """Get weekly hospitalisation data from OWID data set.
 
     Args:
@@ -387,11 +453,35 @@ def get_H(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates()
     H_data = weekly_formatting(H_data, dates_2020_in)
-    H_data = transform_data(H_data).to_xarray()
+    H_data = H_data.to_xarray()
     return H_data
 
+def get_logH_raw(H_data, dates_2020_in=None):
 
-def get_D(owid_in, dates_2020_in=None):
+    logH_raw = np.log10(H_data)
+
+    return logH_raw
+
+def get_H_transformed(H_raw, dates_2020_in=None):
+    """Get weekly hospitalisation data from OWID data set.
+
+    Args:
+        owid_in (OWID data retrieval object): OWID data retrieval object.
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Xarray: Weekly hospitalisation data."""
+    
+    H_data = transform_data(H_raw)
+    
+    return H_data
+
+def get_logH_transformed(logH_raw, dates_2020_in=None):
+
+    logH_transformed = transform_data(logH_raw)
+
+    return logH_transformed
+
+def get_D_raw(owid_in, dates_2020_in=None):
     """Get weekly death data from OWID data set.
 
     Args:
@@ -407,19 +497,53 @@ def get_D(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates()
     D_data = weekly_formatting(D_data, dates_2020_in)
-    D_data = transform_data(D_data).to_xarray()
+    D_data = D_data.to_xarray()
+    
     return D_data
-    """Get weekly stay at home order data from Oxford data set.
+
+def get_logD_raw(D_data, dates_2020_in=None):
+
+    logD_raw = np.log10(D_data)
+
+    return logD_raw
+
+def get_D_transformed(D_raw, dates_2020_in=None):
+    """Get weekly death data from OWID data set.
 
     Args:
+        owid_in (OWID data retrieval object): OWID data retrieval object.
         dates_2020_in (array or list): List of considered dates in 2020.
     Returns:
-        Xarray: Weekly stay at home order data.
+        Xarray: Weekly death data.
     """
-    stay_at_home_2020 = get_NPI_data("data/NPIs/stay-at-home-covid.csv", dates_2020_in)
-    stay_at_home_2020 = normalise_index(stay_at_home_2020)
-    stay_at_home_2020 = stay_at_home_2020["stay_home_requirements"].to_xarray()
-    return stay_at_home_2020
+
+    D_data = transform_data(D_raw)
+
+    return D_data
+
+def get_logD_transformed(logD_raw, dates_2020_in=None):
+
+    logD_transformed = transform_data(logD_raw)
+
+    return logD_transformed
+
+# Growth Multiplier
+def get_G_raw(dates_2020_in):
+    growthmultiplier_df = pd.read_csv("data/incidence/IncidenceGrowthMultiplier.csv", parse_dates=True, index_col=0)
+
+    ### filter for mobility_dates_2020
+    growthmultiplier_df_2020 = growthmultiplier_df[growthmultiplier_df.index.isin(dates_2020_in)]
+    growthmultiplier_df_2020 = growthmultiplier_df_2020[growthmultiplier_df_2020["Bundesland"] == "Deutschland"]
+
+    growth_counter_2020 = growthmultiplier_df_2020["cOI"].to_xarray()
+
+    return  growth_counter_2020
+
+def get_G_transformed(G_raw, dates=None):
+
+    growth_counter_2020 = transform_data(G_raw)
+
+    return  growth_counter_2020
 
 ## School
 
@@ -429,6 +553,7 @@ def get_school_vacations(dates_2020_in):
 
     ### filter for mobility_dates_2020
     school_df_2020 = school_df[school_df.index.isin(dates_2020_in)]
+    school_df_2020 = school_df_2020[school_df_2020["federalState"] == "Deutschland"]
 
     school_counter_2020 = school_df_2020["schoolVacation"].to_xarray()
 
@@ -442,6 +567,7 @@ def get_pub_holidays(dates_2020_in):
 
     ### filter for mobility_dates_2020
     pubHolidays_df_2020 = pubHolidays_df[pubHolidays_df.index.isin(dates_2020_in)]
+    pubHolidays_df_2020 = pubHolidays_df_2020[pubHolidays_df_2020["Bundesland"] == "Deutschland"]
 
     pubHolidays_counter_2020 = pubHolidays_df_2020["pubHoliday"].to_xarray()
 
@@ -451,7 +577,7 @@ def get_pub_holidays(dates_2020_in):
 
 def get_precipitation(dates_2020_in):
 
-    precipitation_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/weatherData2020and2022.csv", parse_dates=True, index_col=0)
+    precipitation_df = pd.read_csv("/Users/sydney/git/mobility_inference/data_new/weather/tmax_tavg_prcp_fed.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
     precipitation_df_2020 = precipitation_df[precipitation_df.index.isin(dates_2020_in)]
@@ -464,9 +590,10 @@ def get_precipitation(dates_2020_in):
 
 def get_temperature(dates_2020_in):
 
-    temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/weatherData2020and2022.csv", parse_dates=True, index_col=0)
+    temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/tmax_tavg_prcp_nat.csv", parse_dates=True, index_col=0)
     ### filter for mobility_dates_2020
     temperature_df_2020 = temperature_df[temperature_df.index.isin(dates_2020_in)]
+    temperature_df_2020 = temperature_df_2020[temperature_df_2020["country"] == "Deutschland"]
 
     temperature_2020 = temperature_df_2020["tmax"].to_xarray()
 
@@ -474,7 +601,7 @@ def get_temperature(dates_2020_in):
 
 def get_avg_temperature(dates_2020_in):
 
-    avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/averageTemp.csv", parse_dates=True, index_col=0)
+    avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
     avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
@@ -484,3 +611,29 @@ def get_avg_temperature(dates_2020_in):
     delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
 
     return  delta_temperature  
+
+## Daylight
+
+def get_daylight(dates_2020_in):
+    
+    daylight_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/daylight/DaylightGermanyweekly.csv", parse_dates=True, index_col=0)
+
+    daylight_df_2020 = daylight_df[daylight_df.index.isin(dates_2020_in)]
+
+    daylight_2020 = daylight_df_2020["daylight"].to_xarray()
+
+    return daylight_2020
+
+## Population density
+
+def get_pop_density(dates_2020_in):
+
+    pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/population_density/einwohnerinnen_share_area_density_fednat.csv", parse_dates=True, index_col=0)
+
+    pop_density_df_2020 = pop_density_df[pop_density_df.index.isin(dates_2020_in)]
+    
+    pop_density_row = pop_density_df_2020[pop_density_df_2020["country"] == "Deutschland"]
+
+    pop_density = pop_density_row["EwinohnerInnenJeKm2"].to_xarray()
+
+    return pop_density
