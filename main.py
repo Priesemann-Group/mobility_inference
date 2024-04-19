@@ -1,12 +1,12 @@
 """
 This Python script models and analyzes the changes in out-of-duration in the year of 2020 given a set of indicators and parameters. 
 The script first sets up the necessary configurations and uses a utility function to create directories for saving results and figures. 
-Using data_prep.py, it then collects various types of data including out-of-home duration (o), employment changes (Kurzarbeit), 
+Using data_prep_new.py, it then collects various types of data including out-of-home duration (o), employment changes (Kurzarbeit), 
     effective reproduction number (R), cases (C), ICU occupancy (ICU), hospitalization rates (H), and stay-at-home orders (S). 
     If specified, it also collects weather data such as precipitation and temperature changes. 
 Then it iterates through all combinations of indicators and creates a model for each combination using the function in model.py.
 The model is then fitted to the data using MCMC sampling.
-The results are saved in the results directory and figures are saved in the figures directory using plot.py.
+The results are saved in the results directory and figures are saved in the figures directory using plot_new.py.
 """
 
 # Import necessary modules
@@ -16,7 +16,7 @@ import shutil
 import pandas as pd
 import arviz as az
 
-# Import local modules
+# Import local module
 import model
 import data_prep
 import plot
@@ -24,32 +24,40 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "temperature"  # Name of the experiment
-pandemic_fatigue = None  # Type of pandemic fatigue function: 'linear' or 'sigmoid'
-test = False  # Whether to run a test with fewer samples
-single = False  # Whether to run a single model
+name = "temperature_x2_incldaylight"  # Name of the experiment
+test = True  # Whether to run a test with fewer samples
+single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
-disease_indicator = False # Whether to include disease indicators
+disease_indicator = True # Whether to include disease indicators
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
-plot_figures = False    # Whether to plot figures
-ELPD_method = "k-fold_CV"   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
+plot_figures = True    # Whether to plot figures
+ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
+
+#Include population density if required by giving any value
+pop_density = None
 
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = None
 temperature = 1
+daylight = 1
+
+#Include school vacations and public holidays if required by giving any value
+school = 1
+holiday = 1
 
 # Generate all combinations of indicators
 if disease_indicator:
     all_combinations = utils.indicator_combinations(
-        #base_indicators=["H"], 
+    #    base_indicators=["H"], 
         limit=1
         )
 else:
     all_combinations = [[]]
 
 # Initialize a dictionary to store disease related data
+disease_data_raw = {}
 disease_data = {}
 
 # Set up directory for saving results
@@ -61,55 +69,105 @@ figdir_name = "figures/" + name
 utils.make_dir(figdir_name)
 
 # Copy the source code into the results directory for record keeping
-shutil.copyfile("main.py", f"{supDir_name}/main.py")
-shutil.copyfile("model.py", f"{supDir_name}/model.py")
-shutil.copyfile("data_prep.py", f"{supDir_name}/data_prep.py")
+shutil.copyfile("main_new.py", f"{supDir_name}/main_new.py")
+shutil.copyfile("model_new.py", f"{supDir_name}/model_new.py")
+shutil.copyfile("data_prep_new.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-o_2020, o_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
+d_2020, d_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
 dates = pd.to_datetime(dates_2020)
 
-# Get difference in kurzarbeit data
-kurzarbeit_df = data_prep.get_kurzarbeit(dates_2020)
-
-# Get difference in home office data
-home_office_df = data_prep.get_home_office_difference(dates_2020)
+# Get R_effective value for disease data
+disease_data_raw["R"] = data_prep.get_R_raw()
+disease_data["R"] = data_prep.get_R_transformed(disease_data_raw["R"])
 
 # Get R_effective value for disease data
-disease_data["R"] = data_prep.get_R()
+disease_data_raw["logR"] = data_prep.get_logR_raw(disease_data_raw["R"])
+disease_data["logR"] = data_prep.get_logR_transformed(disease_data_raw["logR"])
+
 
 # Get OWID data
 owid = data_prep.get_owid()
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data["C"] = data_prep.get_C(owid)
-disease_data["ICU"] = data_prep.get_ICU(owid)
-disease_data["H"] = data_prep.get_H(owid)
-disease_data["D"] = data_prep.get_D(owid)
+disease_data_raw["C"] = data_prep.get_C_raw(owid)
+disease_data["C"] = data_prep.get_C_transformed(disease_data_raw["C"])
 
-# Get stay at home orders data
-if stay_at_home is not None:
-    stay_at_home = data_prep.get_S(dates_2020)
+disease_data_raw["logC"] = data_prep.get_logC_raw(disease_data_raw["C"])
+disease_data["logC"] = data_prep.get_logC_transformed(disease_data_raw["logC"])
+
+disease_data_raw["ICU"] = data_prep.get_ICU_raw(owid)
+disease_data["ICU"] = data_prep.get_ICU_transformed(disease_data_raw["ICU"])
+
+disease_data_raw["logICU"] = data_prep.get_logICU_raw(disease_data_raw["ICU"])
+disease_data["logICU"] = data_prep.get_logICU_transformed(disease_data_raw["logICU"])
+
+disease_data_raw["H"] = data_prep.get_H_raw(owid)
+disease_data["H"] = data_prep.get_H_transformed(disease_data_raw["H"])
+
+disease_data_raw["logH"] = data_prep.get_logH_raw(disease_data_raw["H"])
+disease_data["logH"] = data_prep.get_logH_transformed(disease_data_raw["logH"])
+
+disease_data_raw["D"] = data_prep.get_D_raw(owid)
+disease_data["D"] = data_prep.get_D_transformed(disease_data_raw["D"])
+
+disease_data_raw["logD"] = data_prep.get_logD_raw(disease_data_raw["D"])
+disease_data["logD"] = data_prep.get_logD_transformed(disease_data_raw["logD"])
+
+# disease_data_raw["G"] = data_prep_new.get_G_raw(dates_2020)
+# disease_data["G"] = data_prep_new.get_G_transformed(disease_data_raw["G"])
+
+#Include vectors of ones for mobility
+
+# If population density is included, get population density
+if pop_density is not None:
+    pop_density = {
+        "pop_density": data_prep.get_pop_density(dates_2020)
+    }
 
 # If precipitation is included, get precipitation data
 if precipitation is not None:
-    precipitation = data_prep.get_delta_prcp(dates_2020, dates_2022)
+    precipitation = {
+        "precipitation": data_prep.get_precipitation(dates_2020)
+    }
 
 # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "average": data_prep.get_avg_T(dates_2020, dates_2022),
-        "delta": data_prep.get_delta_T(dates_2020, dates_2022),
+        "temperature": data_prep.get_temperature(dates_2020),
+        "delta_temperature": data_prep.get_avg_temperature(dates_2020)
+    }
+
+if daylight is not None:
+    daylight = {
+        "daylight": data_prep.get_daylight(dates_2020),
+    }
+
+#If school is included, get school data
+if school is not None:
+    school = {
+        "school vacation": data_prep.get_school_vacations(dates_2020)
+    }
+
+#If public holidays are included, get public holiday data
+if holiday is not None:
+    holiday = {
+        "pub holiday": data_prep.get_pub_holidays(dates_2020)
     }
 
 if single:
     all_combinations = [
-        ["R"],
-        [
-            # "R",
-            "C"
-        ],
+        # ["R"],
+        # ["logR"],
+        # ["C"],
+        # ["logC"],
+        # ["ICU"],
+        # ["logICU"],
+        # ["H"],
+        ["logH"],
+        # ["D"],
+        # ["logD"]
     ]
 
 # Parameters for ELPD calculation runs
@@ -133,17 +191,17 @@ for indicators in all_combinations:
     models = {}
     traces = {}
     if ELPD_method is not None:
-        iterable = range(L-1, len(o_2020) - M)
+        iterable = range(L-1, len(d_2020) - M)
     else:
         iterable = [0]
     for i in iterable:
         # replace observed data after i with nan
-        o_obs = o_2020.copy()
+        d_obs = d_2020.copy()
         if ELPD_method == "LFO":
-            o_obs[i+1:] = float("nan")
+            d_obs[i+1:] = float("nan")
             tag2 = tag + f"_{ELPD_method}_" + str(i)
         elif ELPD_method == "k-fold_CV":
-            o_obs[i+1 : i+1 + M] = float("nan")
+            d_obs[i+1 : i+1 + M] = float("nan")
             tag2 = tag + f"_{ELPD_method}_" + str(i)
         else:
             tag2 = tag
@@ -152,30 +210,30 @@ for indicators in all_combinations:
         inference_model = pm.Model()
         model.create_model(
             inference_model,
-            o_base,
-            o_obs,
-            stay_at_home,
-            kurzarbeit_df,
-            home_office_df,
+            d_base,
+            d_obs,
             indicators,
             disease_data,
-            pandemic_fatigue,
-            delta_prcp_in=precipitation,
+            school_in = school,
+            holiday_in = holiday,
             temperature_in=temperature,
+            precipitation_in=precipitation,
+            daylight_in = daylight,
+            pop_density_in = pop_density
         )
         models[i] = inference_model
 
         if run:
             # Perform inference
             if test:
-                draws = 200
-                tune = 200
+                draws = 200 #200
+                tune = 200 #200
             else:
-                draws = 1000
-                tune = 1000
+                draws = 500 #1000
+                tune = 500 #1000
             trace = pm.sample(
                 model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
-                idata_kwargs={"include_transformed": True}
+                idata_kwargs={"include_transformed": False}
             )
             with inference_model:
                 pm.compute_log_likelihood(trace)
@@ -196,11 +254,11 @@ for indicators in all_combinations:
 
     # Save ELPD result to file
     if ELPD_method is not None:
-        model_comparison.save_ELPD(models, traces, L, M, len(o_2020), dir_name, draws, ELPD_method)
+        model_comparison.save_ELPD(models, traces, L, M, len(d_2020), dir_name, draws, ELPD_method)
 
     # Plot results
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, indicators, stay_at_home, pandemic_fatigue, temperature, precipitation
+            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw
         )

@@ -1,10 +1,11 @@
+from math import log10
 import numpy as np
 import pandas as pd
 import xarray as xr
 import scipy.stats as stats
 import datetime
 
-import covid19_inference.covid19_inference as cov19
+import covid19_inference as cov19
 
 
 # --- Utils ---
@@ -50,7 +51,6 @@ def weekly_formatting(df_in, dates_in):
 
     return df.filter(items=dates_in, axis=0)
 
-
 ## transform data: logistic of z-score
 def transform_data(df_in):
     """
@@ -60,7 +60,8 @@ def transform_data(df_in):
         pd.DataFrame: Transformed data.
     """
     df = stats.zscore(df_in)
-    return 1 / (1 + np.exp(-df))
+
+    return (df - min(df))/(max(df)-min(df))
 
 
 ## transform NPI index data with range 0-3 to range 0-1
@@ -111,20 +112,6 @@ def return_differences(df2020_in, df2022_in, label_in):
     if label_in == "prcp":
         delta = -delta
     return delta
-
-
-## calculate average between the years
-def return_averages(df1_in, df2_in, label_in):
-    """
-    Args:
-        df1_in (pd.DataFrame): Dataframe with dates as index.
-        df2_in (pd.DataFrame): Dataframe with dates as index.
-        label_in (str): Column name of data of interest.
-    Returns:
-        Array: Average of time series.
-    """
-    average = (df1_in[label_in].values + df2_in[label_in].values) / 2
-    return average
 
 
 ## normalise data
@@ -190,50 +177,6 @@ def parse_year(date_str):
     strings = date_str.split(" ")
     year = int(strings[1])
     return year
-
-
-## Home office
-def get_home_office_infas(dates_2020_in):
-    """Get weekly data of home office rate from infas.
-    Source: Corona Datenplattform (2021): Themenreport 02, Homeoffice im Verlauf der Corona-Pandemie, Ausgabe Juli 2021, Bonn.
-    (Exact data is not publicly available for free.)
-
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-    Returns:
-        Pandas data frame: Weekly data of people in home office in percent.
-    """
-    df = pd.read_csv("data/home_office/home_office_infas.csv", sep="\t")
-
-    # parse to proper dates
-    def str_to_date(date_str):
-        """Convert string to date.
-
-        Args:
-            date_str (str): Date as string in format " %b %y", e.g. " Jan 20".
-        Returns:
-            datetime: Date.
-        """
-        return datetime.datetime.strptime(date_str, " %b %y")
-
-    df["date"] = df["Month"].apply(str_to_date)
-    df["year"] = df["date"].apply(lambda x: x.year)
-    df["month"] = df["date"].apply(lambda x: x.month)
-
-    # filter for 2020 data
-    df_2020 = df[df["year"] == 2020]
-
-    # make weekly data out of monthly data
-    column_name = "WFH_rate"
-    df_out = pd.DataFrame(index=dates_2020_in, columns=[column_name])
-    for week in df_out.index:
-        value = df_2020.loc[(df_2020["month"] == week.month), column_name].values[0]
-        df_out.loc[week, column_name] = value
-
-    return df_out
-
-
-def get_home_office_ifo(dates_2020_in):
     """Get weekly data of home office rate from ifo.
     Source: ifo institute, December 2022.
 
@@ -304,11 +247,11 @@ def get_out_of_home_duration():
         Array of np.datetime64: Considered dates of 2020.
         Array of np.datetime64: Considered dates of 2022.
     """
-    path_mobility = "data/mobility/mobilityData_OverviewBL_weekly.csv"
+    path_mobility = "/Users/sydney/git/mobility_inference/data/mobility/archive/mobilityData_OverviewBL_weekly.csv"
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0, delimiter=";"
     )
-    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Deutschland"]
+    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Bayern"]
     mobility_df["week"] = mobility_df.index.isocalendar().week
 
     ### get dates
@@ -322,17 +265,8 @@ def get_out_of_home_duration():
     mobility_df_2020 = mobility_df.filter(items=mobility_dates_2020, axis=0)
     mobility_data_2020 = mobility_df_2020["outOfHomeDuration"].to_xarray()
 
-    baseline_mobility_df = pd.read_csv(
-        "data/mobility/baseline_mobility.csv", parse_dates=True, index_col=0
-    )
-    baseline_mobility_df = baseline_mobility_df.filter(
-        items=mobility_dates_2022_shortened, axis=0
-    )
-    ## replace index by mobility_dates_2020
-    baseline_mobility_df.index = mobility_dates_2020
-    ## rename index to "date"
-    baseline_mobility_df.index.name = "date"
-    baseline_mobility = baseline_mobility_df["outOfHomeDuration"].to_xarray()
+    baseline_mobility = [1] * 37
+    baseline_mobility
 
     return (
         mobility_data_2020,
@@ -341,69 +275,8 @@ def get_out_of_home_duration():
         mobility_dates_2022_shortened,
     )
 
-
-## Home office
-def get_home_office_difference(dates_2020_in):
-    """Get weekly data of difference in home office rate between 2020 and 2022.
-
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-    Returns:
-        Array: Difference in home office rate between 2020 and 2022.
-    """
-
-    df_2020 = get_home_office_infas(dates_2020_in)
-    df_2022 = get_home_office_ifo(dates_2020_in)
-    ho_diff = (df_2020.values - df_2022.values) / 100
-    ho_diff = ho_diff.flatten()
-    return xr.DataArray(ho_diff, coords=[dates_2020_in], dims=["date"])
-
-
-## Kurzarbeit
-def get_kurzarbeit(dates_2020_in):
-    """Get weekly data of difference in fraction of Kurzarbeitende.
-    Source: Statistik der Bundesagentur für Arbeit
-        Tabellen, Realisierte Kurzarbeit (hochgerechnet) (Monatszahlen), Nürnberg, August 2023
-        http://statistik.arbeitsagentur.de
-
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-    Returns:
-        Xarray: Difference in Kurzarbeit between 2020 and 2022 as fraction of population.
-    """
-
-    df = pd.read_csv("data/kurzarbeit/IAB_kurzarbeit.csv", sep="\t")
-    df["month"] = df["Datum"].apply(parse_month)
-    df["year"] = df["Datum"].apply(parse_year)
-
-    # get 2020 data
-    df_2020 = df[df["year"] == 2020]
-    # get 2022 data
-    df_2022 = df[df["year"] == 2022]
-    # calculate the difference between 2020 and 2022
-    delta_kurzarbeit = (
-        df_2020["Kurzarbeiterquote"].values - df_2022["Kurzarbeiterquote"].values
-    )
-
-    # make weekly data out of monthly data
-    column_name = "Differenz Kurzarbeiteranteil"
-    df_diff = pd.DataFrame(index=df_2020["month"])
-    df_diff[column_name] = delta_kurzarbeit / 100
-    df_out = pd.DataFrame(index=dates_2020_in, columns=[column_name])
-    for week in df_out.index:
-        value = df_diff.loc[(df_diff.index == week.month), column_name].values[0]
-        df_out.loc[week, column_name] = round(value, 3)
-    df_out[column_name] = df_out[column_name].astype(float)
-
-    # to xarray
-    array = df_out.to_xarray()
-    array = array.rename_dims({"index": "date"})
-
-    return df_out[column_name].values
-
-
 ## R
-def get_R(dates=None):
+def get_R_raw(dates=None):
     """Get weekly R_eff data from the RKI Nowcasting data set.
 
     Args:
@@ -420,10 +293,27 @@ def get_R(dates=None):
     ### weekly average placed on Sunday
     df = weekly_formatting(R_df, dates)
 
-    df = transform_data(df["PS_7_Tage_R_Wert"])
-    R_data = df.to_xarray()
+    #df = transform_data(df["PS_7_Tage_R_Wert"])
+    R_data = df["PS_7_Tage_R_Wert"].to_xarray()
     return R_data
 
+def get_logR_raw(R_raw, dates=None):
+
+    logR = np.log10(R_raw)
+
+    return logR
+
+def get_R_transformed(R_raw, dates=None):
+
+    R_transformed = transform_data(R_raw)
+
+    return R_transformed
+
+def get_logR_transformed(logR, dates=None):
+
+    logR_transformed = transform_data(logR)
+
+    return logR_transformed
 
 def get_R_inferred(dates=None):
     """Get weekly R_eff data.
@@ -450,21 +340,21 @@ def get_owid():
     Returns:
         OWID data retrieval object. (See cov19 module.)
     """
-    cov19.data_retrieval.set_data_dir("/data.nst/eiftekhar/covid19/")
+    cov19.data_retrieval.set_data_dir("Users/sydney/Desktop/data.nst/")
     owid = cov19.data_retrieval.OWD()
     owid.download_all_available_data()
     return owid
 
 
 ### Cases
-def get_C(owid_in, dates_2020=None):
+def get_C_raw(owid_in, dates_2020=None):
     """Get weekly case data from OWID data set.
 
     Args:
-        owid_in (OWID data retrieval object): OWID data retrieval object.
+        TODO owid_in (OWID data retrieval object): OWID data retrieval object.
         dates_2020_in (array or list): List of considered dates in 2020.
     Returns:
-        Xarray: Weekly case data.
+       TODO Xarray: Weekly case data.
     """
     case_data = owid_in._filter(
         value="new_cases_smoothed_per_million",
@@ -473,12 +363,37 @@ def get_C(owid_in, dates_2020=None):
     if dates_2020 is None:
         dates_2020 = get_disease_dates()
     case_data = weekly_formatting(case_data, dates_2020)
-    case_data = transform_data(case_data).to_xarray()
+    case_data = case_data.to_xarray()
+
     return case_data
 
+def get_logC_raw(case_data, dates_2020=None):
+
+    logC_raw = np.log10(case_data)
+
+    return logC_raw
+
+def get_C_transformed(case_data, dates_2020=None):
+    """Get weekly case data from OWID data set.
+
+    Args:
+        TODO
+    Returns:
+        TODO
+    """
+
+    case_data = transform_data(case_data)
+   
+    return case_data
+
+def get_logC_transformed (logC_raw, dates_2020=None):
+    
+    logC_transformed = transform_data(logC_raw)
+
+    return logC_transformed
 
 ### ICU
-def get_ICU(owid_in, dates_2020_in=None):
+def get_ICU_raw(owid_in, dates_2020_in=None):
     """Get weekly ICU data from OWID data set.
 
     Args:
@@ -494,12 +409,36 @@ def get_ICU(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates(ICU=True)
     ICU_data = weekly_formatting(ICU_data, dates_2020_in)
-    ICU_data = transform_data(ICU_data).to_xarray()
+    ICU_data = ICU_data.to_xarray()
     return ICU_data
 
+def get_logICU_raw(ICU_data, dates_2020_in=None):
+
+    logICU_raw = np.log10(ICU_data)
+
+    return logICU_raw
+
+def get_ICU_transformed(ICU_data, dates_2020_in=None):
+    """Get weekly ICU data from OWID data set.
+
+    Args:
+        TODO
+    Returns:
+        Xarray: TODO
+    """
+
+    ICU_data = transform_data(ICU_data)
+    
+    return ICU_data
+
+def get_logICU_transformed(logICU_raw, dates_2020_in=None):
+
+    logICU_transformed = transform_data(logICU_raw)
+
+    return logICU_transformed
 
 ### Hospitalisations
-def get_H(owid_in, dates_2020_in=None):
+def get_H_raw(owid_in, dates_2020_in=None):
     """Get weekly hospitalisation data from OWID data set.
 
     Args:
@@ -515,11 +454,35 @@ def get_H(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates()
     H_data = weekly_formatting(H_data, dates_2020_in)
-    H_data = transform_data(H_data).to_xarray()
+    H_data = H_data.to_xarray()
     return H_data
 
+def get_logH_raw(H_data, dates_2020_in=None):
 
-def get_D(owid_in, dates_2020_in=None):
+    logH_raw = np.log10(H_data)
+
+    return logH_raw
+
+def get_H_transformed(H_raw, dates_2020_in=None):
+    """Get weekly hospitalisation data from OWID data set.
+
+    Args:
+        owid_in (OWID data retrieval object): OWID data retrieval object.
+        dates_2020_in (array or list): List of considered dates in 2020.
+    Returns:
+        Xarray: Weekly hospitalisation data."""
+    
+    H_data = transform_data(H_raw)
+    
+    return H_data
+
+def get_logH_transformed(logH_raw, dates_2020_in=None):
+
+    logH_transformed = transform_data(logH_raw)
+
+    return logH_transformed
+
+def get_D_raw(owid_in, dates_2020_in=None):
     """Get weekly death data from OWID data set.
 
     Args:
@@ -535,149 +498,144 @@ def get_D(owid_in, dates_2020_in=None):
     if dates_2020_in is None:
         dates_2020_in = get_disease_dates()
     D_data = weekly_formatting(D_data, dates_2020_in)
-    D_data = transform_data(D_data).to_xarray()
+    D_data = D_data.to_xarray()
+    
     return D_data
 
+def get_logD_raw(D_data, dates_2020_in=None):
 
-## NPI
-### Stay-at-home orders
-def get_S(dates_2020_in):
-    df = pd.read_csv("data/NPIs/StayAtHomeOrders - Werte.csv")
+    logD_raw = np.log10(D_data)
 
-    # iterate through every row of the data frame to make date column
-    for index, row in df.iterrows():
-        # create date object from Day, Month, Year columns
-        date = datetime.date(row["Year"], row["Month"], row["Day"])
-        # make date to pandas datetime format
-        date = pd.to_datetime(date)
-        # add date object to new column
-        df.loc[index, "Date"] = date
+    return logD_raw
 
-    # create empty dataframe with dates as index
-    df_new = pd.DataFrame(index=df["Date"].values)
-
-    # only get columns with values
-    for column_name in df.columns.values:
-        if column_name[:5] == "Value":
-            _, state = column_name.split(" ")
-            df_new[state] = df[column_name].values
-
-    population = pd.read_csv("data/population_bundesland.csv", sep=";", index_col=0)
-    population["Einwohner"] = population["Einwohner"].apply(population_string_to_number)
-
-    weighted_averages = []
-
-    for index, row in df_new.iterrows():
-        value = 0
-        for column in df_new.columns.values:
-            value += population.loc[column]["Einwohner"] * row[column]
-        value /= population["Einwohner"].sum()
-        weighted_averages.append(value)
-
-    # add new row to dataframe
-    df_new["stay_at_home_orders"] = weighted_averages
-
-    # filter rows for dates_2020_in
-    df_new = df_new[df_new.index.isin(dates_2020_in)]
-
-    # make xarray out of column
-    return df_new["stay_at_home_orders"].to_xarray()
-
-
-def get_S_OxCGRT(dates_2020_in):
-    """Get weekly stay at home order data from Oxford data set.
+def get_D_transformed(D_raw, dates_2020_in=None):
+    """Get weekly death data from OWID data set.
 
     Args:
+        owid_in (OWID data retrieval object): OWID data retrieval object.
         dates_2020_in (array or list): List of considered dates in 2020.
     Returns:
-        Xarray: Weekly stay at home order data.
-    """
-    stay_at_home_2020 = get_NPI_data("data/NPIs/stay-at-home-covid.csv", dates_2020_in)
-    stay_at_home_2020 = normalise_index(stay_at_home_2020)
-    stay_at_home_2020 = stay_at_home_2020["stay_home_requirements"].to_xarray()
-    return stay_at_home_2020
-
-
-## Weather
-def get_weather_dfs(dates_2020_in, dates_2022_in):
-    """Get weather data frames.
-
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-        dates_2022_in (array or list): List of considered dates in 2022.
-    Returns:
-        Data frame: Weather data frame for 2020.
-        Data frame: Weather data frame for 2022.
+        Xarray: Weekly death data.
     """
 
-    weather_df = pd.read_csv(
-        "data/weather/weatherData2020and2022.csv", parse_dates=True, index_col=0
-    )
+    D_data = transform_data(D_raw)
+
+    return D_data
+
+def get_logD_transformed(logD_raw, dates_2020_in=None):
+
+    logD_transformed = transform_data(logD_raw)
+
+    return logD_transformed
+
+# Growth Multiplier
+def get_G_raw(dates_2020_in):
+    growthmultiplier_df = pd.read_csv("data/incidence/IncidenceGrowthMultiplier.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
-    weather_df_2020 = weather_df[weather_df.index.isin(dates_2020_in)]
-    weather_df_2022 = weather_df[weather_df.index.isin(dates_2022_in)]
+    growthmultiplier_df_2020 = growthmultiplier_df[growthmultiplier_df.index.isin(dates_2020_in)]
+    growthmultiplier_df_2020 = growthmultiplier_df_2020[growthmultiplier_df_2020["Bundesland"] == "Deutschland"]
 
-    return weather_df_2020, weather_df_2022
+    growth_counter_2020 = growthmultiplier_df_2020["cOI"].to_xarray()
 
+    return  growth_counter_2020
 
-### Temperature
-#### calculate differences between the years
-def get_delta_T(dates_2020_in, dates_2022_in):
-    """Get weekly average of maximum temperature difference between 2020 and 2022.
+def get_G_transformed(G_raw, dates=None):
 
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-        dates_2022_in (array or list): List of considered dates in 2022.
-    Returns:
-        Xarray: Weekly temperature difference data.
-    """
+    growth_counter_2020 = transform_data(G_raw)
 
-    weather_df_2020, weather_df_2022 = get_weather_dfs(dates_2020_in, dates_2022_in)
-    delta_tmax = return_differences(weather_df_2020, weather_df_2022, "tmax")
-    delta_tmax = xr.DataArray(
-        normalise(delta_tmax), dims="date", coords={"date": dates_2020_in}, name="delta_tmax"
-    )
-    return delta_tmax
+    return  growth_counter_2020
 
+## School
 
-### calculate average between the years
-def get_avg_T(dates_2020_in, dates_2022_in):
-    """Get weekly average of maximum temperature between 2020 and 2022.
+def get_school_vacations(dates_2020_in):
 
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-        dates_2022_in (array or list): List of considered dates in 2022.
-    Returns:
-        Xarray: Weekly average temperature data.
-    """
+    school_df = pd.read_csv("data/data_new/school_vacations/school_vacations_germany_weekly.csv", parse_dates=True, index_col=0)
 
-    weather_df_2020, weather_df_2022 = get_weather_dfs(dates_2020_in, dates_2022_in)
-    average_tmax = return_averages(weather_df_2020, weather_df_2022, "tmax")
-    average_tmax = xr.DataArray(
-        average_tmax,
-        dims="date",
-        coords={"date": dates_2020_in},
-        name="average_tmax",
-    )
-    return average_tmax
+    ### filter for mobility_dates_2020
+    school_df_2020 = school_df[school_df.index.isin(dates_2020_in)]
+    school_df_2020 = school_df_2020[school_df_2020["federalState"] == "Deutschland"]
 
+    school_counter_2020 = school_df_2020["schoolVacation"].to_xarray()
 
-### Precipitation
-#### calculate differences between the years
-def get_delta_prcp(dates_2020_in, dates_2022_in):
-    """Get weekly average of precipitation difference between 2020 and 2022.
+    return  school_counter_2020 
 
-    Args:
-        dates_2020_in (array or list): List of considered dates in 2020.
-        dates_2022_in (array or list): List of considered dates in 2022.
-    Returns:
-        Xarray: Weekly precipitation difference data.
-    """
+## Public holidays
 
-    weather_df_2020, weather_df_2022 = get_weather_dfs(dates_2020_in, dates_2022_in)
-    delta_prcp = return_differences(weather_df_2020, weather_df_2022, "prcp")
-    delta_prcp = xr.DataArray(
-        normalise(delta_prcp), dims="date", coords={"date": dates_2020_in}, name="delta_prcp"
-    )
-    return delta_prcp
+def get_pub_holidays(dates_2020_in):
+
+    pubHolidays_df = pd.read_csv("data/data_new/public_holidays/public_holidays_germany_weekly.csv", parse_dates=True, index_col=0)
+
+    ### filter for mobility_dates_2020
+    pubHolidays_df_2020 = pubHolidays_df[pubHolidays_df.index.isin(dates_2020_in)]
+    pubHolidays_df_2020 = pubHolidays_df_2020[pubHolidays_df_2020["Bundesland"] == "Deutschland"]
+
+    pubHolidays_counter_2020 = pubHolidays_df_2020["pubHoliday"].to_xarray()
+
+    return  pubHolidays_counter_2020  
+
+## Precipitation
+
+def get_precipitation(dates_2020_in):
+
+    precipitation_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/tmax_tavg_prcp_fed.csv", parse_dates=True, index_col=0)
+
+    ### filter for mobility_dates_2020
+    precipitation_df_2020 = precipitation_df[precipitation_df.index.isin(dates_2020_in)]
+    precipitation_df_2020 = precipitation_df_2020[precipitation_df_2020["country"] == "Deutschland"]
+    
+    precipitation_2020 = precipitation_df_2020["prcp"].to_xarray()
+
+    return  precipitation_2020  
+
+## Temperature
+
+def get_temperature(dates_2020_in):
+
+    temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/tmax_tavg_prcp_nat.csv", parse_dates=True, index_col=0)
+    ### filter for mobility_dates_2020
+    temperature_df_2020 = temperature_df[temperature_df.index.isin(dates_2020_in)]
+    temperature_df_2020 = temperature_df_2020[temperature_df_2020["country"] == "Deutschland"]
+
+    temperature_2020 = temperature_df_2020["tmax"].to_xarray()
+
+    return  temperature_2020
+
+def get_avg_temperature(dates_2020_in):
+
+    avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
+
+    ### filter for mobility_dates_2020
+    avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
+
+    avg_temperature_2020 = avg_temperature_df_2020["tenyearmeantmax"].to_xarray()
+
+    delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
+
+    return  delta_temperature  
+
+## Daylight
+
+def get_daylight(dates_2020_in):
+    
+    daylight_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/daylight/DaylightGermanyweekly.csv", parse_dates=True, index_col=0)
+
+    daylight_df_2020 = daylight_df[daylight_df.index.isin(dates_2020_in)]
+
+    daylight_2020 = daylight_df_2020["daylight"].to_xarray()
+
+    return daylight_2020
+
+## Population density
+
+def get_pop_density(dates_2020_in):
+
+    pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/population_density/einwohnerinnen_share_area_density_fednat.csv", parse_dates=True, index_col=0)
+
+    pop_density_df_2020 = pop_density_df[pop_density_df.index.isin(dates_2020_in)]
+    
+    pop_density_row = pop_density_df_2020[pop_density_df_2020["country"] == "Deutschland"]
+
+    pop_density = pop_density_row["EwinohnerInnenJeKm2"].to_xarray()
+
+    return pop_density

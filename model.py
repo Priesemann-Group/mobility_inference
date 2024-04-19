@@ -1,206 +1,206 @@
-"""
-Module inferring drivers of out-of-home duration changes.
-The model combines the effects of different factors like policy interventions, 
-disease spread, weather, and pandemic fatigue to model observed out-of-home duration patterns.
-
-The overall workflow is:
-
-1. Define model components as separate functions
-2. Load/process data
-3. Construct model by multiplying together components
-4. Define likelihood based on observed data
-"""
-
 # general modules
 import numpy as np
 import pymc as pm
+from pyparsing import alphanums
 import pytensor.tensor as at
 #import xarray as xr
 
 # local modules
-import covid19_inference.covid19_inference as cov19
-#import data_prep
+import covid19_inference as cov19
 
-
-# --- Model components --- #
-
-
-# NPIs
-def return_s(S_in):
-    """Models impact of stay-at-home orders.
-
+#Impact of school holidays
+def duration_base(d_base):
+    """
     Args:
-        S_in: Stay-at-home order stringency index (pm.ConstantData)
 
     Returns:
-        Stay-at-home order modulation factor (pymc variable)
+    Base duration
+    """
+    d_factor = pm.Normal("d_factor", mu=12, sigma=1)
+
+    d_base = pm.Deterministic("d_base", d_base*d_factor)
+
+    return d_base
+
+def pop_density_factor(pop_density_in):
+    """
+    Args:
+    pop_density_in: Population density data
+
+    Returns:
+    Population density data modulation factor (pymc variable)
     """
 
-    ## define prior
-    z_S = pm.LogNormal("z_S", mu=np.log(0.5), tau=5)
+    alpha = pm.Normal("alpha_pop", mu = 0.00001, sigma = 0.001)
+    beta = pm.Normal("beta_pop", mu = 1, sigma = 0.000001)
 
-    ## put it together
-    exponent = -z_S * S_in
-    s = pm.Deterministic("s", at.exp(exponent))
+    pop_density_data = pm.ConstantData("pop_density_data_in", pop_density_in["pop_density"])
 
-    return s
+    pop = pm.Deterministic("pop_density_factor", alpha * pop_density_data + beta)
+
+    return pop
+
+def vacation_factor(vacation_data_in):
+    """
+    Args:
+    vacation_data_in: Vacation data
+
+    Returns:
+    School vacation modulation factor (pymc variable)
+    """
+    vacation_data = pm.ConstantData("vacation_data_in", vacation_data_in["school vacation"])
+
+    theta_v = pm.Uniform("theta_v", lower=0.8, upper=1.0)
+    #scale_v = pm.LogNormal("scale_v", mu=np.log(0.5), tau=5)
+    v = pm.Deterministic("vacation_factor", ((theta_v-1) / 7 * vacation_data + 1))
+    
+    return v
+
+def holiday_factor(holiday_data_in):
+    """
+    Args:
+    holiday_data_in: Public holiday data
+
+    Returns:
+    Public holiday vacation modulation factor (pymc variable)
+    """
+    holiday_data = pm.ConstantData("holiday_data_in", holiday_data_in["pub holiday"])
+
+    theta_h = pm.Uniform("theta_h", lower=0.9, upper=1.0)
+    h = pm.Deterministic("holiday_factor", ((theta_h-1) / 7 * holiday_data + 1))
+    
+    return h
 
 
-# impact of weather
-## temperature
-### utility functions for temperature factor
-def generate_Tstar(amplitude, offset, shift, length):
+## temperature factor
+#sigmoid
+# def temperature_factor(temperature_in):
+#     """
+#     Args:
+#        temperature_data_in: Temperature data
+
+#     Returns:
+#         T_star: Temperature sensitivity
+
+#     """
+
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+
+#     amplitude = pm.Normal("amplitude", mu=1, sigma = 0.1)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
+
+#     return pm.Deterministic("temperature_factor", 1/(1+np.exp(-amplitude*(Tmax_2020+shift))))
+
+#sine
+# def temperature_factor(temperature_in):
+#     """
+#     Args:
+#        temperature_data_in: Temperature data
+
+#     Returns:
+#         T_star: Temperature sensitivity
+
+#     """
+
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+
+#     amplitude = pm.Normal("amplitude", mu=0.5, sigma = 0.1)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
+
+#     return pm.Deterministic("temperature_factor", np.sin(amplitude*(Tmax_2020+shift)))
+
+## temperature factor
+##x^4
+# def temperature_factor(temperature_in):
+#     """Generates go-out temperature curve using 4th order polynomial.
+
+#     Args:
+#         temperature_data_in: Temperature data
+
+#     Returns:
+#         T_star: Go-out temperature curve (pymc variable)
+
+#     """
+
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+
+#     amplitude = pm.Normal("amplitude", mu=0.02, sigma = 0.002)
+#     offset = pm.Normal("offset", mu=1, sigma=0.1)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
+
+#     return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 4.0) + offset)
+
+##x^2
+def temperature_factor(temperature_in):
     """Generates go-out temperature curve using 4th order polynomial.
 
     Args:
-        Paramaters: amplitude, offset, shift (pymc variables or just numbers)
-        length: Length of curve or data (int)
+       temperature_data_in: Temperature data
 
     Returns:
         T_star: Go-out temperature curve (pymc variable)
 
     """
 
-    x = at.linspace(0, length, length)
-    return pm.Deterministic("T_star", -at.power(amplitude * (x + shift), 4.0) + offset)
+    Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-
-def Gaussian(T, T_star, a):
-    """Models impact of temperature deviation from optimal temperature.
-
-    Args:
-        T: Some temperature data (pm.ConstantData)
-        T_star: Go-out temperature curve (pm.Deterministic)
-        a: Sensitivity / scale parameter (pymc variable or just number)
-
-    Returns:
-        rho: Temperature modulation factor (pymc variable)
-    """
-
-    return pm.Deterministic("rho", at.exp(-a * at.power(T - T_star, 2.0)))
-
-
-## temperature factor
-def temperature_factor(len_data_in, temperature_in):
-    """Models impact of temperature on mobility.
-
-    Args:
-        len_data_in: Length of time series (int)
-        temperature_in: Dictionary with temperature data (xr.DataArray)
-
-    Returns:
-        Temperature multiplier (pymc variable)
-
-    """
-
-    # temperature data
-    delta_T = pm.ConstantData("delta_T", temperature_in["delta"])
-    avg_T = pm.ConstantData("avg_T", temperature_in["average"])
-
-    # impact of weather: maximum temperature
-    factor_weather = pm.LogNormal("z_T", mu=np.log(0.01), tau=1)
-
-    # Gaussian to model the impact of optimal absolute temperature
-    ## minimimum go-out temperature
-    ### priors
-    amplitude = pm.LogNormal("amplitude", mu=np.log(0.08), tau=20)
-    offset = pm.Normal("offset", mu=25, sigma=2)
+    amplitude = pm.Normal("amplitude", mu=0.05, sigma = 0.005)
+    offset = pm.Normal("offset", mu=1, sigma=0.01)
     shift = pm.Normal("shift", mu=-20, sigma=2)
-    ### get go-out temperature
-    T_star = generate_Tstar(
-        amplitude=amplitude,
-        offset=offset,
-        shift=shift,
-        length=len_data_in,
-    )
-    ## calculate relevance of temperature differences
-    a_r = pm.LogNormal("a_rho", mu=np.log(0.01), tau=1)
-    temperature_relevance = Gaussian(avg_T, T_star, a_r)
 
-    # put it together
-    w = pm.Deterministic("theta", 1 + delta_T * temperature_relevance * factor_weather)
+    return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
 
-    return w
-
-
-## precipitation
-def precipitation_factor(delta_prcp_in):
-    """Models impact of precipitation on mobility.
-
+def precipitation_factor(precipitation_data_in):
+    """
     Args:
-    delta_prcp_in: Precipitation data (pm.ConstantData)
+    precipitation_data_in: Precipitation data
 
     Returns:
     Precipitation modulation factor (pymc variable)
     """
+    precipitation_data = pm.ConstantData("precipitation_data_in", precipitation_data_in["precipitation"])
 
-    # priors
-    delta_prcp = pm.ConstantData("delta_prcp", delta_prcp_in)
-    z_P = pm.LogNormal("z_P", mu=np.log(0.05), tau=0.5)
-
-    # put it together
-    w = pm.Deterministic("p", 1 - z_P * delta_prcp)
-
-    return w
-
-
-# pandemic fatigue
-# impact of pandemic fatigue: linear version
-def pandemic_fatigue_factor_linear(len_in):
-    """Models linear pandemic fatigue over time.
-
-    Args:
-        len_in: Length of time series (int)
-
-    Returns:
-        Linear pandemic modulation factor (pymc variable)
-    """
-
-    x = at.linspace(0, len_in, len_in)
-    max_x = len_in - 1
-    ## pandemic fatigue (addition) at the start
-    p0 = pm.LogNormal("f0", mu=np.log(0.01), tau=0.2)
-    ## pandemic fatigue rate
-    r = pm.TruncatedNormal("r", mu=0.2 / max_x, sigma=0.01 / max_x, lower=-p0 / max_x)
-    ## pandemic fatigue
-    p = pm.Deterministic("f", 1 + p0 + r * x)
-
+    scale_zp = pm.LogNormal("z_p", mu = np.log(0.75), sigma = 0.1)
+    p = pm.Deterministic("precipitation_factor", np.exp(- scale_zp * precipitation_data))
+    
     return p
 
+# def daylight_factor(daylight_data_in):
+#     """
+#     Args:
+#     daylight_data_in: Precipitation data
 
-# impact of pandemic fatigue: sigmoid version
-## utility function
-def sigmoid(x, del_t, del_y, v_change, p0=1):
-    return del_y / (1 + at.exp(-v_change * (x + del_t))) + p0
+#     Returns:
+#     Daylight modulation factor (pymc variable)
+#     """
+#     daylight_data = pm.ConstantData("daylight_data_in", daylight_data_in["daylight"])
 
+#     alpha = pm.Normal("alpha_day", mu = 0.2, sigma = 0.01)
+#     beta = pm.Normal("beta_day", mu = -2, sigma = 0.1)
+#     day = pm.Deterministic("daylight_factor", alpha * daylight_data + beta)
 
-## multiplier
-def pandemic_fatigue_factor_sigmoid(len_in):
-    """Models sigmoid pandemic fatigue over time.
+#     return day
 
+def daylight_factor(daylight_data_in):
+    """
     Args:
-    len_in: Length of time series (int)
+    daylight_data_in: Precipitation data
 
     Returns:
-    Sigmoid pandemic modulation factor (pymc variable)
+    Daylight modulation factor (pymc variable)
     """
-    x = at.linspace(0, len_in, len_in)
+    daylight_data = pm.ConstantData("daylight_data_in", daylight_data_in["daylight"])
 
-    ## location of the change point
-    del_t = pm.Normal("del_t", -len_in / 2, sigma=len_in / 4)
-    ## maximum increase in pandemic fatigue
-    del_f = pm.Normal("del_f", mu=0.2, sigma=0.1)
-    ## time scale of pandemic fatigue
-    tau = pm.LogNormal("tau", mu=np.log(1), tau=1)
+    alpha = pm.Normal("alpha_day", mu = 0.02, sigma = 0.005) #TODO: Find adequate non-neg. distribution
+    beta = pm.Normal("beta_day", mu = 0.1, sigma = 0.05)
+    day = pm.Deterministic("daylight_factor", beta*np.exp(alpha*(daylight_data-12.23188)/beta) + (1-beta))
 
-    ## pandemic fatigue
-    p = pm.Deterministic("f", sigmoid(x, del_t, del_f, tau))
+    return day
 
-    return p
-
-
-# impact of disease spread
-def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
+#Impact of disease spread
+def disease_factor(indicator, disease_data_in, len_data, mu_z_prior_1=0.7, mu_z_prior_2=0.8):
     """Models impact of disease spread on mobility.
 
     Args:
@@ -216,13 +216,15 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     ## data
     disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
     disease_data_len = disease_data.shape[0].eval()
+    idx = np.arange(0,37,1)
 
     ## define priors
-    factor_disease = pm.LogNormal(f"z_{indicator}", mu=np.log(mu_z_prior), tau=10)
+    factor_disease_1 = pm.LogNormal(f"z1_{indicator}", mu=np.log(mu_z_prior_1), tau=10)
+    factor_disease_2 = pm.LogNormal(f"z2_{indicator}", mu=np.log(mu_z_prior_2), tau=10)
     # mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(1), sigma=0.5)
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(15), sigma=0.5)
     # sigma_disease = pm.Uniform(f"sigma_{indicator}", lower=1 / 7, upper=12)
-    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(2), sigma=0.25)
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.25)
     sigma_disease = pm.Deterministic(
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease)
     )
@@ -240,46 +242,11 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior=0.9):
     risk = pm.Deterministic(f"risk_{indicator}", risk)
 
     ## put it together
+    factor_disease = pm.math.switch(15 > idx, factor_disease_1, factor_disease_2)
     exponent = -factor_disease * risk
     d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
 
     return d
-
-
-# Kurzarbeit
-def correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data):
-    """Adjusts baseline out-of-home duration for short-time work changes.
-
-    Args:
-        kurzarbeit_data_in: Difference in short-time work rate between 2020 and 2022 (Xarray.DataArray)
-        m_base_data: Baseline mobility (pm.ConstantData)
-
-    Returns:
-        Adjusted baseline mobility (pymc variable)
-    """
-    ka_data = pm.ConstantData("Kurzarbeit", kurzarbeit_data_in)
-    ## correct baseline out-of-home duration
-    delta_k = pm.LogNormal("delta_k", mu=np.log(8), tau=10)
-    k = pm.Deterministic("k", delta_k * ka_data)
-    return m_base_data - k
-
-
-def correct_for_home_office(home_office_data_in, m_base_data):
-    """Adjusts baseline out-of-home duration for home office patterns.
-
-    Args:
-        home_office_data_in: Difference in home office rate between 2020 and 2022 (Xarray.DataArray)
-        m_base_data: Baseline mobility (pm.ConstantData)
-
-    Returns:
-        Adjusted baseline mobility (pymc variable)
-    """
-    ho_data = pm.ConstantData("home_office", home_office_data_in)
-    ## correct baseline out-of-home duration
-    delta_h = pm.LogNormal("delta_h", mu=np.log(8), tau=10)
-    h = pm.Deterministic("h", delta_h * ho_data)
-    return m_base_data - h
-
 
 # --- Total model --- #
 
@@ -288,53 +255,53 @@ def create_model(
     model_in,
     base_mobility_data_in,
     observed_mobility_data_in,
-    S_data_in,
-    kurzarbeit_data_in,
-    homeOffice_data_in,
     indicators_in,
     disease_data_in,
-    pandemic_fatigue="sigmoid",
-    delta_prcp_in=None,
+    school_in,
+    holiday_in,
+    precipitation_in=None,
     temperature_in=None,
+    daylight_in=None,
+    pop_density_in=None
 ):
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
         # define data
-        m_base_data = pm.ConstantData("m_base", base_mobility_data_in)
-
-        # kurzarbeit
-        m = correct_for_kurzarbeit(kurzarbeit_data_in, m_base_data)
-        m = correct_for_home_office(homeOffice_data_in, m)
-        m = pm.Deterministic("o_*", m)
+        m = duration_base(base_mobility_data_in)
 
         # impact of disease spread
-        for indicator in indicators_in:
-            mu_z_prior = np.power(0.9, 1/len(indicators_in))
-            m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
+        if indicators_in is not None:
+            for indicator in indicators_in:
+                mu_z_prior = np.power(0.9, 1/len(indicators_in))
+                m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
 
-        # impact of NPIs
-        ## stay-at-home orders
-        if S_data_in is not None:
-            S_data = pm.ConstantData("S", S_data_in)
-            m = m * return_s(S_data)
+        if pop_density_in is not None:
+            m *= pop_density_factor(pop_density_in)
 
-        # impact of pandemic fatigue
-        if pandemic_fatigue == "linear":
-            m *= pandemic_fatigue_factor_linear(len_data)
-        elif pandemic_fatigue == "sigmoid":
-            m *= pandemic_fatigue_factor_sigmoid(len_data)
+        #impact of school vacations
+        if school_in is not None:
+            m *= vacation_factor(school_in)
+
+        #impact of holiday data
+        if holiday_in is not None:
+            m*= holiday_factor(holiday_in)
 
         # impact of weather
         ## precipitation
-        if delta_prcp_in is not None:
-            m *= precipitation_factor(delta_prcp_in)
+        if precipitation_in is not None:
+            m *= precipitation_factor(precipitation_in)
+            
         ## temperature
         if temperature_in is not None:
-            m *= temperature_factor(len_data, temperature_in)
+            m *= temperature_factor(temperature_in)
+
+        ## daylight
+        if daylight_in is not None:
+            m *= daylight_factor(daylight_in)
 
         # define likelihood
         m = pm.Deterministic("m", m)
-        model_error = pm.HalfCauchy("sigma_model", beta=0.5)
-        o = pm.Normal(
-            "o", mu=m, sigma=model_error, observed=observed_mobility_data_in
+        model_error = pm.HalfCauchy("sigma_model", beta=0.2)
+        d = pm.Normal(
+            "d", mu=m, sigma=model_error, observed=observed_mobility_data_in
         )

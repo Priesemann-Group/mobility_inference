@@ -1,6 +1,7 @@
 import numpy as np
 import arviz as az
 import xarray as xr
+import datetime
 import warnings
 
 import matplotlib.pyplot as plt
@@ -12,25 +13,32 @@ from matplotlib import colormaps
 # to import FormatStrFormatter
 #import matplotlib.ticker as ticker
 
-import covid19_inference.covid19_inference as cov19
+import covid19_inference as cov19
 import utils
 
 colormap = colormaps["tab20b"]
 colors = {
     # diseaes
     "R": colormap(0.0),
+    "logR": colormap(0.0),
     "C": colormap(0.05),
+    "logC": colormap(0.05),
     "H": colormap(0.1),
+    "logH": colormap(0.1),
     "ICU": colormap(0.15),
+    "logICU": colormap(0.15),
     "D": (0.803921568627451, 0.807843137254902, 0.9294117647058824, 1),
+    "logD": (0.803921568627451, 0.807843137254902, 0.9294117647058824, 1),
+    "G": colormap(0.0),
     # NPI
-    ## stay-at-home order
-    "S": colormap(0.2),
-    "S_ox": colormap(0.25),
-    ## home office
-    "h": colormap(0.25),
-    ## kurzarbeit
-    "K": colormap(0.35),
+    ## population density
+    "pop": colormap(0.2),
+    ## school vacation
+    "v": colormap(0.25),
+    ## public holidays
+    "h": colormap(0.3),
+     # daylight
+    "L": colormap(0.7),
     # temperature
     "T": colormap(0.4),
     "delT": colormap(0.45),
@@ -41,10 +49,10 @@ colors = {
     "f": colormap(0.6),
     "sigmoid": colormap(0.75),
     # out-of-home duration
-    "m": colormap(0.8),
-    "m_obs": colormap(0.85),
-    "o_*": colormap(0.9),
-    "m_base": colormap(0.95),
+    "d": colormap(0.8),
+    "d_obs": colormap(0.85),
+    "d_*": colormap(0.9),
+    "d_base": colormap(0.95),
 }
 
 
@@ -74,7 +82,7 @@ def format_x_axis(ax_in, x_in, last=False, n_xticks=6, year=2020):
     # get x tick locations
     xticks = np.linspace(0, len(x_in) - 1, n_xticks, dtype=int)
     # get x tick labels
-    xticklabels = [x_in[i].strftime("%d %b") for i in xticks]
+    xticklabels = [x_in[i] for i in xticks]
     # set x ticks
     ax_in.set_xticks([x_in[i] for i in xticks])
     # increase x tick length
@@ -192,6 +200,7 @@ def plot_convolution(tag, axs, last, trace, dates):
         "H": "Hospitalisations $H$",
         "R": "Effective Reproduction Number $R$",
         "D": "Deaths $D$",
+        "G": "Growth Multiplier $G$",
     }
     ax.set_title(labels[tag], x=0, y=1.1)
 
@@ -298,18 +307,18 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
 def plot_temperature_timeseries(dates_in, trace_in, tag_in):
     fig, axs = plt.subplots(2, 1, figsize=(9, 9), sharex=True)
 
-    # upper plot
+    # First plot
     ax = axs[0]
     plot_timeseries(
         ax,
         dates_in,
-        trace_in.posterior["T_star"],
+        trace_in.constant_data["max_Temp"],
         color_in=colors["T"],
-        label_in="$T_*$",
+        label_in="$T_2020$",
     )
     format_x_axis(ax, dates_in)
     ## set y label
-    ax.set_ylabel("'go-out' temperature\n$T_*$ [°C]")
+    ax.set_ylabel("temperature [°C]")
     ## create custom legend
     ### for median line and 94% CI
     median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
@@ -317,13 +326,38 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
     ### create legend
     ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
 
+    # Second plot
+    # ax = axs[1]
+    # plot_timeseries(
+    #     ax,
+    #     dates_in,
+    #     trace_in.posterior["T_star"],
+    #     color_in=colors["T"],
+    #     label_in="$T_*$",
+    # )
+    # format_x_axis(ax, dates_in)
+    # # ## set y label
+    # ax.set_ylabel("'go-out' temperature\n$T_*$ [°C]")
+    # ## create custom legend
+    # ### for median line and 94% CI
+    # median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    # ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    # ### create legend
+    # ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
+
     # lower plot
     ax = axs[1]
-    plot_timeseries(ax, dates_in, trace_in.posterior["rho"], "$\\rho$", colors["T"])
-    ax.set_ylim(0, 1)
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["temperature_factor"],
+        color_in=colors["T"],
+        label_in="$Delta_temp$",
+    )
+    ax.set_ylim(0.75, 1.25)
     format_x_axis(ax, dates_in, last=True)
     # set y label
-    ax.set_ylabel("Relevance of\ntemperature difference $\\rho$")
+    ax.set_ylabel("temperature_factor")
 
     plt.subplots_adjust(hspace=0.1)
 
@@ -331,86 +365,105 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
     fig.savefig(f"{tag_in}/temperature.png", bbox_inches="tight")
     fig.savefig(f"{tag_in}/temperature.pdf", bbox_inches="tight")
 
+    ## plot daylight time series
+def plot_daylight_timeseries(dates_in, trace_in, tag_in):
+    fig, axs = plt.subplots(2, 1, figsize=(9, 9), sharex=True)
+
+    # First plot
+    ax = axs[0]
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.constant_data["daylight_data_in"],
+        color_in=colors["L"],
+        label_in="$Daylight$",
+    )
+    format_x_axis(ax, dates_in)
+    ## set y label
+    ax.set_ylabel("Daylight [hrs]")
+
+    # Second plot
+    # ax = axs[1]
+    # plot_timeseries(
+    #     ax,
+    #     dates_in,
+    #     trace_in.posterior["T_star"],
+    #     color_in=colors["T"],
+    #     label_in="$T_*$",
+    # )
+    # format_x_axis(ax, dates_in)
+    # # ## set y label
+    # ax.set_ylabel("'go-out' temperature\n$T_*$ [°C]")
+    # ## create custom legend
+    # ### for median line and 94% CI
+    # median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    # ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    # ### create legend
+    # ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
+
+    # lower plot
+    ax = axs[1]
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["daylight_factor"],
+        color_in=colors["L"],
+        label_in="Daylight factor",
+    )
+    ax.set_ylim(0.75, 1.25)
+    format_x_axis(ax, dates_in, last=True)
+    ## create custom legend
+    ### for median line and 94% CI
+    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+    ### create legend
+    ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
+
+    # set y label
+    ax.set_ylabel("daylight_factor")
+
+    plt.subplots_adjust(hspace=0.1)
+
+    # save figure
+    fig.savefig(f"{tag_in}/daylight.png", bbox_inches="tight")
+    fig.savefig(f"{tag_in}/daylight.pdf", bbox_inches="tight")
+
 
 def plot_all_timeseries(
     dates_in,
     trace_in,
     tag_in,
     indicators_in,
-    stay_at_home,
-    pandemic_fatigue_in,
-    temperature_in,
-    precipitation_in,
+    school_in=None,
+    holiday_in=None,
+    temperature_in=None,
+    precipitation_in=None,
+    daylight_in=None,
+    pop_density_in=None,
     log=False,
 ):
     fig, axs = plt.subplots(
         3,
         1,
-        figsize=(13, 13),
+        figsize=(13, 17),
         sharex=True,
     )
 
-    # upper plot
-    ax = axs[0]
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["k"],
-        color_in=colors["K"],
-        label_in="short-term work $k$",
-    )
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["h"],
-        color_in=colors["h"],
-        label_in="home office $h$",
-    )
-    ax.hlines(
-        0,
-        xmin=dates_in[0],
-        xmax=dates_in[-1],
-        color="grey",
-        linestyle="--",
-        linewidth=1,
-    )
-    format_x_axis(ax, dates_in)
-    ## set y label
-    ax.set_ylabel("Subtractive impact on\nout-of-home duration")
-    ## create custom legend
-    ### for median line and 94% CI
-    median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
-    ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
-    ### create legend
-    legend2 = ax.legend(
-        handles=[median_line, ci_94],
-        frameon=False,
-        loc="lower left",
-        # bbox_to_anchor=(1.1, 0.95),
-    )
-    ax.add_artist(legend2)
-
-    ax.legend(ncol=2)
-
     # middle plot
-    ax = axs[1]
+    ax = axs[0]
     labels = {
         "C": "new cases $d_C$",
+        "logC": "log(new cases $d_C$)",
         "ICU": "ICU patients $d_{ICU}$",
+        "logICU": "log(ICU patients $d_{ICU}$)",
         "H": "hospitalisations $d_H$",
+        "logH": "log(hospitalisations $d_H$)",
         "R": "Reproduction Number $d_R$",
+        "logR": "log(Reproduction Number $d_R$)",
         "D": "deaths $d_D$",
+        "logD": "log(deaths $d_D$)",
+        "G": "Growh Multiplier $d_G$",
     }
-    ## plot s
-    if stay_at_home is not None:
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["s"],
-            color_in=colors["S"],
-            label_in="stay-at-home orders $s$",
-            alpha=0.2,
-        )
     ## plot disease indicators
     for indicator in indicators_in:
         plot_timeseries(
@@ -421,38 +474,56 @@ def plot_all_timeseries(
             label_in=labels[indicator],
             alpha=0.2,
         )
-    ## pandemic fatigue
-    if pandemic_fatigue_in == "linear" or pandemic_fatigue_in == "sigmoid":
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["f"],
-            color_in=colors["f"],
-            label_in="pandemic fatigue $f$",
-            alpha=0.2,
-        )
-    ## temperature
+        # daylight
+    if daylight_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.posterior["daylight_factor"],
+           color_in=colors["L"],
+           label_in="daylight",
+           alpha=0.2,
+       )
+    # school vacation
+    if school_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.posterior["vacation_factor"],
+           color_in=colors["v"],
+           label_in="school vacation",
+           alpha=0.2,
+       )
+    # public holidays
+    if holiday_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.posterior["holiday_factor"],
+           color_in=colors["h"],
+           label_in="public holidays",
+           alpha=0.2,
+       )
+    # temperature
     if temperature_in is not None:
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["theta"],
-            color_in=colors["T"],
-            label_in="temperature $\\theta$",
-            alpha=0.2,
-        )
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.posterior["temperature_factor"],
+           color_in=colors["T"],
+           label_in="temperature",
+           alpha=0.2,
+       )
     ## precipitation
-    if precipitation_in is not None:
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["p"],
-            color_in=colors["p"],
-            label_in="precipitation $p$",
-            alpha=0.2,
-        )
-
-
+    # if precipitation_in is not None:
+    #     plot_timeseries(
+    #         ax,
+    #         dates_in,
+    #         trace_in.posterior["precipitation_factor"],
+    #         color_in=colors["p"],
+    #         label_in="precipitation $p$",
+    #         alpha=0.2,
+    #     )
     ax.hlines(
         1,
         xmin=dates_in[0],
@@ -469,26 +540,42 @@ def plot_all_timeseries(
         # bbox_to_anchor=(0.7, 2)
     )
 
+    # middle plot
+    ax = axs[1]
+    plot_timeseries(
+        ax,
+        dates_in,
+        trace_in.posterior["d_base"],
+        color_in=colors["d"],
+        label_in="base $d$",
+        alpha=0.2,
+    )
+    format_x_axis(ax, dates_in, last=True)
+    # set y label
+    ax.set_ylabel("Out-of-home duration [h]")
+
+    ## precipitation
+    if pop_density_in is not None:
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior["pop_density_factor"],
+            color_in=colors["pop"],
+            label_in="Pop density $pop$",
+            alpha=0.2,
+        )
+
     # lower plot
     ax = axs[2]
     ax.plot(
         dates_in,
-        trace_in.constant_data["m_base"],
-        label="baseline $o_{base}$",
-        color=colors["m_base"],
+        trace_in.observed_data["d"],
+        label="input $d_{obs}$",
+        color=colors["d_obs"],
         marker="o",
     )
-    plot_timeseries(
-        ax, dates_in, trace_in.posterior["o_*"], "inferred $o_*$", colors["o_*"]
-    )
-    ax.plot(
-        dates_in,
-        trace_in.observed_data["o"],
-        label="input $o_{obs}$",
-        color=colors["m_obs"],
-        marker="o",
-    )
-    plot_timeseries(ax, dates_in, trace_in.posterior["m"], "inferred $o$", colors["m"])
+
+    plot_timeseries(ax, dates_in, trace_in.posterior["m"], "inferred $d$", colors["d"])
     ax.legend(
         ncol=2,
         # bbox_to_anchor=(1.1, -0.4)
@@ -506,7 +593,7 @@ def plot_all_timeseries(
 
 
 # plot distribution for single indicator models
-def plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in):
+def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in):
     # --- base parameters ---
     if len(indicators_in) == 0:
         fig, axs = plt.subplots(1, 5, figsize=(13, 2))
@@ -524,93 +611,79 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, 
     # flatten axes
     axs = axs.flatten()
 
-    # kurzarbeit
-    cov19.plot.distribution(
-        model_in, trace_in, "delta_k", dist_math="\delta_k", ax=axs[0]
+    cov19.plot.distribution( 
+        model_in, trace_in, "d_factor", dist_math="d_{base}", ax=axs[0]
     )
-    # home office
-    cov19.plot.distribution(
-        model_in, trace_in, "delta_h", dist_math="\delta_h", ax=axs[1]
+
+    cov19.plot.distribution( 
+        model_in, trace_in, "theta_v", dist_math="\\theta_{v}", ax=axs[1]
     )
-    if stay_at_home is not None:
-        cov19.plot.distribution(model_in, trace_in, "z_S", dist_math="z_{S}", ax=axs[2])
-    cov19.plot.distribution(
-        model_in, trace_in, "sigma_model", dist_math="\sigma_{model}", ax=axs[3]
+
+    cov19.plot.distribution( 
+        model_in, trace_in, "theta_h", dist_math="\\theta_{h}", ax=axs[2]
+    )
+
+    cov19.plot.distribution( 
+        model_in, trace_in, "sigma_model", dist_math="\\sigma_{model}", ax=axs[3]
     )
 
     # disease
-    i = 4
+    i = 5
     for indicator in indicators_in:
         cov19.plot.distribution(
-            model_in, trace_in, f"z_{indicator}", dist_math=f"z_{{{indicator}}}", ax=axs[i]
+            model_in, trace_in, f"z1_{indicator}", dist_math=f"z1_{{{indicator}}}", ax=axs[i]
         )
         cov19.plot.distribution(
+            model_in, trace_in, f"z2_{indicator}", dist_math=f"z2_{{{indicator}}}", ax=axs[i+1]
+        )
+        cov19.plot.distribution(
+        
             model_in,
             trace_in,
             f"mu_{indicator}",
             dist_math=f"\mu_{{{indicator}}}",
-            ax=axs[i + 1],
+            ax=axs[i + 2],
         )
         cov19.plot.distribution(
+        
             model_in,
             trace_in,
             f"sigma_{indicator}",
             dist_math=f"\sigma_{{{indicator}}}",
-            ax=axs[i + 2],
+            ax=axs[i + 3],
         )
         cov19.plot.distribution(
+        
             model_in,
             trace_in,
             f"alpha_{indicator}",
             dist_math=f"\\alpha_{{{indicator}}}",
-            ax=axs[i + 3],
+            ax=axs[i + 4],
         )
-        i += 4
+        i += 5
 
     fig.savefig(f"{tag_in}/distributions.png", dpi=300, bbox_inches="tight")
     fig.savefig(f"{tag_in}/distributions.pdf", dpi=300, bbox_inches="tight")
 
-    # --- pandemic fatigue ---
-    if pandemic_fatigue_in == "linear":
-        fig, axs = plt.subplots(1, 2, figsize=(5, 2))
-        axs = axs.flatten()
-        cov19.plot.distribution(model_in, trace_in, "f0", dist_math="f_0", ax=axs[0])
-        cov19.plot.distribution(model_in, trace_in, "r", dist_math="r", ax=axs[1])
-    elif pandemic_fatigue_in == "sigmoid":
-        fig, axs = plt.subplots(1, 3, figsize=(8, 3))
-        axs = axs.flatten()
-        cov19.plot.distribution(
-            model_in, trace_in, "del_t", dist_math="\Delta t", ax=axs[0]
-        )
-        cov19.plot.distribution(model_in, trace_in, "tau", dist_math=r"\tau", ax=axs[1])
-        cov19.plot.distribution(
-            model_in, trace_in, "del_f", dist_math="\Delta f", ax=axs[2]
-        )
-    if pandemic_fatigue_in == "linear" or pandemic_fatigue_in == "sigmoid":
-        fig.savefig(
-            f"{tag_in}/distributions_pandemic_fatigue.png",
-            dpi=300,
-            bbox_inches="tight",
-        )
-        fig.savefig(
-            f"{tag_in}/distributions_pandemic_fatigue.pdf",
-            dpi=300,
-            bbox_inches="tight",
-        )
-
     # --- temperature ---
     if temperature_in:
-        fig, axs = plt.subplots(1, 5, figsize=(13, 2))
+        fig, axs = plt.subplots(1, 3, figsize=(13, 2))
         axs = axs.flatten()
-        cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
-        cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="a_T", ax=axs[1])
-        cov19.plot.distribution(
-            model_in, trace_in, "offset", dist_math="T_{*,max}", ax=axs[2]
-        )
-        cov19.plot.distribution(
-            model_in, trace_in, "shift", dist_math="\Delta t", ax=axs[3]
-        )
-        cov19.plot.distribution(model_in, trace_in, "a_rho", dist_math="a_\\rho", ax=axs[4])
+        #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
+    
+        cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="amplitude", ax=axs[0])
+
+        cov19.plot.distribution(model_in, trace_in, "offset", dist_math="offset", ax=axs[1])
+    
+        cov19.plot.distribution(model_in, trace_in, "shift", dist_math="shift", ax=axs[2])
+
+        #cov19.plot.distribution(model_in, trace_in, "slope", dist_math="slope", ax=axs[3])
+
+        #cov19.plot.distribution(model_in, trace_in, "theta_w", dist_math="theta_w", ax=axs[4])
+
+        #cov19.plot.distribution(model_in, trace_in, "theta_w_up", dist_math="theta_w", ax=axs[5])
+        #cov19.plot.distribution(model_in, trace_in, "a_rho", dist_math="a_\\rho", ax=axs[4])
+    
         fig.savefig(
             f"{tag_in}/distributions_temperature.png",
             dpi=300,
@@ -621,8 +694,109 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, 
             dpi=300,
             bbox_inches="tight",
         )
+    # --- daylight ---
+    if daylight_in:
+        fig, axs = plt.subplots(1, 2, figsize=(13, 2))
+        axs = axs.flatten()
+        #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
     
+        cov19.plot.distribution(model_in, trace_in, "alpha_day", dist_math="alpha_day", ax=axs[0])
 
+        cov19.plot.distribution(model_in, trace_in, "beta_day", dist_math="beta_day", ax=axs[1])
+    
+        #cov19.plot.distribution(model_in, trace_in, "shift", dist_math="shift", ax=axs[2])
+
+        #cov19.plot.distribution(model_in, trace_in, "slope", dist_math="slope", ax=axs[3])
+
+        #cov19.plot.distribution(model_in, trace_in, "theta_w", dist_math="theta_w", ax=axs[4])
+
+        #cov19.plot.distribution(model_in, trace_in, "theta_w_up", dist_math="theta_w", ax=axs[5])
+        #cov19.plot.distribution(model_in, trace_in, "a_rho", dist_math="a_\\rho", ax=axs[4])
+    
+        fig.savefig(
+            f"{tag_in}/distributions_daylight.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        fig.savefig(
+            f"{tag_in}/distributions_daylight.pdf",
+            dpi=300,
+            bbox_inches="tight",
+        )
+    
+    ## plot temperature time series
+def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data, disease_data_raw):
+    fig, axs = plt.subplots(3, 1, figsize=(9, 15), sharex=True)
+    
+    labels = {
+        "C": "new cases $d_C$",
+        "logC": "log(new cases $d_C$)",
+        "ICU": "ICU patients $d_{ICU}$",
+        "logICU": "log(ICU patients $d_{ICU}$)",
+        "H": "hospitalisations $d_H$",
+        "logH": "log(hospitalisations $d_H$)",
+        "R": "Reproduction Number $d_R$",
+        "logR": "log(Reproduction Number $d_R$)",
+        "D": "deaths $d_D$",
+        "logD": "log(deaths $d_D$)",
+        "G": "Growh Multiplier $d_G$",
+    }
+
+    for indicator in indicators:
+        disease_raw_2020 = disease_data_raw[f"{indicator}"][disease_data_raw[f"{indicator}"].index.isin(dates_in)] 
+        # First plot
+        ax = axs[0]
+        plot_timeseries(
+            ax,
+            dates_in,
+            disease_raw_2020,
+            color_in=colors[indicator],
+            label_in=labels[indicator],
+        )
+        format_x_axis(ax, dates_in)
+        ## set y label
+        ax.set_ylabel("Disease Indicator (raw)")
+
+        disease_2020 = disease_data[f"{indicator}"][disease_data[f"{indicator}"].index.isin(dates_in)] 
+        # Second plot
+        ax = axs[1]
+        plot_timeseries(
+            ax,
+            dates_in,
+            disease_2020,
+            color_in=colors[indicator],
+            label_in=labels[indicator],
+        )
+        format_x_axis(ax, dates_in)
+        ## set y label
+        ax.set_ylabel("Disease Indicator (transformed)")
+
+        # lower plot
+        ax = axs[2] 
+        plot_timeseries(
+            ax,
+            dates_in,
+            trace_in.posterior[f"d_{indicator}"],
+            color_in=colors[indicator],
+            label_in=labels[indicator],
+            alpha=0.2,
+        )
+        ax.set_ylim(0.4, 0.75)
+        format_x_axis(ax, dates_in, last=True)
+        # set y label
+        ax.set_ylabel("Disease factor")
+        ## create custom legend
+        ### for median line and 94% CI
+        median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
+        ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
+        ### create legend
+        ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
+
+        plt.subplots_adjust(hspace=0.1)
+
+        # save figure
+        fig.savefig(f"{tag_in}/diseaseIndicator.png", bbox_inches="tight")
+        fig.savefig(f"{tag_in}/diseaseIndicator.pdf", bbox_inches="tight")
 
 def plot_chains(trace_in, tag_in):
     def plot(trace_in, tag_in, kind_in):
@@ -640,25 +814,30 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in, precipitation_in
+    model_in, trace_in, tag_in, dates_in, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in
 ):
     utils.make_dir(tag_in)
 
     if indicators_in:
-        convolution_figure(indicators_in, trace_in, dates_in, tag_in)
+        # convolution_figure(indicators_in, trace_in, dates_in, tag_in)
         plot_gamma_kernel(trace_in, tag_in, indicators_in)
         plot_gamma_parameters(trace_in, indicators_in, tag_in)
-    plot_distributions(model_in, trace_in, tag_in, indicators_in, stay_at_home, pandemic_fatigue_in, temperature_in)
+        plot_disease_timeseries(dates_in, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in)
+    plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in)
     if temperature_in:
         plot_temperature_timeseries(dates_in, trace_in, tag_in)
+    if daylight_in:
+        plot_daylight_timeseries(dates_in, trace_in, tag_in)
     plot_all_timeseries(
         dates_in,
         trace_in,
         tag_in,
         indicators_in, 
-        stay_at_home,
-        pandemic_fatigue_in,
+        school_in,
+        holiday_in,
         temperature_in,
         precipitation_in,
+        daylight_in,
+        pop_density_in
     )
     plot_chains(trace_in, tag_in)
