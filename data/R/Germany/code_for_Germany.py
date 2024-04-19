@@ -6,7 +6,7 @@
 
 import datetime
 import numpy as np
-import aesara.tensor as at
+import pytensor.tensor as at
 import pymc as pm
 import pickle
 import pandas as pd
@@ -16,7 +16,7 @@ import os
 import shutil
 
 # This module needs to be downloaded into the same directory.
-import covid19_inference.covid19_inference as cov19
+import covid19_inference as cov19
 
 
 # ## Preparation for documenting the results and run
@@ -36,7 +36,7 @@ tag = country + "_" + args.name
 dir_name = "R_eff_results/" + tag
 ## We create the target directory if it does not exist yet
 if not os.path.exists(dir_name):
-    os.mkdir(dir_name)
+    os.makedirs(dir_name)
     print("Directory ", dir_name, " created.")
 else:
     print("Directory ", dir_name, " already exists.")
@@ -73,6 +73,7 @@ new_cases_obs = jhu.get_new(
 # We replace 0 with nan.
 new_cases_obs[new_cases_obs == 0] = np.nan
 
+# 
 
 # ## Create the model
 # Next, we create the model! There are default values for most of the function arguments.
@@ -87,7 +88,7 @@ params_model = dict(
     data_end=ed,
     fcast_len=16,
     diff_data_sim=pr_delay + 6,
-    N_population=populations[country],
+    N_population=82000000,
 )
 
 # Now we need to set the priors for the change points.
@@ -144,23 +145,23 @@ with cov19.model.Cov19Model(**params_model) as this_model:
         name_new_I_t="new_I_t",
     )
 
-    # Delay the cases by a lognormal reporting delay.
+    #Delay the cases by a lognormal reporting delay.
     new_cases = cov19.model.delay_cases(
         cases=new_cases,
-        name_cases="delayed_cases",
-        name_delay="delay",
-        name_width="delay_width",
-        pr_mean_of_median=pr_delay,
-        pr_sigma_of_median=0.2,
-        pr_median_of_width=0.3,
+        #name_cases="delayed_cases",
+        #name_delay="delay",
+        #name_width="delay_width",
+        #pr_mean_of_median=pr_delay,
+        #pr_sigma_of_median=0.2,
+        #pr_median_of_width=0.3,
     )
 
-    # Modulate the inferred cases by considering that there is always a fraction of cases reported with another delay depending on the weekday.
+    # # Modulate the inferred cases by considering that there is always a fraction of cases reported with another delay depending on the weekday.
     new_cases = cov19.model.week_modulation(
         cases=new_cases, week_modulation_type="by_weekday"
     )
 
-    # Define the likelihood, uses the new_cases_obs set as model parameter.
+    # # Define the likelihood, uses the new_cases_obs set as model parameter.
     cov19.model.student_t_likelihood(new_cases)
 
 

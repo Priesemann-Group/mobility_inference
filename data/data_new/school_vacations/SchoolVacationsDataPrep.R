@@ -23,3 +23,20 @@ write_csv(school_vacations_germany_weekly, "school_vacations_germany_weekly.csv"
 school_vacations_germany_daily <- school_vacations_germany_daily %>% ungroup()
 school_vacations_germany_daily <- school_vacations_germany_daily %>% select(date, schoolVacation)
 write_csv(school_vacations_germany_daily, "school_vacations_germany_daily.csv")
+
+#Set up data set that contains German + federal state data
+#Weekly data
+school_vacations_germany_weekly <- school_vacations_germany_weekly %>% mutate(federalState = "Deutschland")
+school_vacations_weekly <- school_vacations %>% mutate(year = year(date)) %>%
+                                                mutate(week = isoweek(date))
+school_vacations_weekly <- school_vacations_weekly %>% group_by(year, week, federalState) %>% summarise(date = max(date), schoolVacation = sum(schoolVacation)) %>%
+                                                       ungroup()
+school_vacations_weekly <- school_vacations_weekly %>% select(c("date", "federalState", "schoolVacation"))
+school_vacations_weekly <- rbind(school_vacations_weekly, school_vacations_germany_weekly)
+
+write_csv(school_vacations_weekly, "school_vacations_germany_weekly.csv")
+
+#Daily data
+school_vacations_germany_daily <- school_vacations_germany_daily %>% mutate(federalState = "Deutschland")
+school_vacations <- rbind(school_vacations, school_vacations_germany_daily)
+write_csv(school_vacations_weekly, "school_vacations_germany_daily.csv")
