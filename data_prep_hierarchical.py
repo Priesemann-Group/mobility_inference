@@ -207,7 +207,8 @@ def get_out_of_home_duration():
     #mobility_df["week"] = mobility_df.index.isocalendar().week
 
     ### get dates
-    #mobility_dates = mobility_df.index.values
+    #mobility_dates = mobility_df["date"]
+
     #dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
     #mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
     #mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
@@ -222,7 +223,7 @@ def get_out_of_home_duration():
 
     return (
         mobility_data_2020,
-        baseline_mobility,
+        baseline_mobility
     )
 
 ## R
@@ -623,9 +624,11 @@ def get_federal_states():
     """
 
     path_fedStates = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
-    fedStates_df = pd.read_csv(path_fedStates, index_col=0, parse_dates=True)
+    fedStates_df = pd.read_csv(path_fedStates)
 
-    fedStates = fedStates_df["federalState"].to_xarray()
+    fedStates_df.federalState = fedStates_df.federalState.map(str.strip)
 
-    return fedStates
+    fedState, fed_States = fedStates_df.federalState.factorize()
+
+    return fedState, fed_States
 

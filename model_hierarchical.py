@@ -41,7 +41,7 @@ def pop_density_factor(pop_density_in):
 
     return pop
 
-def vacation_factor(vacation_data_in):
+def vacation_factor(vacation_data_in, fedState):
     """
     Args:
     vacation_data_in: Vacation data
@@ -277,17 +277,17 @@ def create_model(
         m = duration_base(base_mobility_data_in)
 
         # impact of disease spread
-        if indicators_in is not None:
-            for indicator in indicators_in:
-                mu_z_prior = np.power(0.9, 1/len(indicators_in))
-                m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
+        # if indicators_in is not None:
+        #     for indicator in indicators_in:
+        #         mu_z_prior = np.power(0.9, 1/len(indicators_in))
+        #         m *= disease_factor(indicator, disease_data_in, len_data, mu_z_prior)
 
         if pop_density_in is not None:
             m *= pop_density_factor(pop_density_in)
 
         #impact of school vacations
         if school_in is not None:
-            m *= vacation_factor(school_in)
+            m *= vacation_factor(school_in, fed_states_in)
 
         #impact of holiday data
         if holiday_in is not None:

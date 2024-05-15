@@ -28,7 +28,7 @@ name = "temperature_hierarchical"  # Name of the experiment
 test = True  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
-disease_indicator = False # Whether to include disease indicators
+disease_indicator = None # Whether to include disease indicators
 stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
@@ -75,8 +75,7 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-d_2020, d_base, dates_2020, dates_2022 = data_prep_hierarchical.get_out_of_home_duration()
-dates = pd.to_datetime(dates_2020)
+d_2020, d_base = data_prep_hierarchical.get_out_of_home_duration()
 
 # Get R_effective value for disease data
 disease_data_raw["R"] = data_prep_hierarchical.get_R_raw()
@@ -86,85 +85,80 @@ disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R
 disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
 disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
-# Get OWID data
-owid = data_prep_hierarchical.get_owid()
-
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(owid)
-disease_data["C"] = data_prep_hierarchical.get_C_transformed(disease_data_raw["C"])
+disease_data_raw["C"] = data_prep_hierarchical.get_C_raw()
+disease_data["C"] = data_prep_hierarchical.get_C_transformed()
 
 disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(disease_data_raw["C"])
 disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(disease_data_raw["logC"])
 
-disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw(owid)
-disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
+#disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
+#disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
 
-disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
-disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
+#disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
+#disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
 
-disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(owid)
-disease_data["H"] = data_prep_hierarchical.get_H_transformed(disease_data_raw["H"])
+disease_data_raw["H"] = data_prep_hierarchical.get_H_raw()
+disease_data["H"] = data_prep_hierarchical.get_H_transformed()
 
 disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(disease_data_raw["H"])
 disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(disease_data_raw["logH"])
 
-disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(owid)
-disease_data["D"] = data_prep_hierarchical.get_D_transformed(disease_data_raw["D"])
+disease_data_raw["D"] = data_prep_hierarchical.get_D_raw()
+disease_data["D"] = data_prep_hierarchical.get_D_transformed()
 
 disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(disease_data_raw["D"])
 disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(disease_data_raw["logD"])
 
-# disease_data_raw["G"] = data_prep_new.get_G_raw(dates_2020)
-# disease_data["G"] = data_prep_new.get_G_transformed(disease_data_raw["G"])
-
-#Include vectors of ones for mobility
 
 # If population density is included, get population density
 if pop_density is not None:
     pop_density = {
-        "pop_density": data_prep_hierarchical.get_pop_density(dates_2020)
+        "pop_density": data_prep_hierarchical.get_pop_density()
     }
 
 # If precipitation is included, get precipitation data
 if precipitation is not None:
     precipitation = {
-        "precipitation": data_prep_hierarchical.get_precipitation(dates_2020)
+        "precipitation": data_prep_hierarchical.get_precipitation()
     }
 
 # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep_hierarchical.get_temperature(dates_2020),
-        "delta_temperature": data_prep_hierarchical.get_avg_temperature(dates_2020)
+        "temperature": data_prep_hierarchical.get_temperature(),
+        "delta_temperature": data_prep_hierarchical.get_avg_temperature()
     }
 
 if daylight is not None:
     daylight = {
-        "daylight": data_prep_hierarchical.get_daylight(dates_2020),
+        "daylight": data_prep_hierarchical.get_daylight(),
     }
 
 #If school is included, get school data
 if school is not None:
     school = {
-        "school vacation": data_prep_hierarchical.get_school_vacations(dates_2020)
+        "school vacation": data_prep_hierarchical.get_school_vacations()
     }
 
 #If public holidays are included, get public holiday data
 if holiday is not None:
     holiday = {
-        "pub holiday": data_prep_hierarchical.get_pub_holidays(dates_2020)
+        "pub holiday": data_prep_hierarchical.get_pub_holidays()
     }
+
+fedState, fedStates = data_prep_hierarchical.get_federal_states()
 
 if single:
     all_combinations = [
         # ["R"],
         # ["logR"],
-        # ["C"],
+        ["C"],
         # ["logC"],
         # ["ICU"],
         # ["logICU"],
         # ["H"],
-        ["logH"],
+        #["logH"],
         # ["D"],
         # ["logD"]
     ]
@@ -174,9 +168,6 @@ if ELPD_method == "LFO":
     L = 10
 elif ELPD_method == "k-fold_CV":
     L = 1
-
-# index? No. of observations overall? 1-37? No. of dates?
-index, fedStates = data_prep_hierarchical.get_federal_states(dates_2020)
 
 # Run model for each combination of indicators
 for indicators in all_combinations:
@@ -209,8 +200,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"obs_id": index, 
-                  "fedState":["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen", "Deutschland"]}
+        coords = {"fedState": fedStates}
     
         inference_model = pm.Model(coords=coords)
 
@@ -225,7 +215,8 @@ for indicators in all_combinations:
             temperature_in=temperature,
             precipitation_in=precipitation,
             daylight_in = daylight,
-            pop_density_in = pop_density
+            pop_density_in = pop_density,
+            fed_states_in = fedState
         )
         models[i] = inference_model
 
@@ -263,8 +254,8 @@ for indicators in all_combinations:
         model_comparison.save_ELPD(models, traces, L, M, len(d_2020), dir_name, draws, ELPD_method)
 
     # Plot results
-    if plot_figures:
-        subFigDir_name = figdir_name + "/" + tag
-        plot_hierarchical.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw
-        )
+    # if plot_figures:
+    #     subFigDir_name = figdir_name + "/" + tag
+    #     plot_hierarchical.analysis_figures(
+    #         inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw
+    #     )
