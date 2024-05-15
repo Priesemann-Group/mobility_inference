@@ -59,9 +59,10 @@ def transform_data(df_in):
     Returns:
         pd.DataFrame: Transformed data.
     """
-    df = stats.zscore(df_in)
+    #df = stats.zscore(df_in)
+    df = (df_in - min(df_in))/(max(df_in)-min(df_in))
 
-    return (df - min(df))/(max(df)-min(df))
+    return df
 
 
 ## transform NPI index data with range 0-3 to range 0-1
@@ -251,7 +252,7 @@ def get_out_of_home_duration():
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0, delimiter=";"
     )
-    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Bayern"]
+    mobility_df = mobility_df[mobility_df["BundeslandID"] == "Deutschland"]
     mobility_df["week"] = mobility_df.index.isocalendar().week
 
     ### get dates
@@ -550,7 +551,7 @@ def get_G_transformed(G_raw, dates=None):
 
 def get_school_vacations(dates_2020_in):
 
-    school_df = pd.read_csv("data/data_new/school_vacations/school_vacations_germany_weekly.csv", parse_dates=True, index_col=0)
+    school_df = pd.read_csv("data/school_vacations/school_vacations_germany_weekly.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
     school_df_2020 = school_df[school_df.index.isin(dates_2020_in)]
@@ -564,7 +565,7 @@ def get_school_vacations(dates_2020_in):
 
 def get_pub_holidays(dates_2020_in):
 
-    pubHolidays_df = pd.read_csv("data/data_new/public_holidays/public_holidays_germany_weekly.csv", parse_dates=True, index_col=0)
+    pubHolidays_df = pd.read_csv("data/public_holidays/public_holidays_germany_weekly.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
     pubHolidays_df_2020 = pubHolidays_df[pubHolidays_df.index.isin(dates_2020_in)]
@@ -578,7 +579,7 @@ def get_pub_holidays(dates_2020_in):
 
 def get_precipitation(dates_2020_in):
 
-    precipitation_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/tmax_tavg_prcp_fed.csv", parse_dates=True, index_col=0)
+    precipitation_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/tmax_tavg_prcp_fed.csv", parse_dates=True, index_col=0)
 
     ### filter for mobility_dates_2020
     precipitation_df_2020 = precipitation_df[precipitation_df.index.isin(dates_2020_in)]
@@ -592,7 +593,7 @@ def get_precipitation(dates_2020_in):
 
 def get_temperature(dates_2020_in):
 
-    temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/weather/tmax_tavg_prcp_nat.csv", parse_dates=True, index_col=0)
+    temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/tmax_tavg_prcp_nat.csv", parse_dates=True, index_col=0)
     ### filter for mobility_dates_2020
     temperature_df_2020 = temperature_df[temperature_df.index.isin(dates_2020_in)]
     temperature_df_2020 = temperature_df_2020[temperature_df_2020["country"] == "Deutschland"]
@@ -618,7 +619,7 @@ def get_avg_temperature(dates_2020_in):
 
 def get_daylight(dates_2020_in):
     
-    daylight_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/daylight/DaylightGermanyweekly.csv", parse_dates=True, index_col=0)
+    daylight_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/daylight/DaylightGermanyweekly.csv", parse_dates=True, index_col=0)
 
     daylight_df_2020 = daylight_df[daylight_df.index.isin(dates_2020_in)]
 
@@ -630,7 +631,7 @@ def get_daylight(dates_2020_in):
 
 def get_pop_density(dates_2020_in):
 
-    pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/data_new/population_density/einwohnerinnen_share_area_density_fednat.csv", parse_dates=True, index_col=0)
+    pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/population_density/einwohnerinnen_share_area_density_fednat.csv", parse_dates=True, index_col=0)
 
     pop_density_df_2020 = pop_density_df[pop_density_df.index.isin(dates_2020_in)]
     
