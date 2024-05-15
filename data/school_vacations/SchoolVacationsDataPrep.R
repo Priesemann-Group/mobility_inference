@@ -17,12 +17,12 @@ school_vacations_germany_weekly <- school_vacations_germany_daily %>% group_by(y
 
 school_vacations_germany_weekly <- school_vacations_germany_weekly %>% ungroup()
 school_vacations_germany_weekly <- school_vacations_germany_weekly %>% select(date, schoolVacation)
-write_csv(school_vacations_germany_weekly, "school_vacations_germany_weekly.csv")
+#write_csv(school_vacations_germany_weekly, "school_vacations_germany_weekly.csv")
 
 
 school_vacations_germany_daily <- school_vacations_germany_daily %>% ungroup()
 school_vacations_germany_daily <- school_vacations_germany_daily %>% select(date, schoolVacation)
-write_csv(school_vacations_germany_daily, "school_vacations_germany_daily.csv")
+#write_csv(school_vacations_germany_daily, "school_vacations_germany_daily.csv")
 
 #Set up data set that contains German + federal state data
 #Weekly data
@@ -33,6 +33,13 @@ school_vacations_weekly <- school_vacations_weekly %>% group_by(year, week, fede
                                                        ungroup()
 school_vacations_weekly <- school_vacations_weekly %>% select(c("date", "federalState", "schoolVacation"))
 school_vacations_weekly <- rbind(school_vacations_weekly, school_vacations_germany_weekly)
+
+test <- data.frame()
+for(fedState in unique(school_vacations_weekly$federalState)){
+school_vacations_fedState <- school_vacations_weekly %>% filter(federalState == fedState)
+school_vacations_fedState <- pivot_wider(school_vacations_fedState, names_from = date, values_from = schoolVacation)
+test <- rbind(test, school_vacations_fedState)
+}
 
 write_csv(school_vacations_weekly, "school_vacations_germany_weekly.csv")
 
