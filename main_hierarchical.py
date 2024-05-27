@@ -14,6 +14,7 @@ import pymc as pm
 import pickle
 import shutil
 import pandas as pd
+import numpy as np
 import arviz as az
 
 # Import local module
@@ -29,7 +30,6 @@ test = True  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
 disease_indicator = None # Whether to include disease indicators
-stay_at_home = None # Whether to include stay-at-home orders as an indicator; None if not included
 plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
@@ -40,11 +40,11 @@ pop_density = None
 # Include weather parameters if required by giving any value
 # If not required, set these to None
 precipitation = None
-temperature = None
+temperature = 1
 daylight = None
 
 #Include school vacations and public holidays if required by giving any value
-school = 1
+school = None
 holiday = None
 
 # Generate all combinations of indicators
@@ -75,7 +75,7 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-d_2020, d_base = data_prep_hierarchical.get_out_of_home_duration()
+d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration()
 
 # Get R_effective value for disease data
 disease_data_raw["R"] = data_prep_hierarchical.get_R_raw()
@@ -89,8 +89,8 @@ disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_
 disease_data_raw["C"] = data_prep_hierarchical.get_C_raw()
 disease_data["C"] = data_prep_hierarchical.get_C_transformed()
 
-disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(disease_data_raw["C"])
-disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(disease_data_raw["logC"])
+disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw()
+disease_data["logC"] = data_prep_hierarchical.get_logC_transformed()
 
 #disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
 #disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
@@ -101,14 +101,14 @@ disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(disease_data_
 disease_data_raw["H"] = data_prep_hierarchical.get_H_raw()
 disease_data["H"] = data_prep_hierarchical.get_H_transformed()
 
-disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(disease_data_raw["H"])
-disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(disease_data_raw["logH"])
+disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw()
+disease_data["logH"] = data_prep_hierarchical.get_logH_transformed()
 
 disease_data_raw["D"] = data_prep_hierarchical.get_D_raw()
 disease_data["D"] = data_prep_hierarchical.get_D_transformed()
 
-disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(disease_data_raw["D"])
-disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(disease_data_raw["logD"])
+disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw()
+disease_data["logD"] = data_prep_hierarchical.get_logD_transformed()
 
 
 # If population density is included, get population density
@@ -126,8 +126,7 @@ if precipitation is not None:
 # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep_hierarchical.get_temperature(),
-        "delta_temperature": data_prep_hierarchical.get_avg_temperature()
+        "temperature": data_prep_hierarchical.get_temperature()
     }
 
 if daylight is not None:
@@ -147,7 +146,8 @@ if holiday is not None:
         "pub holiday": data_prep_hierarchical.get_pub_holidays()
     }
 
-fedState, fedStates = data_prep_hierarchical.get_federal_states()
+fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states()
+
 
 if single:
     all_combinations = [
@@ -200,7 +200,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"fedState": fedStates}
+        coords = {"fedState": fedState, "obs_id": obs_id}
     
         inference_model = pm.Model(coords=coords)
 
@@ -228,34 +228,35 @@ for indicators in all_combinations:
             else:
                 draws = 500 #1000
                 tune = 500 #1000
-            trace = pm.sample(
-                model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
-                idata_kwargs={"include_transformed": False}
-            )
+            with inference_model:
+                trace = pm.sample(
+                    model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
+                    idata_kwargs={"include_transformed": False}
+                )
             with inference_model:
                 pm.compute_log_likelihood(trace)
 
             # Save inference results
             ## trace
-            path = f"{dir_name}/trace_{tag2}.pickle"
-            with open(path, "wb") as inference_file:
-                pickle.dump(trace, inference_file)
-            ## summary
-            summary = az.summary(trace, round_to=2)
-            path = f"{dir_name}/summary_{tag2}.csv"
-            summary.to_csv(path)
+            # path = f"{dir_name}/trace_{tag2}.pickle"
+            # with open(path, "wb") as inference_file:
+            #     pickle.dump(trace, inference_file)
+            # ## summary
+            # summary = az.summary(trace, round_to=2)
+            # path = f"{dir_name}/summary_{tag2}.csv"
+            # summary.to_csv(path)
         else:
             trace = utils.load_trace(name, tag, tag2)
 
         traces[i] = trace
 
-    # Save ELPD result to file
-    if ELPD_method is not None:
-        model_comparison.save_ELPD(models, traces, L, M, len(d_2020), dir_name, draws, ELPD_method)
+    # # Save ELPD result to file
+    # if ELPD_method is not None:
+    #     model_comparison.save_ELPD(models, traces, L, M, len(dates), dir_name, draws, ELPD_method)
 
     # Plot results
-    # if plot_figures:
-    #     subFigDir_name = figdir_name + "/" + tag
-    #     plot_hierarchical.analysis_figures(
-    #         inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw
-    #     )
+    if plot_figures:
+        subFigDir_name = figdir_name + "/" + tag
+        plot_hierarchical.analysis_figures(
+            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState
+        )
