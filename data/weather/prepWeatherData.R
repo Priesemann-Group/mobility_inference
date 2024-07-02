@@ -69,7 +69,7 @@ weather_data_all <- rbind(weather_data_all, weather_data)
 }
 
 #Turning daily data into weekly averages
-weather_data_all <- filter(weather_data_all, Date < "2023-01-01") %>%
+weather_data_all <- filter(weather_data_all, Date < "2024-01-01") %>%
 filter(Date > "2019-12-29") %>%
   mutate(week = isoweek(Date)) %>%
   mutate(year = year(Date)) %>%
@@ -88,5 +88,5 @@ weather_data_all$prcp[weather_data_all$Date == date & weather_data_all$Bundeslan
 
 weather_data_all <- weather_data_all %>% ungroup() %>%
                     filter(Bundesland == "Gesamt") %>%
-                    filter(year %in% c(2020, 2022)) %>%
+                    filter(year %in% c(2020, 2023)) %>%
                     select(Date, tmax, tavg, prcp)
