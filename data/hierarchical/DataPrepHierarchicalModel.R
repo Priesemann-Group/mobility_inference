@@ -20,7 +20,7 @@ weather <- weather %>% filter(federalState != "Deutschland")
 
 daylight <- read_csv("/Users/sydney/git/mobility_inference/data/daylight/DaylightWeek_FedStates.csv")
 
-mobility <- read_delim("/Users/sydney/git/mobility_inference/data/mobility/archive/mobilityData_OverviewBL_weekly.csv", delim = ";")
+mobility <- read_delim("https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/episim/mobilityData/bundeslaender/mobilityData_OverviewBL_weekly.csv", delim = ";")
 colnames(mobility)[2] <- "federalState"
 mobility$date <- as.character(paste0(substring(mobility$date, 1, 4),  "-", substring(mobility$date, 5, 6), "-", substring(mobility$date, 7, 8)))
 mobility$date <- as.Date(mobility$date)
@@ -34,6 +34,10 @@ hospitals <- hospitals %>% filter(Altersgruppe == "00+") %>%
              mutate(weekday = wday(date)) %>%
              filter(weekday == 1)
 hospitals <- hospitals %>% select(date, federalState, Hospital_Cases, Hospital_Incidence) %>%
+                            mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 10^(-100),
+                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
+                            mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 10^(-100),
+                                                           TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
                             mutate(logHospital_Cases = log10(Hospital_Cases), logHospital_Incidence=log10(Hospital_Incidence))
 
 cases <- read_csv("https://raw.githubusercontent.com/robert-koch-institut/COVID-19_7-Tage-Inzidenz_in_Deutschland/main/COVID-19-Faelle_7-Tage-Inzidenz_Bundeslaender.csv")
@@ -60,6 +64,10 @@ cases <- cases %>% mutate(federalState = case_when(Bundesland_id == "01" ~ "Schl
 cases <- cases %>% mutate(weekday = wday(date)) %>%
   filter(weekday == 1)
 cases <- cases %>% select(date, federalState, Infection_Cases, Infection_Incidence) %>%
+                    mutate(Infection_Cases = case_when(Infection_Cases == 0 ~ 10^(-100),
+                                                   TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
+                    mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 10^(-100),
+                                                   TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
                     mutate(logInfection_Cases = log10(Infection_Cases), logInfection_Incidence = log10(Infection_Incidence))
 
 
@@ -86,6 +94,10 @@ deaths <- deaths %>% mutate(EinwohnerInnen = case_when(federalState == "Baden-W�
                                                        federalState == "Thüringen" ~ 2126846))
 deaths <- deaths %>% mutate(Death_Incidence = Death_Cases/EinwohnerInnen*100000)
 deaths <- deaths %>% select(date, federalState, Death_Cases, Death_Incidence) %>%
+                      mutate(Death_Cases = case_when(Death_Cases == 0 ~ 10^(-100),
+                                                     TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
+                      mutate(Death_Incidence = case_when(Death_Incidence == 0 ~ 10^(-100),
+                                 TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
                       mutate(logDeath_Cases=log10(Death_Cases), logDeath_Incidence = log10(Death_Incidence))
 
 R_eff_full <- data.frame()
@@ -154,8 +166,52 @@ dataFull <- dataFull %>% mutate(index = case_when(federalState == "Schleswig-Hol
                                                   federalState == "Thüringen" ~ 15))
 
 #Only keep dates which are needed for the Bayesian inference
-dataFull <- dataFull %>% filter(date < "2020-12-20" | date > "2023-01-01") %>% 
+data2020 <- dataFull %>% filter(date < "2020-12-20") %>% 
                         filter(date > "2020-03-29")
+
+#data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 0.00001,
+#                                                           TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
+#                        mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 0.00001,
+#                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
+#                        mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 0.00001,
+#                                                           TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
+#                        mutate(Death_Cases = case_when(Death_Cases == 0 ~ 0.001,
+#                                                            TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
+#                        mutate(Death_Incidence = case_when(Death_Incidence == 0 ~ 0.001,
+#                                                            TRUE ~ as.numeric(as.character(Death_Incidence))))
+                                          
+                                          
+#Zscore/Normalize data
+data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm = (Infection_Cases-mean(Infection_Cases))/sd(Infection_Cases),
+                                                           logInfection_Cases_Norm = (logInfection_Cases-mean(logInfection_Cases))/sd(logInfection_Cases),
+                                                           Infection_Incidence_Norm = (Infection_Incidence-mean(Infection_Incidence))/sd(Infection_Incidence),
+                                                           logInfection_Incidence_Norm = (logInfection_Incidence-mean(logInfection_Incidence))/sd(logInfection_Incidence),
+                                                           Hospital_Cases_Norm = (Hospital_Cases-mean(Hospital_Cases))/sd(Hospital_Cases),
+                                                           logHospital_Cases_Norm = (logHospital_Cases-mean(logHospital_Cases))/sd(logHospital_Cases),
+                                                           Hospital_Incidence_Norm = (Hospital_Incidence-mean(Hospital_Incidence))/sd(Hospital_Incidence),
+                                                           logHospital_Incidence_Norm = (logHospital_Incidence-mean(logHospital_Incidence))/sd(logHospital_Incidence),
+                                                           Death_Cases_Norm = (Death_Cases-mean(Death_Cases))/sd(Death_Cases),
+                                                           logDeath_Cases_Norm = (logDeath_Cases-mean(logDeath_Cases))/sd(logDeath_Cases),
+                                                           Death_Incidence_Norm = (Death_Incidence-mean(Death_Incidence))/sd(Death_Incidence),
+                                                           logDeath_Incidence_Norm = (logDeath_Incidence-mean(logDeath_Incidence))/sd(logDeath_Incidence),
+                                                           Reffective_Norm = (Reffective-mean(Reffective))/sd(Reffective)) %>%
+                                                  mutate(Infection_Cases_Norm = (Infection_Cases_Norm-min(Infection_Cases_Norm))/(max(Infection_Cases_Norm)-min(Infection_Cases_Norm)),
+                                                         logInfection_Cases_Norm = (logInfection_Cases_Norm-min(logInfection_Cases_Norm))/(max(logInfection_Cases_Norm)-min(logInfection_Cases_Norm)),
+                                                         Infection_Incidence_Norm = (Infection_Incidence_Norm-min(Infection_Incidence_Norm))/(max(Infection_Incidence_Norm)-min(Infection_Incidence_Norm)),
+                                                         logInfection_Incidence_Norm = (logInfection_Incidence_Norm-min(logInfection_Incidence_Norm))/(max(logInfection_Incidence_Norm)-min(logInfection_Incidence_Norm)),
+                                                         Hospital_Cases_Norm = (Hospital_Cases_Norm-min(Hospital_Cases_Norm))/(max(Hospital_Cases_Norm)-min(Hospital_Cases_Norm)),
+                                                         logHospital_Cases_Norm = (logHospital_Cases_Norm-min(logHospital_Cases_Norm))/(max(logHospital_Cases_Norm)-min(logHospital_Cases_Norm)),
+                                                         Hospital_Incidence_Norm = (Hospital_Incidence_Norm-min(Hospital_Incidence_Norm))/(max(Hospital_Incidence_Norm)-min(Hospital_Incidence_Norm)),
+                                                         logHospital_Incidence_Norm = (logHospital_Incidence_Norm-min(logHospital_Incidence_Norm))/(max(logHospital_Incidence_Norm)-min(logHospital_Incidence_Norm)),
+                                                         Death_Cases_Norm = (Death_Cases_Norm-min(Death_Cases_Norm))/(max(Death_Cases_Norm)-min(Death_Cases_Norm)),
+                                                         logDeath_Cases_Norm = (logDeath_Cases_Norm-min(logDeath_Cases_Norm))/(max(logDeath_Cases_Norm)-min(logDeath_Cases_Norm)),
+                                                         Death_Incidence_Norm = (Death_Incidence_Norm-min(Death_Incidence_Norm))/(max(Death_Incidence_Norm)-min(Death_Incidence_Norm)),
+                                                         logDeath_Incidence_Norm = (logDeath_Incidence_Norm-min(logDeath_Incidence_Norm))/(max(logDeath_Incidence_Norm)-min(logDeath_Incidence_Norm)),
+                                                         Reffective_Norm = (Reffective_Norm-min(Reffective_Norm))/(max(Reffective_Norm)-min(Reffective_Norm)))
+
+data2023 <- dataFull %>% filter(date > "2022-12-31")
+
+dataFull <- rbind(data2020, data2023)
 
 # Setting disease indicator equal to 0 for 2023
 dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
@@ -185,36 +241,7 @@ dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~
   mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
                                 TRUE ~ as.numeric(as.character(Reffective))))
 
-#Zscore/Normalize data
-dataFull <- dataFull %>% group_by(federalState) %>% mutate(Infection_Cases_Norm = (Infection_Cases-mean(Infection_Cases))/sd(Infection_Cases),
-                                                           logInfection_Cases_Norm = (logInfection_Cases-mean(logInfection_Cases))/sd(logInfection_Cases),
-                                                           Infection_Incidence_Norm = (Infection_Incidence-mean(Infection_Incidence))/sd(Infection_Incidence),
-                                                           logInfection_Incidence_Norm = (logInfection_Incidence-mean(logInfection_Incidence))/sd(logInfection_Incidence),
-                                                           Hospital_Cases_Norm = (Hospital_Cases-mean(Hospital_Cases))/sd(Hospital_Cases),
-                                                           logHospital_Cases_Norm = (logHospital_Cases-mean(logHospital_Cases))/sd(logHospital_Cases),
-                                                           Hospital_Incidence_Norm = (Hospital_Incidence-mean(Hospital_Incidence))/sd(Hospital_Incidence),
-                                                           logHospital_Incidence_Norm = (logHospital_Incidence-mean(logHospital_Incidence))/sd(logHospital_Incidence),
-                                                           Death_Cases_Norm = (Death_Cases-mean(Death_Cases))/sd(Death_Cases),
-                                                           logDeath_Cases_Norm = (logDeath_Cases-mean(logDeath_Cases))/sd(logDeath_Cases),
-                                                           Death_Incidence_Norm = (Death_Incidence-mean(Death_Incidence))/sd(Death_Incidence),
-                                                           logDeath_Incidence_Norm = (logDeath_Incidence-mean(logDeath_Incidence))/sd(logDeath_Incidence),
-                                                           Reffective_Norm = (Reffective-mean(Reffective))/sd(Reffective)) %>%
-                                                  mutate(Infection_Cases_Norm = (Infection_Cases_Norm-min(Infection_Cases_Norm))/(max(Infection_Cases_Norm)-min(Infection_Cases_Norm)),
-                                                         logInfection_Cases_Norm = (logInfection_Cases_Norm-min(logInfection_Cases_Norm))/(max(logInfection_Cases_Norm)-min(logInfection_Cases_Norm)),
-                                                         Infection_Incidence_Norm = (Infection_Incidence_Norm-min(Infection_Incidence_Norm))/(max(Infection_Incidence_Norm)-min(Infection_Incidence_Norm)),
-                                                         logInfection_Incidence_Norm = (logInfection_Incidence_Norm-min(logInfection_Incidence_Norm))/(max(logInfection_Incidence_Norm)-min(logInfection_Incidence_Norm)),
-                                                         Hospital_Cases_Norm = (Hospital_Cases_Norm-min(Hospital_Cases_Norm))/(max(Hospital_Cases_Norm)-min(Hospital_Cases_Norm)),
-                                                         logHospital_Cases_Norm = (logHospital_Cases_Norm-min(logHospital_Cases_Norm))/(max(logHospital_Cases_Norm)-min(logHospital_Cases_Norm)),
-                                                         Hospital_Incidence_Norm = (Hospital_Incidence_Norm-min(Hospital_Incidence_Norm))/(max(Hospital_Incidence_Norm)-min(Hospital_Incidence_Norm)),
-                                                         logHospital_Incidence_Norm = (logHospital_Incidence_Norm-min(logHospital_Incidence_Norm))/(max(logHospital_Incidence_Norm)-min(logHospital_Incidence_Norm)),
-                                                         Death_Cases_Norm = (Death_Cases_Norm-min(Death_Cases_Norm))/(max(Death_Cases_Norm)-min(Death_Cases_Norm)),
-                                                         logDeath_Cases_Norm = (logDeath_Cases_Norm-min(logDeath_Cases_Norm))/(max(logDeath_Cases_Norm)-min(logDeath_Cases_Norm)),
-                                                         Death_Incidence_Norm = (Death_Incidence_Norm-min(Death_Incidence_Norm))/(max(Death_Incidence_Norm)-min(Death_Incidence_Norm)),
-                                                         logDeath_Incidence_Norm = (logDeath_Incidence_Norm-min(logDeath_Incidence_Norm))/(max(logDeath_Incidence_Norm)-min(logDeath_Incidence_Norm)),
-                                                         Reffective_Norm = (Reffective_Norm-min(Reffective_Norm))/(max(Reffective_Norm)-min(Reffective_Norm)))
-
-
 dataFull <- dataFull %>% filter(federalState %in% chosenModel)
-  
+
+write_csv(dataFull, "inputDataBerlinHHHB.csv")
                           
-  
