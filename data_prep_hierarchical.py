@@ -193,13 +193,18 @@ def get_disease_dates(ICU=False):
 
 # --- Get data ---
 ## Out of home duration
-def get_out_of_home_duration():
+def get_out_of_home_duration(chosen_model):
     """
     Returns:
         Xarray: Out-of-home duration data for 2020.
         Xarray: Baseline out-of-home duration data.
     """
-    path_mobility = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_mobility = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        baseline_mobility = [8] * 37 * 3
+    else:
+        path_mobility = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        baseline_mobility = [8] * 37 * 16
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -207,7 +212,7 @@ def get_out_of_home_duration():
     #mobility_df["week"] = mobility_df.index.isocalendar().week
 
     ### get dates
-    #mobility_dates = mobility_df["date"]
+    mobility_dates = mobility_df.index.values
 
     #dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
     #mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
@@ -218,16 +223,14 @@ def get_out_of_home_duration():
     #mobility_df_2020 = mobility_df.filter(items=mobility_dates_2020, axis=0)
     mobility_data_2020 = mobility_df["outOfHomeDuration"].to_xarray()
 
-    baseline_mobility = [1] * 37 * 16
-    baseline_mobility
-
     return (
         mobility_data_2020,
-        baseline_mobility
+        baseline_mobility,
+        mobility_dates
     )
 
 ## R
-def get_R_raw():
+def get_R_raw(chosen_model):
     """Get weekly R_eff data based on cov19 repo
 
     Args:
@@ -236,7 +239,10 @@ def get_R_raw():
         Xarray: Weekly R data.
 
     """
-    path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_R = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -249,7 +255,7 @@ def get_logR_raw(R_raw):
 
     return logR
 
-def get_R_transformed(R_raw):
+def get_R_transformed(R_raw, chosen_model):
 
     """Get normalized, weekly R_eff data based on cov19 repo
 
@@ -259,7 +265,10 @@ def get_R_transformed(R_raw):
         Xarray: Weekly R data.
 
     """
-    path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_R = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else: 
+        path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -273,7 +282,7 @@ def get_logR_transformed(logR):
     return logR_transformed
 
 ### Cases
-def get_C_raw():
+def get_C_raw(chosen_model):
     """Get weekly case data from preprocessed data.
 
     Args:
@@ -282,14 +291,17 @@ def get_C_raw():
        Xarray: 7-Day Cases Incidence/100,000 
 
     """
-    path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["Infection_Incidence"].to_xarray()
 
     return case_data
 
-def get_logC_raw(case_data):
+def get_logC_raw(chosen_model):
     """Get log(weekly case data) from preprocessed data.
 
     Args:
@@ -298,12 +310,17 @@ def get_logC_raw(case_data):
        Xarray: log_10(7-Day Cases Incidence/100,000)
 
     """
+    if chosen_model == "BEHHHB":
+        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
-    logC_raw = np.log10(case_data)
+    case_data = cases_df["logInfection_Incidence"].to_xarray()
 
-    return logC_raw
+    return case_data
 
-def get_C_transformed():
+def get_C_transformed(chosen_model):
     """Get normalized (standardized + mapped to [0,1]) weekly case data from preprocessed data.
 
     Args:
@@ -312,21 +329,27 @@ def get_C_transformed():
         Xarray: Normalized 7-Day Cases Incidence/100,000.
 
     """
-
-    path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
    
     return case_data
 
-def get_logC_transformed (logC_raw):
+def get_logC_transformed (chosen_model):
 
-    # TODO: ADD TO DATA PREP SCRIPT R
-    
-    logC_transformed = transform_data(logC_raw)
+    if chosen_model == "BEHHHB":
+        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
-    return logC_transformed
+    case_data = cases_df["logInfection_Incidence_Norm"].to_xarray()
+   
+    return case_data
 
 ### ICU TODO : FOR NOW, ICU NOT PART OF HIERARCHICAL MODEL
 # def get_ICU_raw(owid_in, dates_2020_in=None):
@@ -374,7 +397,7 @@ def get_logC_transformed (logC_raw):
 #     return logICU_transformed
 
 ### Hospitalisations
-def get_H_raw():
+def get_H_raw(chosen_model):
     """Get weekly hospitalisation data from preprocessed data set.
 
     Args:
@@ -384,14 +407,17 @@ def get_H_raw():
         
     """
 
-    path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_hospital= "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:    
+        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     hospital_data = hospital_df["Hospital_Incidence"].to_xarray()
 
     return hospital_data
 
-def get_logH_raw(H_data):
+def get_logH_raw(chosen_model):
     """Get log(weekly hospitalisation data) from preprocessed data set.
 
     Args:
@@ -400,12 +426,17 @@ def get_logH_raw(H_data):
         Xarray: log_10(7-Day Hospital Incidence/100,000).
         
     """
+    if chosen_model == "BEHHHB":
+        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
-    logH_raw = np.log10(H_data)
+    hospital_data = hospital_df["logHospital_Incidence"].to_xarray()
 
-    return logH_raw
+    return hospital_data
 
-def get_H_transformed():
+def get_H_transformed(chosen_model):
     """Get normalized (standardized + mapped to [0,1]) weekly hospitalisation data from preprocessed data set.
 
     Args:
@@ -414,23 +445,29 @@ def get_H_transformed():
         Xarray: Normalized 7-Day Hospital Incidence/100,000.
         
     """
-    
-    path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     H_data = H_df["Hospital_Incidence_Norm"].to_xarray()
     
     return H_data
 
-def get_logH_transformed(logH_raw, dates_2020_in=None):
+def get_logH_transformed(chosen_model):
 
-    ## TODO
+    if chosen_model == "BEHHHB":
+        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
-    logH_transformed = transform_data(logH_raw)
+    H_data = H_df["logHospital_Incidence_Norm"].to_xarray()
+    
+    return H_data
 
-    return logH_transformed
-
-def get_D_raw():
+def get_D_raw(chosen_model):
     """Get weekly death data from preprocessed data set.
 
     Args:
@@ -439,14 +476,17 @@ def get_D_raw():
         Xarray: 7-Day Death Incidence/100,000.
         
     """
-    path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence"].to_xarray()
     
     return D_data
 
-def get_logD_raw(D_data):
+def get_logD_raw(chosen_model):
     """Get log(weekly hospitalisation data) from preprocessed data set.
 
     Args:
@@ -455,12 +495,17 @@ def get_logD_raw(D_data):
         Xarray: log_10(7-Day Death Incidence/100,000).
         
     """
+    if chosen_model == "BEHHHB":
+        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
-    logD_raw = np.log10(D_data)
+    D_data = D_df["logDeath_Incidence"].to_xarray()
+    
+    return D_data
 
-    return logD_raw
-
-def get_D_transformed():
+def get_D_transformed(chosen_model):
     """Get normalized (standardized + mapped to [0,1]) weekly death data from preprocessed data set.
 
     Args:
@@ -469,25 +514,31 @@ def get_D_transformed():
         Xarray: Normalized 7-Day Death Incidence/100,000.
         
     """
-
-    path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence_Norm"].to_xarray()
 
     return D_data
 
-def get_logD_transformed(logD_raw, dates_2020_in=None):
+def get_logD_transformed(chosen_model):
+    if chosen_model == "BEHHHB":
+        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
-    #TODO
-    logD_transformed = transform_data(logD_raw)
+    D_data = D_df["logDeath_Incidence_Norm"].to_xarray()
 
-    return logD_transformed
+    return D_data
 
 
 ## School
 
-def get_school_vacations():
+def get_school_vacations(chosen_model):
     """Get weekly no. of school vacation days from preprocessed data set.
 
     Args:
@@ -496,8 +547,10 @@ def get_school_vacations():
         Xarray: School vacation data.
         
     """
-
-    path_school = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_school = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_school = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     school_df = pd.read_csv(path_school, index_col=0, parse_dates=True)
 
     school_data = school_df["schoolVacation"].to_xarray()
@@ -506,7 +559,7 @@ def get_school_vacations():
 
 ## Public holidays
 
-def get_pub_holidays():
+def get_pub_holidays(chosen_model):
     """Get weekly no. of public holidays data from preprocessed data set.
 
     Args:
@@ -516,7 +569,10 @@ def get_pub_holidays():
         
     """
 
-    path_pubHol = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_pubHol = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_pubHol = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     pubHol_df = pd.read_csv(path_pubHol, index_col=0, parse_dates=True)
 
     pubHolidays_data  = pubHol_df["pubHoliday"].to_xarray()
@@ -525,7 +581,7 @@ def get_pub_holidays():
 
 ## Precipitation
 
-def get_precipitation():
+def get_precipitation(chosen_model):
     """Get weekly precipitation data from preprocessed data set.
 
     Args:
@@ -534,8 +590,10 @@ def get_precipitation():
         Xarray: Weekly precipitation (in mm).
         
     """
-
-    path_prcp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_prcp = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:    
+        path_prcp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     precipitation_df = pd.read_csv(path_prcp, index_col=0, parse_dates=True)
 
     precipitation_data  = precipitation_df["prcp"].to_xarray()
@@ -544,7 +602,7 @@ def get_precipitation():
 
 ## Temperature
 
-def get_temperature():
+def get_temperature(chosen_model):
     """Get weekly average temperature data from preprocessed data set.
 
     Args:
@@ -554,29 +612,32 @@ def get_temperature():
         
     """
 
-    path_temp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_temp = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_temp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True)
 
     temperature_data  = temp_df["tmax"].to_xarray()
 
     return  temperature_data
 
-def get_avg_temperature(dates_2020_in):
+# def get_avg_temperature(dates_2020_in):
 
-    avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
+#     avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
 
-    ### filter for mobility_dates_2020
-    avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
+#     ### filter for mobility_dates_2020
+#     avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
 
-    avg_temperature_2020 = avg_temperature_df_2020["tenyearmeantmax"].to_xarray()
+#     avg_temperature_2020 = avg_temperature_df_2020["tenyearmeantmax"].to_xarray()
 
-    delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
+#     delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
 
-    return  delta_temperature  
+#     return  delta_temperature  
 
 ## Daylight
 
-def get_daylight():
+def get_daylight(chosen_model):
     """Get weekly average of daylight data from preprocessed data set.
 
     Args:
@@ -585,8 +646,10 @@ def get_daylight():
         Xarray: Daylight [hrs].
         
     """
-    
-    path_daylight = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_daylight = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_daylight = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     daylight_df = pd.read_csv(path_daylight, index_col=0, parse_dates=True)
 
     daylight_data  = daylight_df["daylight"].to_xarray()
@@ -595,7 +658,7 @@ def get_daylight():
 
 ## Population density
 
-def get_pop_density():
+def get_pop_density(chosen_model):
     """Get population density from preprocessed data set.
 
     Args:
@@ -605,7 +668,10 @@ def get_pop_density():
         
     """
 
-    pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv", parse_dates=True, index_col=0)
+    if chosen_model == "BEHHHB":
+        pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv", parse_dates=True, index_col=0)
+    else:
+        pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv", parse_dates=True, index_col=0)
 
     pop_density = pop_density_df["EinwohnerInnenJeKm2"].to_xarray()
 
@@ -613,7 +679,7 @@ def get_pop_density():
 
 ## Federal states
 
-def get_federal_states():
+def get_federal_states(chosen_model):
     """Get index-array
 
     Args:
@@ -622,13 +688,17 @@ def get_federal_states():
         Xarray: Names of federal states.
         
     """
-
-    path_fedStates = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    if chosen_model == "BEHHHB":
+        path_fedStates = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:    
+        path_fedStates = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     fedStates_df = pd.read_csv(path_fedStates)
 
     fedStates_df.federalState = fedStates_df.federalState.map(str.strip)
 
     fedState, fed_States = fedStates_df.federalState.factorize()
 
-    return fedState, fed_States
+    obs_id = fedStates_df.index
+
+    return fedState, fed_States, obs_id
 

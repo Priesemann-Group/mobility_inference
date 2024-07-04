@@ -85,7 +85,7 @@ def holiday_factor(holiday_data_in, fedState):
 
 ## temperature factor
 #sigmoid
-# def temperature_factor(temperature_in):
+# def temperature_factor(temperature_in, fedState):
 #     """
 #     Args:
 #        temperature_data_in: Temperature data
@@ -95,13 +95,16 @@ def holiday_factor(holiday_data_in, fedState):
 
 #     """
 
-#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+#     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = "fedState")
 
-#     amplitude = pm.Normal("amplitude", mu=1, sigma = 0.1)
-#     offset = pm.Normal("offset", mu=1, sigma=0.1)
-#     shift = pm.Normal("shift", mu=-20, sigma=2)
+#     amplitude_v = pm.Normal("amplitude", mu=0.05, sigma = 0.005, dims = "fedState")
+#     amplitude = amplitude_v[fedState]
+#     offset_v = pm.Normal("offset", mu=1, sigma=0.01, dims = "fedState")
+#     offset = offset_v[fedState]
+#     shift_v = pm.Normal("shift", mu=-20, sigma=2, dims = "fedState")
+#     shift = shift_v[fedState]
 
-#     return pm.Deterministic("temperature_factor", 1/(1+np.exp(-amplitude*(Tmax_2020+shift))))
+#     return pm.Deterministic("temperature_factor", 1/(1+np.exp(amplitude*(Tmax_2020+shift))), dims = "fedState")
 
 #sine
 # def temperature_factor(temperature_in):
@@ -214,6 +217,24 @@ def daylight_factor(daylight_data_in):
 
     return day
 
+# def daylight_factor(daylight_data_in):
+# #Using a sigmoidal function
+
+#     """
+#     Args:
+#     daylight_data_in: Precipitation data
+
+#     Returns:
+#     Daylight modulation factor (pymc variable)
+#     """
+#     daylight_data = pm.MutableData("daylight_data_in", daylight_data_in["daylight"], dims = "fedState")
+
+#     alpha = pm.Normal("alpha_day", mu = 0.5, sigma = 0.005) #TODO: Find adequate non-neg. distribution
+#     beta = pm.Normal("beta_day", mu = 20, sigma = 0.05)
+#     day = pm.Deterministic("daylight_factor", 1/(1+np.exp(alpha*(daylight_data+beta)))+1, dims = "fedState") 
+
+#     return day
+
 #Impact of disease spread
 def disease_factor(indicator, disease_data_in, len_data, fedState, mu_z_prior_1=0.7, mu_z_prior_2=0.8):
     """Models impact of disease spread on mobility.
@@ -241,9 +262,10 @@ def disease_factor(indicator, disease_data_in, len_data, fedState, mu_z_prior_1=
     factor_disease_2_v = pm.LogNormal(f"z2_{indicator}", mu=np.log(mu_z_prior_2), tau=10, dims ="fedState")
     factor_disease_2 = factor_disease_2_v[fedState]
     ## Shift --> Determines where we shift from first to second factor (happends some time in summer)
-    shift = pm.Normal(f"shift_{indicator}", mu = -20, sigma = 1, dims = "fedState")
+    shift = pm.Normal(f"shift_{indicator}", mu = -300, sigma = 1, dims = "fedState")
 
-    factor_disease = pm.Deterministic(f"sigmoid_{indicator}", factor_disease_2*(1/(1 + at.exp(-idx + shift))) + factor_disease_1, dims="fedState")
+    factor_disease = pm.math.switch(300 > idx, factor_disease_1, factor_disease_2)
+    #factor_disease = pm.Deterministic(f"sigmoid_{indicator}", factor_disease_2*(1/(1 + at.exp(-idx + shift))) + factor_disease_1, dims="fedState")
 
     mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
     # mu_disease= pm.LogNormal(f"mu_{indicator}", mu=np.log(15), sigma=0.5)
@@ -266,9 +288,10 @@ def disease_factor(indicator, disease_data_in, len_data, fedState, mu_z_prior_1=
         len_output_arr=len_data,
         diff_input_output=disease_data_len - len_data,
     )
+    # risk = disease_data
     risk = pm.Deterministic(f"risk_{indicator}", risk, dims="fedState")
 
-    exponent = - factor_disease * disease_data
+    exponent = - factor_disease * risk
     d = pm.Deterministic(f"d_{indicator}", at.exp(exponent), dims=("fedState"))
 
     return d

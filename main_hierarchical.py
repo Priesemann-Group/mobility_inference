@@ -34,6 +34,8 @@ plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
+chosen_model = "BEHHHB"
+
 #Include population density if required by giving any value
 pop_density = None
 
@@ -41,11 +43,11 @@ pop_density = None
 # If not required, set these to None
 precipitation = None
 temperature = 1
-daylight = None
+daylight = 1
 
 #Include school vacations and public holidays if required by giving any value
-school = None
-holiday = None
+school = 1
+holiday = 1
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -75,22 +77,22 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration()
+d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model)
 
 # Get R_effective value for disease data
-disease_data_raw["R"] = data_prep_hierarchical.get_R_raw()
-disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"])
+disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model)
+disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"], chosen_model)
 
 # Get R_effective value for disease data
 disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
 disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data_raw["C"] = data_prep_hierarchical.get_C_raw()
-disease_data["C"] = data_prep_hierarchical.get_C_transformed()
+disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model)
+disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model)
 
-disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw()
-disease_data["logC"] = data_prep_hierarchical.get_logC_transformed()
+disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model)
+disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
 
 #disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
 #disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
@@ -98,55 +100,55 @@ disease_data["logC"] = data_prep_hierarchical.get_logC_transformed()
 #disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
 #disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
 
-disease_data_raw["H"] = data_prep_hierarchical.get_H_raw()
-disease_data["H"] = data_prep_hierarchical.get_H_transformed()
+disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(chosen_model)
+disease_data["H"] = data_prep_hierarchical.get_H_transformed(chosen_model)
 
-disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw()
-disease_data["logH"] = data_prep_hierarchical.get_logH_transformed()
+disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(chosen_model)
+disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(chosen_model)
 
-disease_data_raw["D"] = data_prep_hierarchical.get_D_raw()
-disease_data["D"] = data_prep_hierarchical.get_D_transformed()
+disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(chosen_model)
+disease_data["D"] = data_prep_hierarchical.get_D_transformed(chosen_model)
 
-disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw()
-disease_data["logD"] = data_prep_hierarchical.get_logD_transformed()
+disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(chosen_model)
+disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
 
 
 # If population density is included, get population density
 if pop_density is not None:
     pop_density = {
-        "pop_density": data_prep_hierarchical.get_pop_density()
+        "pop_density": data_prep_hierarchical.get_pop_density(chosen_model)
     }
 
 # If precipitation is included, get precipitation data
 if precipitation is not None:
     precipitation = {
-        "precipitation": data_prep_hierarchical.get_precipitation()
+        "precipitation": data_prep_hierarchical.get_precipitation(chosen_model)
     }
 
 # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep_hierarchical.get_temperature()
+        "temperature": data_prep_hierarchical.get_temperature(chosen_model)
     }
 
 if daylight is not None:
     daylight = {
-        "daylight": data_prep_hierarchical.get_daylight(),
+        "daylight": data_prep_hierarchical.get_daylight(chosen_model),
     }
 
 #If school is included, get school data
 if school is not None:
     school = {
-        "school vacation": data_prep_hierarchical.get_school_vacations()
+        "school vacation": data_prep_hierarchical.get_school_vacations(chosen_model)
     }
 
 #If public holidays are included, get public holiday data
 if holiday is not None:
     holiday = {
-        "pub holiday": data_prep_hierarchical.get_pub_holidays()
+        "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model)
     }
 
-fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states()
+fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
 
 
 if single:
