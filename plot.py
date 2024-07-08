@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({"font.size": 20})
 from matplotlib import lines, patches
 from matplotlib import colormaps
+from matplotlib.dates import DateFormatter
 
 # to import FormatStrFormatter
 #import matplotlib.ticker as ticker
@@ -41,7 +42,7 @@ colors = {
     "L": colormap(0.7),
     # temperature
     "T": colormap(0.4),
-    "delT": colormap(0.45),
+    "temp": colormap(0.45),
     # precipitation
     "p": colormap(0.5),
     "w_2022": colormap(0.55),
@@ -61,13 +62,13 @@ def concatenate_chains_and_draws(xarray_in):
     return array.reshape(-1, array.shape[-1])
 
 
-def plot_timeseries(ax_in, x_in, array_in, label_in, color_in, alpha=0.5):
+def plot_timeseries(ax_in, x_in, array_in, label_in, color_in, alpha=0.5, marker="-"):
     if type(array_in) == xr.DataArray:
         array = concatenate_chains_and_draws(array_in)
     else:
         array = array_in
     ax_in.plot(
-        x_in, np.median(array, axis=0), label=label_in, color=color_in, linewidth=3
+        x_in, np.median(array, axis=0), label=label_in, color=color_in, linewidth=3, marker=marker
     )
     ax_in.fill_between(
         x_in,
@@ -294,7 +295,7 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in):
     # format
     ax.set_xlabel("Week")
     ax.set_title("Inferred median\nGamma kernel")
-    ax.set_xlim(0, max_x)
+    ax.set_xlim(0, 100)
     ax.set_ylim(0, 1.1 * np.max(np.array(ys)))
     ax.legend()
     fig.tight_layout()
@@ -315,6 +316,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
         trace_in.constant_data["max_Temp"],
         color_in=colors["T"],
         label_in="$T_2020$",
+        marker = 'o'
     )
     format_x_axis(ax, dates_in)
     ## set y label
@@ -352,12 +354,15 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in):
         dates_in,
         trace_in.posterior["temperature_factor"],
         color_in=colors["T"],
-        label_in="$Delta_temp$",
+        label_in="$temp$",
     )
     ax.set_ylim(0.75, 1.25)
     format_x_axis(ax, dates_in, last=True)
     # set y label
     ax.set_ylabel("temperature_factor")
+
+    date_form = DateFormatter("%b")
+    ax.xaxis.set_major_formatter(date_form)
 
     plt.subplots_adjust(hspace=0.1)
 
@@ -377,6 +382,7 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in):
         trace_in.constant_data["daylight_data_in"],
         color_in=colors["L"],
         label_in="$Daylight$",
+        plot = 'o'
     )
     format_x_axis(ax, dates_in)
     ## set y label
@@ -410,7 +416,7 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in):
         color_in=colors["L"],
         label_in="Daylight factor",
     )
-    ax.set_ylim(0.75, 1.25)
+    ax.set_ylim(0.6, 1.3)
     format_x_axis(ax, dates_in, last=True)
     ## create custom legend
     ### for median line and 94% CI
@@ -421,6 +427,9 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in):
 
     # set y label
     ax.set_ylabel("daylight_factor")
+
+    date_form = DateFormatter("%b")
+    ax.xaxis.set_major_formatter(date_form)
 
     plt.subplots_adjust(hspace=0.1)
 
@@ -448,9 +457,103 @@ def plot_all_timeseries(
         figsize=(13, 17),
         sharex=True,
     )
+    # top plot
+    ax = axs[0]
+    labels = {
+        "C": "new cases $d_C$",
+        "logC": "log(new cases $d_C$)",
+        "ICU": "ICU patients $d_{ICU}$",
+        "logICU": "log(ICU patients $d_{ICU}$)",
+        "H": "hospitalisations $d_H$",
+        "logH": "log(hospitalisations $d_H$)",
+        "R": "Reproduction Number $d_R$",
+        "logR": "log(Reproduction Number $d_R$)",
+        "D": "deaths $d_D$",
+        "logD": "log(deaths $d_D$)",
+        "G": "Growh Multiplier $d_G$",
+    }
+    ## plot disease indicators
+    # for indicator in indicators_in:
+    #     plot_timeseries(
+    #         ax,
+    #         dates_in,
+    #         trace_in.constant_data[f"{indicator}"],
+    #         color_in=colors[indicator],
+    #         label_in=labels[indicator],
+    #         alpha=0.2,
+    #     )
+        # daylight
+    if daylight_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.constant_data["daylight_data_in"],
+           color_in=colors["L"],
+           label_in="daylight",
+           alpha=0.2,
+           marker = 'o'
+       )
+    # school vacation
+    if school_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.constant_data["vacation_data_in"],
+           color_in=colors["v"],
+           label_in="school vacation",
+           alpha=0.2,
+           marker = 'o'
+       )
+    # public holidays
+    if holiday_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.constant_data["holiday_data_in"],
+           color_in=colors["h"],
+           label_in="public holidays",
+           alpha=0.2,
+           marker = 'o'
+       )
+    # temperature
+    if temperature_in is not None:
+       plot_timeseries(
+           ax,
+           dates_in,
+           trace_in.constant_data["max_Temp"],
+           color_in=colors["T"],
+           label_in="temperature",
+           alpha=0.2,
+           marker = 'o'
+       )
+    ## precipitation
+    # if precipitation_in is not None:
+    #     plot_timeseries(
+    #         ax,
+    #         dates_in,
+    #         trace_in.posterior["precipitation_factor"],
+    #         color_in=colors["p"],
+    #         label_in="precipitation $p$",
+    #         alpha=0.2,
+    #     )
+    ax.hlines(
+        1,
+        xmin=dates_in[0],
+        xmax=dates_in[-1],
+        color="grey",
+        linestyle="--",
+        linewidth=1,
+    )
+    format_x_axis(ax, dates_in)
+    ## set y label
+    ax.set_ylabel("Data (Dayl [hrs], Temp [C°], \nVac [Counter], PubHol [Counter])")
+    ax.legend(
+        ncol=2,
+        # bbox_to_anchor=(0.7, 2)
+    )
 
     # middle plot
-    ax = axs[0]
+    ax = axs[1]
     labels = {
         "C": "new cases $d_C$",
         "logC": "log(new cases $d_C$)",
@@ -540,31 +643,6 @@ def plot_all_timeseries(
         # bbox_to_anchor=(0.7, 2)
     )
 
-    # middle plot
-    ax = axs[1]
-    plot_timeseries(
-        ax,
-        dates_in,
-        trace_in.posterior["d_base"],
-        color_in=colors["d"],
-        label_in="base $d$",
-        alpha=0.2,
-    )
-    format_x_axis(ax, dates_in, last=True)
-    # set y label
-    ax.set_ylabel("Out-of-home duration [h]")
-
-    ## precipitation
-    if pop_density_in is not None:
-        plot_timeseries(
-            ax,
-            dates_in,
-            trace_in.posterior["pop_density_factor"],
-            color_in=colors["pop"],
-            label_in="Pop density $pop$",
-            alpha=0.2,
-        )
-
     # lower plot
     ax = axs[2]
     ax.plot(
@@ -583,6 +661,9 @@ def plot_all_timeseries(
     format_x_axis(ax, dates_in, last=True)
     # set y label
     ax.set_ylabel("Out-of-home duration [h]")
+
+    date_form = DateFormatter("%b")
+    ax.xaxis.set_major_formatter(date_form)
 
     # plt.subplots_adjust(hspace=0.1)
     fig.tight_layout()
@@ -612,7 +693,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
     axs = axs.flatten()
 
     cov19.plot.distribution( 
-        model_in, trace_in, "d_factor", dist_math="d_{base}", ax=axs[0]
+        model_in, trace_in, "d_factor", dist_math="d_{factor}", ax=axs[0]
     )
 
     cov19.plot.distribution( 
@@ -667,15 +748,17 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
 
     # --- temperature ---
     if temperature_in:
-        fig, axs = plt.subplots(1, 3, figsize=(13, 2))
+        fig, axs = plt.subplots(1, 4, figsize=(13, 2))
         axs = axs.flatten()
         #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
     
-        cov19.plot.distribution(model_in, trace_in, "amplitude", dist_math="amplitude", ax=axs[0])
+        cov19.plot.distribution(model_in, trace_in, "amplitude_temperature", dist_math="amplitude_temperature", ax=axs[0])
 
-        cov19.plot.distribution(model_in, trace_in, "offset", dist_math="offset", ax=axs[1])
+        cov19.plot.distribution(model_in, trace_in, "intercept_temperature", dist_math="intercept_temperature", ax=axs[1])
     
-        cov19.plot.distribution(model_in, trace_in, "shift", dist_math="shift", ax=axs[2])
+        cov19.plot.distribution(model_in, trace_in, "shift_temperature", dist_math="shift_temperature", ax=axs[2])
+
+        cov19.plot.distribution(model_in, trace_in, "slope_temperature", dist_math="slope_temperature", ax=axs[3])
 
         #cov19.plot.distribution(model_in, trace_in, "slope", dist_math="slope", ax=axs[3])
 
@@ -696,15 +779,15 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         )
     # --- daylight ---
     if daylight_in:
-        fig, axs = plt.subplots(1, 2, figsize=(13, 2))
+        fig, axs = plt.subplots(1, 3, figsize=(13, 2))
         axs = axs.flatten()
         #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
     
-        cov19.plot.distribution(model_in, trace_in, "alpha_day", dist_math="alpha_day", ax=axs[0])
+        cov19.plot.distribution(model_in, trace_in, "amplitude_daylight", dist_math="amplitude_day", ax=axs[0])
 
-        cov19.plot.distribution(model_in, trace_in, "beta_day", dist_math="beta_day", ax=axs[1])
-    
-        #cov19.plot.distribution(model_in, trace_in, "shift", dist_math="shift", ax=axs[2])
+        cov19.plot.distribution(model_in, trace_in, "shift_daylight", dist_math="shift_day", ax=axs[1])
+        
+        cov19.plot.distribution(model_in, trace_in, "intercept_daylight", dist_math="intercept_day", ax=axs[2])
 
         #cov19.plot.distribution(model_in, trace_in, "slope", dist_math="slope", ax=axs[3])
 
@@ -781,7 +864,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             label_in=labels[indicator],
             alpha=0.2,
         )
-        ax.set_ylim(0.4, 0.75)
+        ax.set_ylim(0.4, 1.2)
         format_x_axis(ax, dates_in, last=True)
         # set y label
         ax.set_ylabel("Disease factor")
@@ -791,7 +874,10 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
         ci_94 = patches.Patch(color="black", alpha=0.5, label="94% CI")
         ### create legend
         ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
-
+        
+        date_form = DateFormatter("%b")
+        ax.xaxis.set_major_formatter(date_form)
+       
         plt.subplots_adjust(hspace=0.1)
 
         # save figure

@@ -74,23 +74,27 @@ def holiday_factor(holiday_data_in):
 
 ## temperature factor
 #sigmoid
-# def temperature_factor(temperature_in):
-#     """
-#     Args:
-#        temperature_data_in: Temperature data
+def temperature_factor(temperature_in):
+    """
+    Args:
+       temperature_data_in: Temperature data
 
-#     Returns:
-#         T_star: Temperature sensitivity
+    Returns:
+        T_star: Temperature sensitivity
 
-#     """
+    """
 
-#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+    Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-#     amplitude = pm.Normal("amplitude", mu=1, sigma = 0.1)
-#     offset = pm.Normal("offset", mu=1, sigma=0.1)
-#     shift = pm.Normal("shift", mu=-20, sigma=2)
+    amplitude_temperature = pm.LogNormal("amplitude_temperature", mu = np.log(0.2), sigma = 0.05)
+    #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
+    shift_temperature = pm.Normal("shift_temperature", mu = 25, sigma = 10) #Updated according to J's recommendation 
+    slope_temperature = pm.Lognormal("slope_temperature", mu = np.log(1), sigma = 0.05)
+    intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.05)
 
-#     return pm.Deterministic("temperature_factor", 1/(1+np.exp(-amplitude*(Tmax_2020+shift))))
+    temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature*(1/(1+np.exp(-(Tmax_2020/slope_temperature-shift_temperature)))) + intercept_temperature)
+    
+    return temperature_factor
 
 #sine
 # def temperature_factor(temperature_in):
@@ -105,11 +109,15 @@ def holiday_factor(holiday_data_in):
 
 #     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-#     amplitude = pm.Normal("amplitude", mu=0.5, sigma = 0.1)
-#     offset = pm.Normal("offset", mu=1, sigma=0.1)
-#     shift = pm.Normal("shift", mu=-20, sigma=2)
+#     #amplitude_temperature = pm.LogNormal("amplitude_temperature", mu = np.log(0.2), sigma = 0.05)
+#     amplitude_temperature = pm.HalfCauchy("amplitude_temperature", beta = 0.5) #Based on advice by J, I am ussing a HalfCauchy instead of a Lognormal distr.
+#     shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(17), sigma = 0.2) 
+#     slope_temperature = pm.Lognormal("slope_temperature", mu = np.log(1/5), sigma = 0.05)
+#     intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.05)
 
-#     return pm.Deterministic("temperature_factor", np.sin(amplitude*(Tmax_2020+shift)))
+#     temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature*np.sin((Tmax_2020/slope_temperature-shift_temperature))+intercept_temperature)
+
+#     return temperature_factor
 
 ## temperature factor
 ##x^4
@@ -133,24 +141,24 @@ def holiday_factor(holiday_data_in):
 #     return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 4.0) + offset)
 
 ##x^2
-def temperature_factor(temperature_in):
-    """Generates go-out temperature curve using 4th order polynomial.
+# def temperature_factor(temperature_in):
+#     """Generates go-out temperature curve using 4th order polynomial.
 
-    Args:
-       temperature_data_in: Temperature data
+#     Args:
+#        temperature_data_in: Temperature data
 
-    Returns:
-        T_star: Go-out temperature curve (pymc variable)
+#     Returns:
+#         T_star: Go-out temperature curve (pymc variable)
 
-    """
+#     """
 
-    Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
+#     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-    amplitude = pm.Normal("amplitude", mu=0.05, sigma = 0.005)
-    offset = pm.Normal("offset", mu=1, sigma=0.01)
-    shift = pm.Normal("shift", mu=-20, sigma=2)
+#     amplitude = pm.Normal("amplitude", mu=0.05, sigma = 0.005)
+#     offset = pm.Normal("offset", mu=1, sigma=0.01)
+#     shift = pm.Normal("shift", mu=-20, sigma=2)
 
-    return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
+#     return pm.Deterministic("temperature_factor", -at.power(amplitude * (Tmax_2020 + shift), 2.0) + offset)
 
 def precipitation_factor(precipitation_data_in):
     """
@@ -193,9 +201,13 @@ def daylight_factor(daylight_data_in):
     """
     daylight_data = pm.ConstantData("daylight_data_in", daylight_data_in["daylight"])
 
-    alpha = pm.Normal("alpha_day", mu = 0.02, sigma = 0.005) #TODO: Find adequate non-neg. distribution
-    beta = pm.Normal("beta_day", mu = 0.1, sigma = 0.05)
-    day = pm.Deterministic("daylight_factor", beta*np.exp(alpha*(daylight_data-12.23188)/beta) + (1-beta))
+    #amplitude_daylight = pm.LogNormal("amplitude_daylight", mu = np.log(0.2), sigma = 0.05)
+    amplitude_daylight = pm.HalfCauchy("amplitude_daylight", beta = 0.5) #Based on advice by J, a HalfCauchy distr. is being used
+    shift_daylight = pm.LogNormal("shift_daylight", mu = np.log(12.23), sigma = 0.2) 
+    slope_daylight = pm.Lognormal("slope_daylight", mu = np.log(1), sigma = 0.05)
+    intercept_daylight = pm.LogNormal("intercept_daylight", mu = np.log(0.9), sigma = 0.05)
+
+    day = pm.Deterministic("daylight_factor", amplitude_daylight*(1/(1+np.exp(-(daylight_data/slope_daylight-shift_daylight)))) + intercept_daylight)
 
     return day
 

@@ -1,5 +1,5 @@
 """
-This Python script models and analyzes the changes in out-of-duration in the year of 2020 given a set of indicators and parameters. 
+This Python script models and analyzes the changes in out-of-home-duration in the year of 2020 given a set of indicators and parameters. 
 The script first sets up the necessary configurations and uses a utility function to create directories for saving results and figures. 
 Using data_prep_new.py, it then collects various types of data including out-of-home duration (o), employment changes (Kurzarbeit), 
     effective reproduction number (R), cases (C), ICU occupancy (ICU), hospitalization rates (H), and stay-at-home orders (S). 
@@ -24,8 +24,8 @@ import utils
 import model_comparison
 
 # Set up basic configurations
-name = "temperature_x2_incldaylight"  # Name of the experiment
-test = True  # Whether to run a test with fewer samples
+name = "temperature_sigmoid"  # Name of the experiment
+test = False  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -33,6 +33,7 @@ stay_at_home = None # Whether to include stay-at-home orders as an indicator; No
 plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
+
 
 #Include population density if required by giving any value
 pop_density = None
@@ -69,9 +70,9 @@ figdir_name = "figures/" + name
 utils.make_dir(figdir_name)
 
 # Copy the source code into the results directory for record keeping
-shutil.copyfile("main_new.py", f"{supDir_name}/main_new.py")
-shutil.copyfile("model_new.py", f"{supDir_name}/model_new.py")
-shutil.copyfile("data_prep_new.py", f"{supDir_name}/data_prep_new.py")
+shutil.copyfile("main.py", f"{supDir_name}/main.py")
+shutil.copyfile("model.py", f"{supDir_name}/model.py")
+shutil.copyfile("data_prep.py", f"{supDir_name}/data_prep.py")
 
 # Load and prepare data
 # Get out of home duration data
@@ -135,8 +136,7 @@ if precipitation is not None:
 # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep.get_temperature(dates_2020),
-        "delta_temperature": data_prep.get_avg_temperature(dates_2020)
+        "temperature": data_prep.get_temperature(dates_2020)
     }
 
 if daylight is not None:
@@ -158,16 +158,16 @@ if holiday is not None:
 
 if single:
     all_combinations = [
-        # ["R"],
-        # ["logR"],
-        # ["C"],
-        # ["logC"],
-        # ["ICU"],
-        # ["logICU"],
-        # ["H"],
-        ["logH"],
-        # ["D"],
-        # ["logD"]
+        #["R"],
+        #["logR"],
+        ["C"],
+        #["logC"],
+        #["ICU"],
+        #["logICU"],
+        #["H"],
+        #["logH"],
+        #["D"],
+        #["logD"]
     ]
 
 # Parameters for ELPD calculation runs
@@ -226,11 +226,11 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 200 #200
-                tune = 200 #200
+                draws = 500 #200
+                tune = 500 #200
             else:
-                draws = 500 #1000
-                tune = 500 #1000
+                draws = 1000 #1000
+                tune = 1000 #1000
             trace = pm.sample(
                 model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
                 idata_kwargs={"include_transformed": False}
