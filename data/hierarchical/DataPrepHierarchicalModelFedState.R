@@ -2,6 +2,8 @@
 
 library(tidyverse)
 library(MMWRweek)
+library(gridExtra)
+library(ggiraphExtra)
 
 chosenModel <- c("Berlin", "Hamburg", "Bremen")
 #chosenModel <- c("Baden-Württemberg", "Bayern", "Brandenburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
@@ -18,7 +20,7 @@ colnames(weather)[1] <- "date"
 colnames(weather)[2] <- "federalState"
 weather <- weather %>% filter(federalState != "Deutschland")
 
-daylight <- read_csv("/Users/sydney/git/mobility_inference/data/daylight/DaylightWeek_FedStates.csv")
+daylight <- read_csv("/Users/sydney/git/mobility_inference/data/daylight/DaylightFederalStatesWeekly.csv")
 
 mobility <- read_delim("https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/episim/mobilityData/bundeslaender/mobilityData_OverviewBL_weekly.csv", delim = ";")
 colnames(mobility)[2] <- "federalState"
@@ -213,35 +215,95 @@ data2023 <- dataFull %>% filter(date > "2022-12-31")
 
 dataFull <- rbind(data2020, data2023)
 
-# Setting disease indicator equal to 0 for 2023
-dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
-                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
-  mutate(Hospital_Incidence = case_when(date > "2022-12-31" ~ 0,
-                                        TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
-  mutate(logHospital_Cases = case_when(date > "2022-12-31" ~ 0,
-                                       TRUE ~ as.numeric(as.character(logHospital_Cases)))) %>%
-  mutate(logHospital_Incidence = case_when(date > "2022-12-31" ~ 0,
-                                           TRUE ~ as.numeric(as.character(logHospital_Incidence)))) %>%
-  mutate(Infection_Cases = case_when(date > "2022-12-31" ~ 0,
-                                     TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
-  mutate(Infection_Incidence= case_when(date > "2022-12-31" ~ 0,
-                                        TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
-  mutate(logInfection_Cases = case_when(date > "2022-12-31" ~ 0,
-                                        TRUE ~ as.numeric(as.character(logInfection_Cases)))) %>%
-  mutate(logInfection_Incidence = case_when(date > "2022-12-31" ~ 0,
-                                            TRUE ~ as.numeric(as.character(logInfection_Incidence)))) %>%
-  mutate(Death_Cases = case_when(date > "2022-12-31" ~ 0,
-                                 TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
-  mutate(Death_Incidence = case_when(date > "2022-12-31" ~ 0,
-                                     TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
-  mutate(logDeath_Cases = case_when(date > "2022-12-31" ~ 0,
-                                    TRUE ~ as.numeric(as.character(logDeath_Cases)))) %>%
-  mutate(logDeath_Incidence = case_when(date > "2022-12-31" ~ 0,
-                                        TRUE ~ as.numeric(as.character(logDeath_Incidence)))) %>%
-  mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
-                                TRUE ~ as.numeric(as.character(Reffective))))
+# Setting disease indicator equal to 0 for 2023 
+# dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                                            TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
+#   mutate(Hospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+#                                         TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
+#   mutate(logHospital_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                        TRUE ~ as.numeric(as.character(logHospital_Cases)))) %>%
+#   mutate(logHospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+#                                            TRUE ~ as.numeric(as.character(logHospital_Incidence)))) %>%
+#   mutate(Infection_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                      TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
+#   mutate(Infection_Incidence= case_when(date > "2022-12-31" ~ 0,
+#                                         TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
+#   mutate(logInfection_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                         TRUE ~ as.numeric(as.character(logInfection_Cases)))) %>%
+#   mutate(logInfection_Incidence = case_when(date > "2022-12-31" ~ 0,
+#                                             TRUE ~ as.numeric(as.character(logInfection_Incidence)))) %>%
+#   mutate(Death_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                  TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
+#   mutate(Death_Incidence = case_when(date > "2022-12-31" ~ 0,
+#                                      TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
+#   mutate(logDeath_Cases = case_when(date > "2022-12-31" ~ 0,
+#                                     TRUE ~ as.numeric(as.character(logDeath_Cases)))) %>%
+#   mutate(logDeath_Incidence = case_when(date > "2022-12-31" ~ 0,
+#                                         TRUE ~ as.numeric(as.character(logDeath_Incidence)))) %>%
+#   mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
+#                                 TRUE ~ as.numeric(as.character(Reffective))))
+
+dataFull[is.na(dataFull)] <- 0
 
 dataFull <- dataFull %>% filter(federalState %in% chosenModel)
+
+dataFull <- dataFull %>% mutate(index = case_when(federalState == "Berlin" ~ 0,
+                                                  federalState == "Bremen" ~ 1,
+                                                  federalState == "Hamburg" ~ 2))
+
+#dataFull <- dataFull %>% filter(date < "2023-01-01")
+
+p1_2020 <- ggplot(data = data2020 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = tmax), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2020)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Temperature [C°]")
+
+p2_2020 <- ggplot(data = data2020 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = daylight), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2020)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Daylight [hrs]")
+
+p3_2020 <- ggplot(data = data2020 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = outOfHomeDuration), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2020)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Out-of-home \n Duration [hrs]")
+
+p <- arrangeGrob(p1_2020, p2_2020, p3_2020, nrow=3)
+ggsave("DataBerlin2020.pdf", p, w = 12, h = 9, dpi = 500)
+ggsave("DataBerlin2020.png", p, w = 12, h = 9, dpi = 500)
+
+p1_2023 <- ggplot(data = data2023 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = tmax), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2023)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Temperature [C°]")
+
+p2_2023 <- ggplot(data = data2023 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = daylight), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2023)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Daylight [hrs]")
+
+p3_2023 <- ggplot(data = data2023 %>% filter(federalState == "Berlin")) +
+  geom_point(aes(x=date, y = outOfHomeDuration), color ="#29335C", size =3) +
+  theme_minimal() +
+  xlab("Date (2023)") +
+  theme(text = element_text(size = 22)) +
+  ylab("Out-of-home \n Duration [hrs]")
+
+p <- arrangeGrob(p1_2023, p2_2023, p3_2023, nrow=3)
+ggsave("DataBerlin2023.pdf", p, w = 12, h = 9, dpi = 500)
+ggsave("DataBerlin2023.png", p, w = 12, h = 9, dpi = 500)
+
+
 
 write_csv(dataFull, "inputDataBerlinHHHB.csv")
                           
