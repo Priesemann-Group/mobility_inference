@@ -201,10 +201,10 @@ def get_out_of_home_duration(chosen_model):
     """
     if chosen_model == "BEHHHB":
         path_mobility = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
-        baseline_mobility = [8] * 37 * 3
+        baseline_mobility = [8] * 89 * 3
     else:
         path_mobility = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
-        baseline_mobility = [8] * 37 * 16
+        baseline_mobility = [8] * 89 * 16
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -297,6 +297,7 @@ def get_C_raw(chosen_model):
         path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
+    #case_data = cases_df[["fedState","Infection_Incidence", "timeCounter"]]
     case_data = cases_df["Infection_Incidence"].to_xarray()
 
     return case_data
@@ -336,6 +337,8 @@ def get_C_transformed(chosen_model):
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
+   
+    #case_data = cases_df[["fedState","Infection_Incidence_Norm", "timeCounter"]]
    
     return case_data
 
@@ -578,6 +581,26 @@ def get_pub_holidays(chosen_model):
     pubHolidays_data  = pubHol_df["pubHoliday"].to_xarray()
 
     return  pubHolidays_data  
+
+def get_counter(chosen_model):
+    """counter since start of pandemic.
+
+    Args:
+        None
+    Returns:
+        Xarray: Public holiday data.
+        
+    """
+
+    if chosen_model == "BEHHHB":
+        path_counter = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    else:
+        path_counter = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+    counter_df = pd.read_csv(path_counter, index_col=0, parse_dates=True)
+
+    counter_data  = counter_df["timeCounter"].to_xarray()
+
+    return  counter_data  
 
 ## Precipitation
 

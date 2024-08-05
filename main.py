@@ -25,7 +25,8 @@ import model_comparison
 
 # Set up basic configurations
 name = "temperature_sigmoid"  # Name of the experiment
-test = False  # Whether to run a test with fewer samples
+
+test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -51,8 +52,8 @@ holiday = 1
 # Generate all combinations of indicators
 if disease_indicator:
     all_combinations = utils.indicator_combinations(
-    #    base_indicators=["H"], 
-        limit=1
+        #base_indicators=["R"], 
+        limit=2
         )
 else:
     all_combinations = [[]]
@@ -80,37 +81,36 @@ d_2020, d_base, dates_2020, dates_2022 = data_prep.get_out_of_home_duration()
 dates = pd.to_datetime(dates_2020)
 
 # Get R_effective value for disease data
-disease_data_raw["R"] = data_prep.get_R_raw()
+disease_data_raw["R"] = data_prep.get_R_raw(dates_2020)
 disease_data["R"] = data_prep.get_R_transformed(disease_data_raw["R"])
 
 # Get R_effective value for disease data
 disease_data_raw["logR"] = data_prep.get_logR_raw(disease_data_raw["R"])
 disease_data["logR"] = data_prep.get_logR_transformed(disease_data_raw["logR"])
 
-
 # Get OWID data
 owid = data_prep.get_owid()
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data_raw["C"] = data_prep.get_C_raw(owid)
+disease_data_raw["C"] = data_prep.get_C_raw(owid, dates_2020)
 disease_data["C"] = data_prep.get_C_transformed(disease_data_raw["C"])
 
 disease_data_raw["logC"] = data_prep.get_logC_raw(disease_data_raw["C"])
 disease_data["logC"] = data_prep.get_logC_transformed(disease_data_raw["logC"])
 
-disease_data_raw["ICU"] = data_prep.get_ICU_raw(owid)
+disease_data_raw["ICU"] = data_prep.get_ICU_raw(owid, dates_2020)
 disease_data["ICU"] = data_prep.get_ICU_transformed(disease_data_raw["ICU"])
 
 disease_data_raw["logICU"] = data_prep.get_logICU_raw(disease_data_raw["ICU"])
 disease_data["logICU"] = data_prep.get_logICU_transformed(disease_data_raw["logICU"])
 
-disease_data_raw["H"] = data_prep.get_H_raw(owid)
+disease_data_raw["H"] = data_prep.get_H_raw(owid, dates_2020)
 disease_data["H"] = data_prep.get_H_transformed(disease_data_raw["H"])
 
 disease_data_raw["logH"] = data_prep.get_logH_raw(disease_data_raw["H"])
 disease_data["logH"] = data_prep.get_logH_transformed(disease_data_raw["logH"])
 
-disease_data_raw["D"] = data_prep.get_D_raw(owid)
+disease_data_raw["D"] = data_prep.get_D_raw(owid, dates_2020)
 disease_data["D"] = data_prep.get_D_transformed(disease_data_raw["D"])
 
 disease_data_raw["logD"] = data_prep.get_logD_raw(disease_data_raw["D"])
@@ -160,13 +160,13 @@ if single:
     all_combinations = [
         #["R"],
         #["logR"],
-        ["C"],
+        #["C"],
         #["logC"],
         #["ICU"],
         #["logICU"],
-        #["H"],
+        ["H"],
         #["logH"],
-        #["D"],
+        ["D"],
         #["logD"]
     ]
 

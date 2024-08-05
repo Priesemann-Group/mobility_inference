@@ -22,10 +22,11 @@ import model_hierarchical
 import data_prep_hierarchical
 import plot_hierarchical
 import utils
+import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "temperature_hierarchical"  # Name of the experiment
+name = "temperature_hierarchical_2023"  # Name of the experiment
 test = True  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True  # Whether to run the model or load the trace from a file
@@ -148,8 +149,12 @@ if holiday is not None:
         "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model)
     }
 
-fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+time_counter = {
+        "time counter": data_prep_hierarchical.get_counter(chosen_model)
+}
 
+fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 
 if single:
     all_combinations = [
@@ -202,7 +207,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"fedState": fedState, "obs_id": obs_id}
+        coords = {"fedState": fedState, "obs_id": obs_id, "timeCounter" : counter}
     
         inference_model = pm.Model(coords=coords)
 
@@ -212,21 +217,23 @@ for indicators in all_combinations:
             d_obs,
             indicators,
             disease_data,
+            time_counter,
             school_in = school,
             holiday_in = holiday,
             temperature_in=temperature,
             precipitation_in=precipitation,
             daylight_in = daylight,
             pop_density_in = pop_density,
-            fed_states_in = fedState
+            fed_states_in = fedState,
+            counter_in = counter
         )
         models[i] = inference_model
 
         if run:
             # Perform inference
             if test:
-                draws = 200 #200
-                tune = 200 #200
+                draws = 50 #200
+                tune = 50 #200
             else:
                 draws = 500 #1000
                 tune = 500 #1000
@@ -260,5 +267,5 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState
+            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
         )
