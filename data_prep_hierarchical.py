@@ -201,10 +201,10 @@ def get_out_of_home_duration(chosen_model):
     """
     if chosen_model == "BEHHHB":
         path_mobility = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
-        baseline_mobility = [8] * 89 * 3
+        baseline_mobility = [8] * 93 * 3
     else:
         path_mobility = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
-        baseline_mobility = [8] * 89 * 16
+        baseline_mobility = [8] * 92 * 16
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )

@@ -26,16 +26,17 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "temperature_hierarchical_2023"  # Name of the experiment
-test = True  # Whether to run a test with fewer samples
+name = "temperature_hierarchical_BEHHHB"  # Name of the experiment
+test = False  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
-run = True  # Whether to run the model or load the trace from a file
-disease_indicator = None # Whether to include disease indicators
+run = True # Whether to run the model or load the trace from a file
+disease_indicator = True # Whether to include disease indicators
 plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
 chosen_model = "BEHHHB"
+#chosen_model = "fedStates"
 
 #Include population density if required by giving any value
 pop_density = None
@@ -154,6 +155,9 @@ time_counter = {
 }
 
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+fedState_coord = np.array([0, 1, 2])
+#fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+#fedState = fedState_coord
 counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 
 if single:
@@ -207,7 +211,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"fedState": fedState, "obs_id": obs_id, "timeCounter" : counter}
+        coords = {"fedState": fedState_coord, "obs_id": obs_id, "timeCounter" : counter}
     
         inference_model = pm.Model(coords=coords)
 
@@ -232,11 +236,11 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 50 #200
-                tune = 50 #200
+                draws = 10 #200
+                tune = 10 #200
             else:
-                draws = 500 #1000
-                tune = 500 #1000
+                draws = 1000 #1000
+                tune = 1000 #1000
             with inference_model:
                 trace = pm.sample(
                     model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
@@ -259,6 +263,8 @@ for indicators in all_combinations:
 
         traces[i] = trace
 
+    inference_model.add_coord("timeCounter", counter, mutable = True)
+
     # # Save ELPD result to file
     # if ELPD_method is not None:
     #     model_comparison.save_ELPD(models, traces, L, M, len(dates), dir_name, draws, ELPD_method)
@@ -269,3 +275,8 @@ for indicators in all_combinations:
         plot_hierarchical.analysis_figures(
             inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
         )
+
+
+gv = pm.model_to_graphviz(inference_model)
+gv.format = 'png'
+gv.render(filename='model_graph')

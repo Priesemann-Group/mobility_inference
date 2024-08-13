@@ -248,7 +248,7 @@ def get_out_of_home_duration():
         Array of np.datetime64: Considered dates of 2020.
         Array of np.datetime64: Considered dates of 2022.
     """
-    path_mobility = "/Users/sydney/git/mobility_inference/data/mobility/archive/mobilityData_OverviewBL_weekly.csv"
+    path_mobility = "/Users/sydney/git/mobility_inference/data/mobility/mobilityData_OverviewBL_weekly.csv"
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0, delimiter=";"
     )
@@ -257,17 +257,16 @@ def get_out_of_home_duration():
 
     ### get dates
     mobility_dates = mobility_df.index.values
-    dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
+    dates_2020 = mobility_dates
     mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
-    mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
-    mobility_dates_2022_shortened = mobility_dates_2022[-len(mobility_dates_2020) :]
-
+    mobility_dates_2023 = mobility_dates[mobility_dates > np.datetime64("2023-01-01")]
+    mobility_dates_2022_shortened = mobility_dates_2023[-len(mobility_dates_2020) :]
+        
     ### get out of home duration data
     mobility_df_2020 = mobility_df.filter(items=mobility_dates_2020, axis=0)
     mobility_data_2020 = mobility_df_2020["outOfHomeDuration"].to_xarray()
 
-    baseline_mobility = [1] * 37
-    baseline_mobility
+    baseline_mobility = [1] * mobility_data_2020.size
 
     return (
         mobility_data_2020,
@@ -296,6 +295,10 @@ def get_R_raw(dates=None):
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
     R_data = df["PS_7_Tage_R_Wert"].to_xarray()
+
+    for i in range(37, R_data.size):
+        R_data[i] = 0
+
     return R_data
 
 def get_logR_raw(R_raw, dates=None):
@@ -366,6 +369,9 @@ def get_C_raw(owid_in, dates_2020=None):
     case_data = weekly_formatting(case_data, dates_2020)
     case_data = case_data.to_xarray()
 
+    for i in range(37, case_data.size):
+        case_data[i] = 0
+        
     return case_data
 
 def get_logC_raw(case_data, dates_2020=None):
@@ -456,6 +462,10 @@ def get_H_raw(owid_in, dates_2020_in=None):
         dates_2020_in = get_disease_dates()
     H_data = weekly_formatting(H_data, dates_2020_in)
     H_data = H_data.to_xarray()
+
+    for i in range(37, H_data.size):
+        H_data[i] = 0
+    
     return H_data
 
 def get_logH_raw(H_data, dates_2020_in=None):
@@ -500,6 +510,9 @@ def get_D_raw(owid_in, dates_2020_in=None):
         dates_2020_in = get_disease_dates()
     D_data = weekly_formatting(D_data, dates_2020_in)
     D_data = D_data.to_xarray()
+
+    for i in range(37, D_data.size):
+        D_data[i] = 0
     
     return D_data
 
@@ -602,18 +615,18 @@ def get_temperature(dates_2020_in):
 
     return  temperature_2020
 
-def get_avg_temperature(dates_2020_in):
+# def get_avg_temperature(dates_2020_in):
 
-    avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
+#     avg_temperature_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/weather/TenYearAvgTemp.csv", parse_dates=True, index_col=0)
 
-    ### filter for mobility_dates_2020
-    avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
+#     ### filter for mobility_dates_2020
+#     avg_temperature_df_2020 = avg_temperature_df[avg_temperature_df.index.isin(dates_2020_in)]
 
-    avg_temperature_2020 = avg_temperature_df_2020["tenyearmeantmax"].to_xarray()
+#     avg_temperature_2020 = avg_temperature_df_2020["tenyearmeantmax"].to_xarray()
 
-    delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
+#     delta_temperature = get_temperature(dates_2020_in) -  avg_temperature_2020
 
-    return  delta_temperature  
+#     return  delta_temperature  
 
 ## Daylight
 

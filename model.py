@@ -16,7 +16,7 @@ def duration_base(d_base):
     Returns:
     Base duration
     """
-    d_factor = pm.Normal("d_factor", mu=12, sigma=1)
+    d_factor = pm.Normal("d_factor", mu=8, sigma=2)
 
     d_base = pm.Deterministic("d_base", d_base*d_factor)
 
@@ -86,11 +86,13 @@ def temperature_factor(temperature_in):
 
     Tmax_2020 = pm.ConstantData("max_Temp", temperature_in["temperature"])
 
-    amplitude_temperature = pm.LogNormal("amplitude_temperature", mu = np.log(0.2), sigma = 0.05)
+    amplitude_temperature = pm.HalfCauchy("amplitude_temperature", beta = 0.5)
+    #amplitude_temperature = pm.LogNormal("amplitude_temperature", mu = np.log(0.2), sigma = 0.05)
     #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
-    shift_temperature = pm.Normal("shift_temperature", mu = 25, sigma = 10) #Updated according to J's recommendation 
-    slope_temperature = pm.Lognormal("slope_temperature", mu = np.log(1), sigma = 0.05)
-    intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.05)
+    shift_temperature = pm.Normal("shift_temperature", mu = 15, sigma = 10) #Updated according to J's recommendation 
+    slope_temperature = pm.Lognormal("slope_temperature", mu = np.log(1), sigma = 0.25)
+    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(1), sigma = 0.1)
+    intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(20/slope_temperature-shift_temperature)))))
 
     temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature*(1/(1+np.exp(-(Tmax_2020/slope_temperature-shift_temperature)))) + intercept_temperature)
     
@@ -203,9 +205,10 @@ def daylight_factor(daylight_data_in):
 
     #amplitude_daylight = pm.LogNormal("amplitude_daylight", mu = np.log(0.2), sigma = 0.05)
     amplitude_daylight = pm.HalfCauchy("amplitude_daylight", beta = 0.5) #Based on advice by J, a HalfCauchy distr. is being used
-    shift_daylight = pm.LogNormal("shift_daylight", mu = np.log(12.23), sigma = 0.2) 
-    slope_daylight = pm.Lognormal("slope_daylight", mu = np.log(1), sigma = 0.05)
-    intercept_daylight = pm.LogNormal("intercept_daylight", mu = np.log(0.9), sigma = 0.05)
+    shift_daylight = pm.LogNormal("shift_daylight", mu = np.log(12.23), sigma = 0.1) 
+    slope_daylight = pm.Lognormal("slope_daylight", mu = np.log(1), sigma = 0.3)
+    intercept_daylight = pm.Deterministic("intercept_daylight", 1 - amplitude_daylight*(1/(1+np.exp(-(12.23/slope_daylight-shift_daylight)))))
+    #intercept_daylight = pm.LogNormal("intercept_daylight", mu = np.log(0.9), sigma = 0.3)
 
     day = pm.Deterministic("daylight_factor", amplitude_daylight*(1/(1+np.exp(-(daylight_data/slope_daylight-shift_daylight)))) + intercept_daylight)
 
@@ -228,16 +231,12 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior_1=0.7, mu_z_
     ## data
     disease_data = pm.ConstantData(indicator, disease_data_in[indicator])
     disease_data_len = disease_data.shape[0].eval()
-    idx = np.arange(0,37,1)
+    idx = np.arange(0,90,1)
 
     ## define priors
-    factor_disease_1 = pm.LogNormal(f"z1_{indicator}", mu=np.log(mu_z_prior_1), tau=10)
-    factor_disease_2 = pm.LogNormal(f"z2_{indicator}", mu=np.log(mu_z_prior_2), tau=10)
-    # mu_disease = pm.Uniform(f"mu_{indicator}", lower=1 / 7, upper=12)
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(15), sigma=0.5)
-    # sigma_disease = pm.Uniform(f"sigma_{indicator}", lower=1 / 7, upper=12)
-    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.25)
-    sigma_disease = pm.Deterministic(
+    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(2), sigma=0.2) #Mean of Gamma distribution
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.25) 
+    sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease)
     )
 
@@ -251,10 +250,20 @@ def disease_factor(indicator, disease_data_in, len_data, mu_z_prior_1=0.7, mu_z_
         len_output_arr=len_data,
         diff_input_output=disease_data_len - len_data,
     )
+    
     risk = pm.Deterministic(f"risk_{indicator}", risk)
 
     ## put it together
-    factor_disease = pm.math.switch(15 > idx, factor_disease_1, factor_disease_2)
+    #factor_disease = pm.math.switch(15 > idx, factor_disease_1, factor_disease_2)
+    
+    amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3)
+    shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(15), sigma = 1 )
+    slope_disease = pm.Lognormal(f"slope_{indicator}", mu = np.log(40), sigma = 2)
+    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = np.log(0.5), sigma = 0.1)
+
+    factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease*(1/(1+np.exp((idx/slope_disease-shift_disease)))) + intercept_disease)
+    #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(-idx/slope_disease))
+    
     exponent = -factor_disease * risk
     d = pm.Deterministic(f"d_{indicator}", at.exp(exponent))
 
