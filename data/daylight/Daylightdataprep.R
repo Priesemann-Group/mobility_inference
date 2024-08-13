@@ -39,3 +39,8 @@ data <- data %>% mutate(sunrise = str_sub(sunrise, -5, -1)) %>%
 
 write_csv(data, paste0("Daylight", dict_state_id[i,1], ".csv"))
 }
+
+data <- data %>% mutate(year = year(date), week = isoweek(date)) %>%
+group_by(week, year) %>% summarize(date = max(date), sunrise = mean(sunrise), sunset=mean(sunset), daylight=mean(daylight))
+data <- data %>% ungroup() %>% select(-week) %>% select(-year)
+write_csv(data, "DaylightGermanyweekly.csv")
