@@ -28,7 +28,7 @@ import model_comparison
 # Set up basic configurations
 name = "test"  # Name of the experiment
 test = True  # Whether to run a test with fewer samples
-single = True  # Whether to run a single model
+single = False  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
 plot_figures = True    # Whether to plot figures
@@ -237,8 +237,8 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 10 #200
-                tune = 10 #200
+                draws = 200 #200
+                tune = 200 #200
             else:
                 draws = 1000 #1000
                 tune = 1000 #1000
