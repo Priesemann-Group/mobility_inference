@@ -74,7 +74,7 @@ cases <- cases %>% select(date, federalState, Infection_Cases, Infection_Inciden
 
 
 deaths <- read_csv("https://raw.githubusercontent.com/robert-koch-institut/COVID-19-Todesfaelle_in_Deutschland/main/COVID-19-Todesfaelle_Bundeslaender.csv")
-deaths <- deaths %>% mutate(year = as.integer(substring(Datum, 1, 4)), week = as.integer(substring(Datum, 7,8))) %>% 
+deaths <- deaths %>% mutate(year = as.integer(substring(Datum, 1, 4)), week = as.integer(substring(Datum, 7,8))) %>%
                     mutate(date = MMWRweek2Date(MMWRyear = year, MMWRweek = week)) %>% mutate(date = date + 7) ##MMWRweek sets the first day of a week equal to Sunday, for RKI: Sunday = last day of the week --> This necessitates the +7
 colnames(deaths)[2] <- "federalState"
 colnames(deaths)[4] <- "Death_Cases"
@@ -144,7 +144,7 @@ dataFull <- left_join(dataFull, mobility, by = c("federalState", "date"))
 dataFull <- left_join(dataFull, hospitals, by = c("federalState", "date"))
 dataFull <- left_join(dataFull, cases, by = c("federalState", "date"))
 dataFull <- left_join(dataFull, deaths, by = c("federalState", "date"))
-dataFull <- dataFull %>% mutate(Death_Cases = ifelse(is.na(Death_Cases), 0, Death_Cases)) %>% 
+dataFull <- dataFull %>% mutate(Death_Cases = ifelse(is.na(Death_Cases), 0, Death_Cases)) %>%
   mutate(Death_Incidence = ifelse(is.na(Death_Incidence), 0, Death_Incidence))
 dataFull <- left_join(dataFull, R_eff_full, by = c("federalState", "date"))
 
@@ -168,21 +168,21 @@ dataFull <- dataFull %>% mutate(index = case_when(federalState == "Schleswig-Hol
                                                   federalState == "Thüringen" ~ 15))
 
 #Only keep dates which are needed for the Bayesian inference
-data2020 <- dataFull %>% filter(date < "2020-12-20") %>% 
+data2020 <- dataFull %>% filter(date < "2020-12-20") %>%
                         filter(date > "2020-03-29")
 
-#data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 0.00001,
-#                                                           TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
-#                        mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 0.00001,
-#                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
-#                        mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 0.00001,
-#                                                           TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
-#                        mutate(Death_Cases = case_when(Death_Cases == 0 ~ 0.001,
-#                                                            TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
-#                        mutate(Death_Incidence = case_when(Death_Incidence == 0 ~ 0.001,
-#                                                            TRUE ~ as.numeric(as.character(Death_Incidence))))
-                                          
-                                          
+data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 0.00001,
+                                                          TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
+                       mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 0.00001,
+                                                          TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
+                       mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 0.00001,
+                                                          TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
+                       mutate(Death_Cases = case_when(Death_Cases == 0 ~ 0.001,
+                                                           TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
+                       mutate(Death_Incidence = case_when(Death_Incidence == 0 ~ 0.001,
+                                                           TRUE ~ as.numeric(as.character(Death_Incidence))))
+
+
 #Zscore/Normalize data
 data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm = (Infection_Cases-mean(Infection_Cases))/sd(Infection_Cases),
                                                            logInfection_Cases_Norm = (logInfection_Cases-mean(logInfection_Cases))/sd(logInfection_Cases),
@@ -215,33 +215,33 @@ data2023 <- dataFull %>% filter(date > "2022-12-31")
 
 dataFull <- rbind(data2020, data2023)
 
-# Setting disease indicator equal to 0 for 2023 
-# dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                                            TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
-#   mutate(Hospital_Incidence = case_when(date > "2022-12-31" ~ 0,
-#                                         TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
-#   mutate(logHospital_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                        TRUE ~ as.numeric(as.character(logHospital_Cases)))) %>%
-#   mutate(logHospital_Incidence = case_when(date > "2022-12-31" ~ 0,
-#                                            TRUE ~ as.numeric(as.character(logHospital_Incidence)))) %>%
-#   mutate(Infection_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                      TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
-#   mutate(Infection_Incidence= case_when(date > "2022-12-31" ~ 0,
-#                                         TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
-#   mutate(logInfection_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                         TRUE ~ as.numeric(as.character(logInfection_Cases)))) %>%
-#   mutate(logInfection_Incidence = case_when(date > "2022-12-31" ~ 0,
-#                                             TRUE ~ as.numeric(as.character(logInfection_Incidence)))) %>%
-#   mutate(Death_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                  TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
-#   mutate(Death_Incidence = case_when(date > "2022-12-31" ~ 0,
-#                                      TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
-#   mutate(logDeath_Cases = case_when(date > "2022-12-31" ~ 0,
-#                                     TRUE ~ as.numeric(as.character(logDeath_Cases)))) %>%
-#   mutate(logDeath_Incidence = case_when(date > "2022-12-31" ~ 0,
-#                                         TRUE ~ as.numeric(as.character(logDeath_Incidence)))) %>%
-#   mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
-#                                 TRUE ~ as.numeric(as.character(Reffective))))
+# Setting disease indicator equal to 0 for 2023
+dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
+                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
+  mutate(Hospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+                                        TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
+  mutate(logHospital_Cases = case_when(date > "2022-12-31" ~ 0,
+                                       TRUE ~ as.numeric(as.character(logHospital_Cases)))) %>%
+  mutate(logHospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+                                           TRUE ~ as.numeric(as.character(logHospital_Incidence)))) %>%
+  mutate(Infection_Cases = case_when(date > "2022-12-31" ~ 0,
+                                     TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
+  mutate(Infection_Incidence= case_when(date > "2022-12-31" ~ 0,
+                                        TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
+  mutate(logInfection_Cases = case_when(date > "2022-12-31" ~ 0,
+                                        TRUE ~ as.numeric(as.character(logInfection_Cases)))) %>%
+  mutate(logInfection_Incidence = case_when(date > "2022-12-31" ~ 0,
+                                            TRUE ~ as.numeric(as.character(logInfection_Incidence)))) %>%
+  mutate(Death_Cases = case_when(date > "2022-12-31" ~ 0,
+                                 TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
+  mutate(Death_Incidence = case_when(date > "2022-12-31" ~ 0,
+                                     TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
+  mutate(logDeath_Cases = case_when(date > "2022-12-31" ~ 0,
+                                    TRUE ~ as.numeric(as.character(logDeath_Cases)))) %>%
+  mutate(logDeath_Incidence = case_when(date > "2022-12-31" ~ 0,
+                                        TRUE ~ as.numeric(as.character(logDeath_Incidence)))) %>%
+  mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
+                                TRUE ~ as.numeric(as.character(Reffective))))
 
 dataFull[is.na(dataFull)] <- 0
 
@@ -250,6 +250,45 @@ dataFull <- dataFull %>% filter(federalState %in% chosenModel)
 dataFull <- dataFull %>% mutate(index = case_when(federalState == "Berlin" ~ 0,
                                                   federalState == "Bremen" ~ 1,
                                                   federalState == "Hamburg" ~ 2))
+
+dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-04-05") ~ 0,
+                                                        date == as.Date("2020-04-12") ~ 1,
+                                                        date == as.Date("2020-04-19") ~ 2,
+                                                        date == as.Date("2020-04-26") ~ 3,
+                                                        date == as.Date("2020-05-03") ~ 4,
+                                                        date == as.Date("2020-05-10") ~ 5,
+                                                        date == as.Date("2020-05-17") ~ 6,
+                                                        date == as.Date("2020-05-24") ~ 7,
+                                                        date == as.Date("2020-05-31") ~ 8,
+                                                        date == as.Date("2020-06-07") ~ 9,
+                                                        date == as.Date("2020-06-14") ~ 10,
+                                                        date == as.Date("2020-06-21") ~ 11,
+                                                        date == as.Date("2020-06-28") ~ 12,
+                                                        date == as.Date("2020-07-05") ~ 13,
+                                                        date == as.Date("2020-07-12") ~ 14,
+                                                        date == as.Date("2020-07-19") ~ 15,
+                                                        date == as.Date("2020-07-26") ~ 16,
+                                                        date == as.Date("2020-08-02") ~ 17,
+                                                        date == as.Date("2020-08-09") ~ 18,
+                                                        date == as.Date("2020-08-16") ~ 19,
+                                                        date == as.Date("2020-08-23") ~ 20,
+                                                        date == as.Date("2020-08-30") ~ 21,
+                                                        date == as.Date("2020-09-06") ~ 22,
+                                                        date == as.Date("2020-09-13") ~ 23,
+                                                        date == as.Date("2020-09-20") ~ 24,
+                                                        date == as.Date("2020-09-27") ~ 25,
+                                                        date == as.Date("2020-10-04") ~ 26,
+                                                        date == as.Date("2020-10-11") ~ 27,
+                                                        date == as.Date("2020-10-18") ~ 28,
+                                                        date == as.Date("2020-10-25") ~ 29,
+                                                        date == as.Date("2020-11-01") ~ 30,
+                                                        date == as.Date("2020-11-08") ~ 31,
+                                                        date == as.Date("2020-11-15") ~ 32,
+                                                        date == as.Date("2020-11-22") ~ 33,
+                                                        date == as.Date("2020-11-29") ~ 34,
+                                                        date == as.Date("2020-12-06") ~ 35,
+                                                        date == as.Date("2020-12-13") ~ 36,
+                                                        date > as.Date("2021-01-01") ~ 10^5))
 
 #dataFull <- dataFull %>% filter(date < "2023-01-01")
 
@@ -305,5 +344,4 @@ ggsave("DataBerlin2023.png", p, w = 12, h = 9, dpi = 500)
 
 
 
-write_csv(dataFull, "inputDataBerlinHHHB.csv")
-                          
+write_delim(dataFull, "inputDataBerlinHHHB.csv", delim = ",")

@@ -1,12 +1,13 @@
 
 library(readxl)
-
+library(tidyverse)
+library(MMWRweek)
 
 # LK Population, corresp. Fed State ---------------------------------------
 
 LK <- read_xlsx("/Users/sydney/Downloads/04-kreise.xlsx", sheet = 2)
-colnames(LK) <- c("LK_Id", 
-                  "Kreisfreie_Stadt", 	
+colnames(LK) <- c("LK_Id",
+                  "Kreisfreie_Stadt",
                   "LK_Name",
                   "NUTS3",
                   "Area_in_km2",
@@ -14,7 +15,7 @@ colnames(LK) <- c("LK_Id",
                   "Population_Male",
                   "Population_Female",
                   "Population_per_km2")
-LK <- LK %>% filter(nchar(LK_Id) == 5) 
+LK <- LK %>% filter(nchar(LK_Id) == 5)
 LK <- LK %>% dplyr::rowwise() %>% mutate(LK_Name = str_split(LK_Name, ",")[[1]][1]) %>%
   mutate(LK_Name = case_when(LK_Name == "Mühldorf a.Inn" ~ "Mühldorf am Inn",
                              LK_Name == "Pfaffenhofen a.d.Ilm" ~ "Pfaffenhofen an der Ilm",
@@ -48,6 +49,9 @@ LK <- LK %>% mutate(federalState = case_when(str_sub(LK_Id,1,2) == "01" ~ "Schle
                                          str_sub(LK_Id,1,2) == "16" ~ "Thüringen"
 ))
 
+WeatherStations <- read_csv2("/Users/sydney/git/mobility_inference/data/weather/WeatherStations.csv")
+
+LK <- left_join(LK, WeatherStations)
 
 # Mobility Data -----------------------------------------------------------
 
@@ -55,12 +59,41 @@ mobility_data <- read_delim("https://svn.vsp.tu-berlin.de/repos/public-svn/matsi
   dplyr::rowwise() %>%
   mutate(Landkreis = str_remove(Landkreis, "Landkreis ")) %>%
   mutate(Landkreis = str_remove(Landkreis, "Kreis "))
-colnames(mobility_data)[2] <- "LK_Name" 
+colnames(mobility_data)[2] <- "LK_Name"
 mobility_data$date <- as.character(paste0(substring(mobility_data$date, 1, 4),  "-", substring(mobility_data$date, 5, 6), "-", substring(mobility_data$date, 7, 8)))
 mobility_data$date <- as.Date(mobility_data$date)
 mobility_data <- mobility_data %>% filter(LK_Name != "Eisenach") %>% filter(LK_Name != "Deutschland")
 
 mobility_data <- left_join(mobility_data, LK)
+
+# Weather -----------------------------------------------------------------
+
+WeatherStations <- read_csv2("/Users/sydney/git/mobility_inference/data/weather/WeatherStations.csv")
+
+#Reading in weather data
+#FOR NOW THIS IS NOT THE WEEKLY AVERAGE --> WORK IN PROGRESS
+weather_data_all <- data.frame(matrix(nrow = 0, ncol = 5))
+for (weatherId in unique(WeatherStations$Wetter_ID)) {
+  if(!is.na(weatherId)){
+    weather_data <- read_delim(paste0("https://bulk.meteostat.net/v2/daily/", weatherId, ".csv.gz"))
+    colnames(weather_data) <- c("Date", "tavg", "tmin", "tmax", "prcp", "snow", "wdir", "wspd", "wpgt", "pres", "tsun")
+
+    weather_data$Date <- as.Date(weather_data$Date)
+    weather_data <- weather_data[, c("Date", "tmax", "tavg", "prcp")]
+    weather_data$weather_station <- weatherId
+
+    weather_data_all <- rbind(weather_data_all, weather_data)
+  }
+}
+
+weather_data_all <- weather_data_all %>%
+  filter(Date < as.Date("2024-01-01")) %>%
+  filter(Date > as.Date("2020-01-01"))
+
+colnames(weather_data_all)[1] <- "date"
+colnames(weather_data_all)[5] <- "Wetter_ID"
+
+mobility_data <- left_join(mobility_data, weather_data_all)
 
 # School vacations --------------------------------------------------------
 
@@ -103,6 +136,9 @@ cases <- cases %>% mutate(weekday = wday(date)) %>%
                                          TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
   mutate(logInfection_Cases = log10(Infection_Cases), logInfection_Incidence = log10(Infection_Incidence))
 
+cases <- cases %>% group_by(LK_Id) %>% mutate(Rvalue = Infection_Incidence/lead(Infection_Incidence, 5)) %>%
+  ungroup()
+
 mobility_data <- left_join(mobility_data, cases)
 
 # Hospitalisations --------------------------------------------------------
@@ -125,7 +161,7 @@ mobility_data <- left_join(mobility_data, hospitalizations)
 # Deaths ------------------------------------------------------------------
 
 deaths <- read_csv("https://raw.githubusercontent.com/robert-koch-institut/COVID-19-Todesfaelle_in_Deutschland/main/COVID-19-Todesfaelle_Bundeslaender.csv")
-deaths <- deaths %>% mutate(year = as.integer(substring(Datum, 1, 4)), week = as.integer(substring(Datum, 7,8))) %>% 
+deaths <- deaths %>% mutate(year = as.integer(substring(Datum, 1, 4)), week = as.integer(substring(Datum, 7,8))) %>%
   mutate(date = MMWRweek2Date(MMWRyear = year, MMWRweek = week)) %>% mutate(date = date + 7) ##MMWRweek sets the first day of a week equal to Sunday, for RKI: Sunday = last day of the week --> This necessitates the +7
 colnames(deaths)[2] <- "federalState"
 colnames(deaths)[4] <- "Death_Cases"
@@ -154,5 +190,6 @@ deaths <- deaths %>% select(date, federalState, Death_Cases, Death_Incidence) %>
   mutate(logDeath_Cases=log10(Death_Cases), logDeath_Incidence = log10(Death_Incidence))
 
 mobility_data <- left_join(mobility_data, deaths)
+
 
 

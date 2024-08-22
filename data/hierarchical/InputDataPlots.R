@@ -216,9 +216,9 @@ p1 <- ggplot(data %>% filter(federalState == chosenFedState)) +
   xlab("")
 
 p2 <- ggplot(data %>% filter(federalState == chosenFedState)) +
-  geom_point(aes(x=date, y=schoolVacation, color = federalState), size = 3) +
+  geom_point(aes(x=date, y=schoolVacation), color = "#311b92", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 20), legend.position = "none", legend.title = element_blank(), strip.text = element_blank()) +
+  theme(text = element_text(size = 30), legend.position = "none", legend.title = element_blank(), strip.text = element_blank()) +
   scale_color_manual(values = palette()) +
   facet_grid(vars(federalState)) +
   theme(panel.spacing = unit(0.4, "cm", data = NULL)) +
@@ -226,23 +226,60 @@ p2 <- ggplot(data %>% filter(federalState == chosenFedState)) +
   ylab("Days Off School") +
   xlab("")
 
-p3 <- ggplot(data %>% filter(federalState == chosenFedState)) +
-  geom_point(aes(x=date, y=pubHoliday, color = federalState), size = 3) +
+data <- data %>% mutate(Theta0.95 = (0.95 - 1)/7 * schoolVacation + 1) %>% 
+                  mutate(Theta0.90 = (0.90 - 1)/7 * schoolVacation + 1) %>% 
+                  mutate(Theta0.85 = (0.85 - 1)/7 * schoolVacation + 1)
+
+ggplot(data %>% filter(federalState == chosenFedState)) +
+  geom_point(aes(x = date, y = Theta0.95, color = "Theta = 0.95"), size = 3) +
+  geom_point(aes(x = date, y = Theta0.90, color = "Theta = 0.90"), size = 3) +
+  geom_point(aes(x = date, y = Theta0.85, color = "Theta = 0.85"), size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 20), legend.position = "none", legend.title = element_blank(), strip.text = element_blank()) +
+  theme(text = element_text(size = 30), legend.position = "bottom", legend.title = element_blank(), strip.text = element_blank()) +
   scale_color_manual(values = palette()) +
   facet_grid(vars(federalState)) +
   theme(panel.spacing = unit(0.5, "cm", data = NULL)) +
-  scale_y_continuous(breaks=c(0,1,2))+
+  #scale_y_continuous(breaks = c(0,1,2)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  ylab("v(t)") +
+  xlab("")
+
+p3 <- ggplot(data %>% filter(federalState == chosenFedState)) +
+  geom_point(aes(x = date, y = pubHoliday), color = "#311b92", size = 3) +
+  theme_minimal() +
+  theme(text = element_text(size = 30), legend.position = "none", legend.title = element_blank(), strip.text = element_blank()) +
+  scale_color_manual(values = palette()) +
+  facet_grid(vars(federalState)) +
+  theme(panel.spacing = unit(0.5, "cm", data = NULL)) +
+  scale_y_continuous(breaks = c(0,1,2)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   ylab("Public Holidays") +
   xlab("")
 
-p4 <- ggplot(data %>% filter(federalState == chosenFedState)) +
-  geom_point(aes(x=date, y=tmax, color = federalState), size = 3) +
+data <- data %>% mutate(Theta0.95 = (0.95 - 1)/7 * pubHoliday + 1) %>% 
+                  mutate(Theta0.90 = (0.90 - 1)/7 * pubHoliday + 1) %>% 
+                  mutate(Theta0.97 = (0.97 - 1)/7 * pubHoliday + 1)
+
+ggplot(data %>% filter(federalState == chosenFedState)) +
+  geom_point(aes(x = date, y = Theta0.95, color = "Theta = 0.95"), size = 3) +
+  geom_point(aes(x = date, y = Theta0.90, color = "Theta = 0.90"), size = 3) +
+  geom_point(aes(x = date, y = Theta0.97, color = "Theta = 0.97"), size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 20), legend.position = "none", legend.title = element_blank()) +
+  theme(text = element_text(size = 30), legend.position = "bottom", legend.title = element_blank(), strip.text = element_blank()) +
   scale_color_manual(values = palette()) +
+  facet_grid(vars(federalState)) +
+  theme(panel.spacing = unit(0.5, "cm", data = NULL)) +
+  #scale_y_continuous(breaks = c(0,1,2)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  ylab("h(t)") +
+  xlab("")
+
+
+p4 <- ggplot(data %>% filter(federalState == chosenFedState)) +
+  geom_point(aes(x=date, y=tmax), color = "#311b92", size = 3) +
+  theme_minimal() +
+  theme(text = element_text(size = 30), legend.position = "none", legend.title = element_blank()) +
+  #scale_color_manual(values = palette()) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   xlab("2020") +
   ylab("Tmax [C°]")
@@ -257,10 +294,10 @@ p5 <- ggplot(data %>% filter(federalState == chosenFedState)) +
   ylab("Precipitation [mm]")
 
 p6 <- ggplot(data %>% filter(federalState == chosenFedState)) +
-  geom_point(aes(x=date, y=daylight, color = federalState), size =3) +
+  geom_point(aes(x=date, y=daylight), color = "#311b92", size =3) +
   theme_minimal() +
-  theme(text = element_text(size = 20), legend.position = "none", legend.title = element_blank()) +
-  scale_color_manual(values = palette()) +
+  theme(text = element_text(size = 30), legend.position = "none", legend.title = element_blank()) +
+  #scale_color_manual(values = palette()) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   xlab("2020") +
   ylab("Daylight [h]")
