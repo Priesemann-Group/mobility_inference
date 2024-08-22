@@ -26,8 +26,8 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "temperature_hierarchical_BEHHHB"  # Name of the experiment
-test = False  # Whether to run a test with fewer samples
+name = "test"  # Name of the experiment
+test = True  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -55,7 +55,7 @@ holiday = 1
 if disease_indicator:
     all_combinations = utils.indicator_combinations(
     #    base_indicators=["H"], 
-        limit=1
+        limit=2
         )
 else:
     all_combinations = [[]]
@@ -115,19 +115,19 @@ disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(chosen_model)
 disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
 
 
-# If population density is included, get population density
-if pop_density is not None:
-    pop_density = {
-        "pop_density": data_prep_hierarchical.get_pop_density(chosen_model)
-    }
+# # If population density is included, get population density
+# if pop_density is not None:
+#     pop_density = {
+#         "pop_density": data_prep_hierarchical.get_pop_density(chosen_model)
+#     }
 
-# If precipitation is included, get precipitation data
-if precipitation is not None:
-    precipitation = {
-        "precipitation": data_prep_hierarchical.get_precipitation(chosen_model)
-    }
+# # If precipitation is included, get precipitation data
+# if precipitation is not None:
+#     precipitation = {
+#         "precipitation": data_prep_hierarchical.get_precipitation(chosen_model)
+#     }
 
-# If temperature is included, get temperature data
+# # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
         "temperature": data_prep_hierarchical.get_temperature(chosen_model)
@@ -154,6 +154,7 @@ time_counter = {
         "time counter": data_prep_hierarchical.get_counter(chosen_model)
 }
 
+obs_id_long = data_prep_hierarchical.get_index_long(chosen_model)
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
 fedState_coord = np.array([0, 1, 2])
 #fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
@@ -162,13 +163,13 @@ counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 
 if single:
     all_combinations = [
-        # ["R"],
+        #["R"],
         # ["logR"],
         ["C"],
         # ["logC"],
         # ["ICU"],
         # ["logICU"],
-        # ["H"],
+        #["H"],
         #["logH"],
         # ["D"],
         # ["logD"]
@@ -211,7 +212,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"fedState": fedState_coord, "obs_id": obs_id, "timeCounter" : counter}
+        coords = {"fedState": fedState_coord, "obs_id_long": obs_id_long, "obs_id": obs_id, "timeCounter" : counter}
     
         inference_model = pm.Model(coords=coords)
 
