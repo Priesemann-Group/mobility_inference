@@ -200,11 +200,48 @@ def get_out_of_home_duration(chosen_model):
         Xarray: Baseline out-of-home duration data.
     """
     if chosen_model == "BEHHHB":
-        path_mobility = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_mobility = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
         baseline_mobility = [8] * 89 * 3
     else:
-        path_mobility = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
-        baseline_mobility = [8] * 93 * 16
+        path_mobility = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
+        baseline_mobility = [8] * 89 * 16
+    mobility_df = pd.read_csv(
+        path_mobility, parse_dates=True, index_col=0
+    )
+    #mobility_df = mobility_df[mobility_df["BundeslandID"] == "Deutschland"]
+    #mobility_df["week"] = mobility_df.index.isocalendar().week
+
+    ### get dates
+    mobility_dates = mobility_df.index.values
+
+    #dates_2020 = mobility_dates[mobility_dates < np.datetime64("2020-12-20")]
+    #mobility_dates_2020 = dates_2020[dates_2020 > np.datetime64("2020-03-29")]
+    #mobility_dates_2022 = mobility_dates[mobility_dates < np.datetime64("2022-12-20")]
+    #mobility_dates_2022_shortened = mobility_dates_2022[-len(mobility_dates_2020) :]
+
+    ### get out of home duration data
+    #mobility_df_2020 = mobility_df.filter(items=mobility_dates_2020, axis=0)
+    mobility_data_2020 = mobility_df["outOfHomeDuration"].to_xarray()
+
+    return (
+        mobility_data_2020,
+        baseline_mobility,
+        mobility_dates
+    )
+
+## Out of home duration
+def get_out_of_home_duration_long(chosen_model):
+    """
+    Returns:
+        Xarray: Out-of-home duration data for 2020.
+        Xarray: Baseline out-of-home duration data.
+    """
+    if chosen_model == "BEHHHB":
+        path_mobility = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        baseline_mobility = [8] * 92 * 3
+    else:
+        path_mobility = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
+        baseline_mobility = [8] * 92 * 16
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -240,9 +277,9 @@ def get_R_raw(chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_R = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_R = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_R = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -266,9 +303,9 @@ def get_R_transformed(R_raw, chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_R = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_R = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else: 
-        path_R = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_R = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -292,9 +329,9 @@ def get_C_raw(chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_cases = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     #case_data = cases_df[["fedState","Infection_Incidence", "timeCounter"]]
@@ -312,9 +349,9 @@ def get_logC_raw(chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_cases = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["logInfection_Incidence"].to_xarray()
@@ -331,9 +368,9 @@ def get_C_transformed(chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_cases = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
@@ -345,9 +382,9 @@ def get_C_transformed(chosen_model):
 def get_logC_transformed (chosen_model):
 
     if chosen_model == "BEHHHB":
-        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_cases = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["logInfection_Incidence_Norm"].to_xarray()
@@ -411,9 +448,9 @@ def get_H_raw(chosen_model):
     """
 
     if chosen_model == "BEHHHB":
-        path_hospital= "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_hospital= "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:    
-        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_hospital = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     hospital_data = hospital_df["Hospital_Incidence"].to_xarray()
@@ -430,9 +467,9 @@ def get_logH_raw(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_hospital = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_hospital = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     hospital_data = hospital_df["logHospital_Incidence"].to_xarray()
@@ -449,9 +486,9 @@ def get_H_transformed(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_hospital = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_hospital = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     H_data = H_df["Hospital_Incidence_Norm"].to_xarray()
@@ -461,9 +498,9 @@ def get_H_transformed(chosen_model):
 def get_logH_transformed(chosen_model):
 
     if chosen_model == "BEHHHB":
-        path_hospital = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_hospital = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_hospital = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_hospital = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     H_data = H_df["logHospital_Incidence_Norm"].to_xarray()
@@ -480,9 +517,9 @@ def get_D_raw(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_death = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_death = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence"].to_xarray()
@@ -499,9 +536,9 @@ def get_logD_raw(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_death = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_death = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["logDeath_Incidence"].to_xarray()
@@ -518,9 +555,9 @@ def get_D_transformed(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_death = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_death = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence_Norm"].to_xarray()
@@ -529,9 +566,9 @@ def get_D_transformed(chosen_model):
 
 def get_logD_transformed(chosen_model):
     if chosen_model == "BEHHHB":
-        path_death = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_death = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_death = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_death = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["logDeath_Incidence_Norm"].to_xarray()
@@ -551,9 +588,9 @@ def get_school_vacations(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_school = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_school = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_school = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_school = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     school_df = pd.read_csv(path_school, index_col=0, parse_dates=True)
 
     school_data = school_df["schoolVacation"].to_xarray()
@@ -573,9 +610,9 @@ def get_pub_holidays(chosen_model):
     """
 
     if chosen_model == "BEHHHB":
-        path_pubHol = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_pubHol = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_pubHol = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_pubHol = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     pubHol_df = pd.read_csv(path_pubHol, index_col=0, parse_dates=True)
 
     pubHolidays_data  = pubHol_df["pubHoliday"].to_xarray()
@@ -587,15 +624,33 @@ def get_counter(chosen_model):
 
     Args:
         None
-    Returns:
-        Xarray: Public holiday data.
+
         
     """
 
     if chosen_model == "BEHHHB":
-        path_counter = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_counter = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_counter = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_counter = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
+    counter_df = pd.read_csv(path_counter, index_col=0, parse_dates=True)
+
+    counter_data  = counter_df["timeCounter"].to_xarray()
+
+    return  counter_data 
+
+def get_counter_long(chosen_model):
+    """counter since start of pandemic.
+
+    Args:
+        None
+
+        
+    """
+
+    if chosen_model == "BEHHHB":
+        path_counter = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+    else:
+        path_counter = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     counter_df = pd.read_csv(path_counter, index_col=0, parse_dates=True)
 
     counter_data  = counter_df["timeCounter"].to_xarray()
@@ -614,9 +669,9 @@ def get_precipitation(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_prcp = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_prcp = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:    
-        path_prcp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_prcp = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     precipitation_df = pd.read_csv(path_prcp, index_col=0, parse_dates=True)
 
     precipitation_data  = precipitation_df["prcp"].to_xarray()
@@ -636,9 +691,9 @@ def get_temperature(chosen_model):
     """
 
     if chosen_model == "BEHHHB":
-        path_temp = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_temp = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_temp = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_temp = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True)
 
     temperature_data  = temp_df["tmax"].to_xarray()
@@ -670,9 +725,9 @@ def get_daylight(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_daylight = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_daylight = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:
-        path_daylight = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_daylight = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
     daylight_df = pd.read_csv(path_daylight, index_col=0, parse_dates=True)
 
     daylight_data  = daylight_df["daylight"].to_xarray()
@@ -692,9 +747,9 @@ def get_pop_density(chosen_model):
     """
 
     if chosen_model == "BEHHHB":
-        pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv", parse_dates=True, index_col=0)
+        pop_density_df = pd.read_csv("./data/input_data_hierarchical/inputDataBerlinHHHB.csv", parse_dates=True, index_col=0)
     else:
-        pop_density_df = pd.read_csv("/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv", parse_dates=True, index_col=0)
+        pop_density_df = pd.read_csv("./data/input_data_hierarchical/allVariablesHierarchicalModel.csv", parse_dates=True, index_col=0)
 
     pop_density = pop_density_df["EinwohnerInnenJeKm2"].to_xarray()
 
@@ -712,9 +767,32 @@ def get_federal_states(chosen_model):
         
     """
     if chosen_model == "BEHHHB":
-        path_fedStates = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+        path_fedStates = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     else:    
-        path_fedStates = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_fedStates = "./data/input_data_hierarchical/allVariablesHierarchicalModel.csv"
+    fedStates_df = pd.read_csv(path_fedStates)
+
+    fedStates_df.federalState = fedStates_df.federalState.map(str.strip)
+
+    fedState, fed_States = fedStates_df.federalState.factorize()
+
+    obs_id = fedStates_df.index
+
+    return fedState, fed_States, obs_id
+
+def get_federal_states_long(chosen_model):
+    """Get index-array
+
+    Args:
+        None.
+    Returns:
+        Xarray: Names of federal states.
+        
+    """
+    if chosen_model == "BEHHHB":
+        path_fedStates = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+    else:    
+        path_fedStates = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     fedStates_df = pd.read_csv(path_fedStates)
 
     fedStates_df.federalState = fedStates_df.federalState.map(str.strip)
@@ -733,9 +811,9 @@ def get_index_long(chosen_model):
 
     """
     if chosen_model == "BEHHHB":
-        path_cases = "/Users/sydney/git/mobility_inference/data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     else:
-        path_cases = "/Users/sydney/git/mobility_inference/data/hierarchical/allVariablesHierarchicalModel.csv"
+        path_cases = "./data/input_data_hierarchical/allVariablesHierarchicalModel_long.csv"
     cases_df = pd.read_csv(path_cases)
 
     cases_df.federalState = cases_df.federalState.map(str.strip)
