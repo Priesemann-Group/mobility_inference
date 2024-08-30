@@ -239,11 +239,13 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     ## data
     disease_data = pm.MutableData(indicator, disease_data_in[indicator], dims = "obs_id_long")
+
     #disease_data_len = len(disease_data_in["C_full"])
     disease_data_len = disease_data.shape[0].eval()
     #idx = np.arange(0,37*16,1)
-    idx = np.arange(0, 37*3,1)
+    idx = np.arange(0, 89*3,1)
     time_counter = pm.MutableData(f"counter_{indicator}", time_counter_in["time counter"], dims = ("obs_id"))
+    time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
     ## define priors
     mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(2), sigma=0.5) #Mean of Gamma distribution
@@ -267,11 +269,13 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
-    slope_disease = pm.Lognormal(f"slope_{indicator}", mu = np.log(10), sigma = 1, dims=("fedState"))
-    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = np.log(1.5), sigma = 1, dims=("fedState"))
+    slope_disease = pm.Lognormal(f"slope_{indicator}", mu = np.log(10), sigma = 3, dims=("fedState"))
+    multiplicator_disease = pm.LogNormal(f"multiplicator_{indicator}", mu = np.log(1), sigma = 0.1, dims=("fedState"))
 
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
-    factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(-time_counter/slope_disease[fedState_idx]) + intercept_disease[fedState_idx], dims=("obs_id"))
+    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]), dims=("obs_id"))
+    
+    #factor_disease_fin = pm.math.switch(114 > idx, factor_disease_1, 0)
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(disease_data/1), dims=("fedState"))
     #exponent = pm.Deterministic(f"exponent_{indicator}", - factor_disease * risk, dims = "fedState")
 
@@ -296,12 +300,14 @@ def create_model(
     daylight_in=None,
     pop_density_in=None,
     fed_states_in=None,
+    fed_states_in_long=None,
     counter_in=None
 ):
 
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
         fedState_x = pm.MutableData("fedState_idx", fed_states_in, dims=("obs_id",))
+        fedState_x_long = pm.MutableData("fedState_idx_long", fed_states_in_long, dims=("obs_id_long",))
         # define data
         m = duration_base(base_mobility_data_in, fedState_x)
 

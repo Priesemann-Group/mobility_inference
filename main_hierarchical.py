@@ -26,9 +26,9 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "test"  # Name of the experiment
+name = "2024-08-30"  # Name of the experiment
 test = True  # Whether to run a test with fewer samples
-single = False  # Whether to run a single model
+single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
 plot_figures = True    # Whether to plot figures
@@ -80,6 +80,8 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 # Load and prepare data
 # Get out of home duration data
 d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model)
+d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model)
+
 
 # Get R_effective value for disease data
 disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model)
@@ -151,15 +153,18 @@ if holiday is not None:
     }
 
 time_counter = {
-        "time counter": data_prep_hierarchical.get_counter(chosen_model)
+        "time counter": data_prep_hierarchical.get_counter(chosen_model),
+        "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model)
 }
 
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model)
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model)
 fedState_coord = np.array([0, 1, 2])
 #fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 #fedState = fedState_coord
 counter = xarray.DataArray.to_numpy(time_counter["time counter"])
+counter_long = xarray.DataArray.to_numpy(time_counter["time_counter_long"])
 
 if single:
     all_combinations = [
@@ -212,7 +217,7 @@ for indicators in all_combinations:
             tag2 = tag
 
         # Create model
-        coords = {"fedState": fedState_coord, "obs_id_long": obs_id_long, "obs_id": obs_id, "timeCounter" : counter}
+        coords = {"fedState": fedState_coord, "obs_id_long": obs_id_long, "obs_id": obs_id, "timeCounter" : counter, "timeCounter_long" : counter_long}
     
         inference_model = pm.Model(coords=coords)
 
@@ -230,6 +235,7 @@ for indicators in all_combinations:
             daylight_in = daylight,
             pop_density_in = pop_density,
             fed_states_in = fedState,
+            fed_states_in_long = fedState_long,
             counter_in = counter
         )
         models[i] = inference_model
@@ -237,8 +243,8 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 200 #200
-                tune = 200 #200
+                draws = 20 #200
+                tune = 20 #200
             else:
                 draws = 1000 #1000
                 tune = 1000 #1000
@@ -274,10 +280,10 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
+            inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
         )
 
 
-gv = pm.model_to_graphviz(inference_model)
-gv.format = 'png'
-gv.render(filename='model_graph')
+#gv = pm.model_to_graphviz(inference_model)
+#gv.format = 'png'
+#gv.render(filename='model_graph')
