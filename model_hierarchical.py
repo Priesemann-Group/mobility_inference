@@ -16,7 +16,10 @@ def duration_base(d_base_input, fedState_idx):
     Returns:
     Base duration
     """
-    d_factor = pm.Normal("d_factor", mu=10, sigma=2, dims = ("fedState"))
+
+    mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=10, sigma=2)
+    sigma_dbase = pm.Exponential("sigma_dbase_hyperprior", 1)
+    d_factor = pm.Normal("d_factor", mu = mu_dbase, sigma = sigma_dbase , dims = ("fedState"))
 
     d_base = pm.Deterministic("d_base", d_base_input*d_factor[fedState_idx], dims=("obs_id"))
 
@@ -54,8 +57,9 @@ def vacation_factor(vacation_data_in, fedState_idx):
     """
 
     vacation_data = pm.MutableData("vacation_data_in", vacation_data_in["school vacation"], dims="obs_id")
-        
-    theta = pm.Uniform("theta_v", lower=0.8, upper=1.0, dims = "fedState")
+    mu_vac = pm.Uniform("mu_vac", lower=0.8, upper=1.0)
+    sigma_vac = pm.HalfCauchy("sigma_vac", beta = 10)
+    theta = pm.Normal("theta_v", mu = mu_vac, sigma = sigma_vac, dims = "fedState")
 
     #scale_v = pm.LogNormal("scale_v", mu=np.log(0.5), tau=5)
     v = pm.Deterministic("vacation_factor", ((theta[fedState_idx]-1) / 7 * vacation_data + 1), dims = "obs_id")
@@ -72,7 +76,10 @@ def holiday_factor(holiday_data_in, fedState_idx):
     """
     holiday_data = pm.MutableData("holiday_data_in", holiday_data_in["pub holiday"], dims ="obs_id")
 
-    theta = pm.Uniform("theta_h", lower=0.9, upper=1.0, dims ="fedState")
+    mu_hol = pm.Uniform("mu_hol", lower=0.9, upper=1.0)
+    sigma_hol = pm.HalfCauchy("sigma_hol", beta = 10)
+    theta = pm.Normal("theta_h", mu = mu_hol, sigma = sigma_hol, dims = "fedState")
+
     h = pm.Deterministic("holiday_factor", ((theta[fedState_idx]-1) / 7 * holiday_data + 1), dims = "obs_id")
     
     return h
@@ -92,11 +99,18 @@ def temperature_factor(temperature_in, fedState_x):
 
     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
 
-    amplitude_temperature = pm.HalfCauchy("amplitude_temperature", beta = 0.5, dims = "fedState")
+    mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 0.5)
+    sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
+    amplitude_temperature = pm.Normal("amplitude_temp", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
 
     #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
-    shift_temperature = pm.Normal("shift_temperature", mu = 15, sigma = 10, dims = "fedState") #Updated according to J's recommendation 
-    slope_temperature = pm.Lognormal("slope_temperature", mu = np.log(1), sigma = 0.25, dims = "fedState")
+    mu_shift_temp = pm.Normal("mu_shift_temp", mu = 15, sigma = 10)
+    sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
+    shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
+    
+    mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(1), sigma = 0.25)
+    sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
+    slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
     #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.1, dims = "fedState")
     intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(20/slope_temperature-shift_temperature)))), dims = "fedState")
 
@@ -195,9 +209,18 @@ def daylight_factor(daylight_data_in, fedState_x):
     daylight_data = pm.MutableData("daylight_data_in", daylight_data_in["daylight"], dims = ("obs_id",))
 
     #amplitude_daylight = pm.LogNormal("amplitude_daylight", mu = np.log(0.2), sigma = 0.05)
-    amplitude_daylight = pm.HalfCauchy("amplitude_daylight", beta = 0.5, dims = "fedState") #Based on advice by J, a HalfCauchy distr. is being used
-    shift_daylight = pm.Normal("shift_daylight", mu = 12, sigma = 1, dims = "fedState") 
-    slope_daylight = pm.Lognormal("slope_daylight", mu = np.log(1), sigma = 0.1, dims = "fedState")
+    
+    mu_amp_light = pm.HalfCauchy("mu_amp_daylight", beta = 0.5)
+    sigma_amp_light = pm.HalfCauchy("sigma_amp_daylight", beta = 10)
+    amplitude_daylight = pm.Normal("amplitude_daylight", mu = mu_amp_light, sigma = sigma_amp_light, dims = "fedState") #Based on advice by J, a HalfCauchy distr. is being used
+    
+    mu_shift_light = pm.Normal("mu_shift_daylight", mu = 12, sigma = 1)
+    sigma_shift_light = pm.HalfCauchy("sigma_shift_daylight", beta = 10)
+    shift_daylight = pm.Normal("shift_daylight", mu = mu_shift_light, sigma = sigma_shift_light, dims = "fedState") 
+    
+    mu_slope_light = pm.LogNormal("mu_slope_daylight", mu = np.log(1), sigma = 0.1,)
+    sigma_slope_light = pm.HalfCauchy("sigma_slope_daylight", beta = 10)
+    slope_daylight = pm.Normal("slope_daylight", mu = mu_slope_light, sigma = sigma_slope_light, dims = "fedState")
     #intercept_daylight = pm.LogNormal("intercept_daylight", mu = np.log(0.8), sigma = 0.1, dims = "fedState")
     intercept_daylight = pm.Deterministic("intercept_daylight", 1 - amplitude_daylight*(1/(1+np.exp(-(12.23/slope_daylight-shift_daylight)))), dims = "fedState")
 
@@ -269,8 +292,13 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
-    slope_disease = pm.Lognormal(f"slope_{indicator}", mu = np.log(10), sigma = 3, dims=("fedState"))
-    multiplicator_disease = pm.LogNormal(f"multiplicator_{indicator}", mu = np.log(1), sigma = 0.1, dims=("fedState"))
+    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 3)
+    sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
+    slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
+    
+    mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1), sigma = 0.1)
+    sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 10)
+    multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease, dims=("fedState"))
 
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
     factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]), dims=("obs_id"))

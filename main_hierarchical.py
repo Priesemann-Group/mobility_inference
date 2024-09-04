@@ -16,6 +16,11 @@ import shutil
 import pandas as pd
 import numpy as np
 import arviz as az
+from collections import defaultdict
+#import numba
+#import numpyro
+#import nutpie
+#import blackjax
 
 # Import local module
 import model_hierarchical
@@ -26,7 +31,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2024-08-30"  # Name of the experiment
+name = "2024-09-03_16"  # Name of the experiment
 test = True  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
@@ -35,8 +40,8 @@ plot_figures = True    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
-chosen_model = "BEHHHB"
-#chosen_model = "fedStates"
+#chosen_model = "BEHHHB"
+chosen_model = "fedStates"
 
 #Include population density if required by giving any value
 pop_density = None
@@ -89,7 +94,7 @@ disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R
 
 # Get R_effective value for disease data
 disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
-disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
+#disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
 disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model)
@@ -160,8 +165,10 @@ time_counter = {
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model)
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
 fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model)
-fedState_coord = np.array([0, 1, 2])
-#fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+if chosen_model == "BEHHHB":
+    fedState_coord = np.array([0, 1, 2])
+if chosen_model == "fedStates":
+    fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 #fedState = fedState_coord
 counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 counter_long = xarray.DataArray.to_numpy(time_counter["time_counter_long"])
@@ -243,14 +250,14 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 20 #200
-                tune = 20 #200
+                draws = 100 #200
+                tune = 100 #200
             else:
                 draws = 1000 #1000
                 tune = 1000 #1000
             with inference_model:
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=1, chains=4, 
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
                     idata_kwargs={"include_transformed": False}
                 )
             with inference_model:
