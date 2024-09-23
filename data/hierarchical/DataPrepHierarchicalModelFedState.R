@@ -6,7 +6,7 @@ library(gridExtra)
 library(ggiraphExtra)
 
 chosenModel <- c("Berlin", "Hamburg", "Bremen")
-#chosenModel <- c("Baden-Württemberg", "Bayern", "Brandenburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
+#chosenModel <- c("Baden-Württemberg", "Bayern", "Berlin", "Hamburg", "Bremen", "Brandenburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
 
 pubHolidays <- read_csv("/Users/sydney/git/mobility_inference/data/public_holidays/public_holidays_germany_weekly.csv")
 colnames(pubHolidays)[2] <- "federalState"
@@ -63,6 +63,7 @@ cases <- cases %>% mutate(federalState = case_when(Bundesland_id == "01" ~ "Schl
                                     Bundesland_id == "14" ~ "Sachsen",
                                     Bundesland_id == "15" ~ "Sachsen-Anhalt",
                                     Bundesland_id == "16" ~ "Thüringen"))
+
 cases <- cases %>% mutate(weekday = wday(date)) %>%
   filter(weekday == 1)
 cases <- cases %>% select(date, federalState, Infection_Cases, Infection_Incidence) %>%
@@ -138,6 +139,10 @@ dataFull <- dataFull %>% mutate(EinwohnerInnenJeKm2 = case_when(federalState == 
                                                                 federalState == "Mecklenburg-Vorpommern" ~ 69,
                                                                 federalState == "Saarland" ~ 385,
                                                                 federalState == "Bremen" ~ 1629))
+colnames(weather)[1] <- "year"
+colnames(weather)[2] <- "week"
+colnames(weather)[3] <- "federalState"
+colnames(weather)[4] <- "date"
 dataFull <- left_join(dataFull, weather, by = c("federalState", "date"))
 dataFull <- left_join(dataFull, daylight, by = c("federalState", "date"))
 dataFull <- left_join(dataFull, mobility, by = c("federalState", "date"))
@@ -150,32 +155,14 @@ dataFull <- left_join(dataFull, R_eff_full, by = c("federalState", "date"))
 
 #NOTE: ICU incidence is availble on federal state level only from Aug 2021 onwards. Consequently, ICU data is for now ignored
 
-dataFull <- dataFull %>% mutate(index = case_when(federalState == "Schleswig-Holstein" ~ 0,
-                                                  federalState == "Hamburg" ~ 1,
-                                                  federalState == "Niedersachsen" ~ 2,
-                                                  federalState == "Bremen" ~ 3,
-                                                  federalState == "Nordrhein-Westfalen" ~ 4,
-                                                  federalState == "Hessen" ~ 5,
-                                                  federalState == "Rheinland-Pfalz" ~ 6,
-                                                  federalState == "Baden-Württemnerg" ~ 7,
-                                                  federalState == "Bayern" ~ 8,
-                                                  federalState == "Saarland" ~ 9,
-                                                  federalState == "Berlin" ~ 10,
-                                                  federalState == "Brandenburg" ~ 11,
-                                                  federalState == "Mecklenburg-Vorpommern" ~ 12,
-                                                  federalState == "Sachsen" ~ 13,
-                                                  federalState == "Sachsen-Anhalt" ~ 14,
-                                                  federalState == "Thüringen" ~ 15))
-
 #Only keep dates which are needed for the Bayesian inference
-data2020 <- dataFull %>% filter(date < "2020-12-20") %>%
-                        filter(date > "2020-03-29")
+data2020 <- dataFull %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01")
 
-data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 0.00001,
+data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incidence == 0 ~ 0.0001,
                                                           TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
-                       mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 0.00001,
+                       mutate(Hospital_Cases = case_when(Hospital_Cases == 0 ~ 0.0001,
                                                           TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
-                       mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 0.00001,
+                       mutate(Hospital_Incidence = case_when(Hospital_Incidence == 0 ~ 0.0001,
                                                           TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
                        mutate(Death_Cases = case_when(Death_Cases == 0 ~ 0.001,
                                                            TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
@@ -211,7 +198,7 @@ data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm 
                                                          logDeath_Incidence_Norm = (logDeath_Incidence_Norm-min(logDeath_Incidence_Norm))/(max(logDeath_Incidence_Norm)-min(logDeath_Incidence_Norm)),
                                                          Reffective_Norm = (Reffective_Norm-min(Reffective_Norm))/(max(Reffective_Norm)-min(Reffective_Norm)))
 
-data2023 <- dataFull %>% filter(date > "2022-12-31")
+data2023 <- dataFull %>% filter(date > "2023-01-01")
 
 dataFull <- rbind(data2020, data2023)
 
@@ -247,48 +234,80 @@ dataFull[is.na(dataFull)] <- 0
 
 dataFull <- dataFull %>% filter(federalState %in% chosenModel)
 
+dataFull <- dataFull %>% mutate(index = case_when(federalState == "Baden-Württemberg" ~ 0,
+                                                  federalState == "Bayern" ~ 1,
+                                                  federalState == "Berlin" ~ 2,
+                                                  federalState == "Brandenburg" ~ 3,
+                                                  federalState == "Bremen" ~ 4,
+                                                  federalState == "Hamburg" ~ 5,
+                                                  federalState == "Hessen" ~ 6,
+                                                  federalState == "Mecklenburg-Vorpommern" ~ 7,
+                                                  federalState == "Niedersachsen" ~ 8,
+                                                  federalState == "Nordrhein-Westfalen" ~ 9,
+                                                  federalState == "Rheinland-Pfalz" ~ 10,
+                                                  federalState == "Saarland" ~ 11,
+                                                  federalState == "Sachsen" ~ 12,
+                                                  federalState == "Sachsen-Anhalt" ~ 13,
+                                                  federalState == "Schleswig-Holstein" ~ 14,
+                                                  federalState == "Thüringen" ~ 15))
+
 dataFull <- dataFull %>% mutate(index = case_when(federalState == "Berlin" ~ 0,
                                                   federalState == "Bremen" ~ 1,
                                                   federalState == "Hamburg" ~ 2))
 
-dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-04-05") ~ 0,
-                                                        date == as.Date("2020-04-12") ~ 1,
-                                                        date == as.Date("2020-04-19") ~ 2,
-                                                        date == as.Date("2020-04-26") ~ 3,
-                                                        date == as.Date("2020-05-03") ~ 4,
-                                                        date == as.Date("2020-05-10") ~ 5,
-                                                        date == as.Date("2020-05-17") ~ 6,
-                                                        date == as.Date("2020-05-24") ~ 7,
-                                                        date == as.Date("2020-05-31") ~ 8,
-                                                        date == as.Date("2020-06-07") ~ 9,
-                                                        date == as.Date("2020-06-14") ~ 10,
-                                                        date == as.Date("2020-06-21") ~ 11,
-                                                        date == as.Date("2020-06-28") ~ 12,
-                                                        date == as.Date("2020-07-05") ~ 13,
-                                                        date == as.Date("2020-07-12") ~ 14,
-                                                        date == as.Date("2020-07-19") ~ 15,
-                                                        date == as.Date("2020-07-26") ~ 16,
-                                                        date == as.Date("2020-08-02") ~ 17,
-                                                        date == as.Date("2020-08-09") ~ 18,
-                                                        date == as.Date("2020-08-16") ~ 19,
-                                                        date == as.Date("2020-08-23") ~ 20,
-                                                        date == as.Date("2020-08-30") ~ 21,
-                                                        date == as.Date("2020-09-06") ~ 22,
-                                                        date == as.Date("2020-09-13") ~ 23,
-                                                        date == as.Date("2020-09-20") ~ 24,
-                                                        date == as.Date("2020-09-27") ~ 25,
-                                                        date == as.Date("2020-10-04") ~ 26,
-                                                        date == as.Date("2020-10-11") ~ 27,
-                                                        date == as.Date("2020-10-18") ~ 28,
-                                                        date == as.Date("2020-10-25") ~ 29,
-                                                        date == as.Date("2020-11-01") ~ 30,
-                                                        date == as.Date("2020-11-08") ~ 31,
-                                                        date == as.Date("2020-11-15") ~ 32,
-                                                        date == as.Date("2020-11-22") ~ 33,
-                                                        date == as.Date("2020-11-29") ~ 34,
-                                                        date == as.Date("2020-12-06") ~ 35,
-                                                        date == as.Date("2020-12-13") ~ 36,
-                                                        date > as.Date("2021-01-01") ~ 10^5))
+dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-03-08") ~ 0,
+                                                        date == as.Date("2020-03-15") ~ 1,
+                                                        date == as.Date("2020-03-22") ~ 2,
+                                                        date == as.Date("2020-03-29") ~ 3,
+                                                        date == as.Date("2020-04-05") ~ 4,
+                                                        date == as.Date("2020-04-12") ~ 5,
+                                                        date == as.Date("2020-04-19") ~ 6,
+                                                        date == as.Date("2020-04-26") ~ 7,
+                                                        date == as.Date("2020-05-03") ~ 8,
+                                                        date == as.Date("2020-05-10") ~ 9,
+                                                        date == as.Date("2020-05-17") ~ 10,
+                                                        date == as.Date("2020-05-24") ~ 11,
+                                                        date == as.Date("2020-05-31") ~ 12,
+                                                        date == as.Date("2020-06-07") ~ 13,
+                                                        date == as.Date("2020-06-14") ~ 14,
+                                                        date == as.Date("2020-06-21") ~ 15,
+                                                        date == as.Date("2020-06-28") ~ 16,
+                                                        date == as.Date("2020-07-05") ~ 17,
+                                                        date == as.Date("2020-07-12") ~ 18,
+                                                        date == as.Date("2020-07-19") ~ 19,
+                                                        date == as.Date("2020-07-26") ~ 20,
+                                                        date == as.Date("2020-08-02") ~ 21,
+                                                        date == as.Date("2020-08-09") ~ 22,
+                                                        date == as.Date("2020-08-16") ~ 23,
+                                                        date == as.Date("2020-08-23") ~ 24,
+                                                        date == as.Date("2020-08-30") ~ 25,
+                                                        date == as.Date("2020-09-06") ~ 26,
+                                                        date == as.Date("2020-09-13") ~ 27,
+                                                        date == as.Date("2020-09-20") ~ 28,
+                                                        date == as.Date("2020-09-27") ~ 29,
+                                                        date == as.Date("2020-10-04") ~ 30,
+                                                        date == as.Date("2020-10-11") ~ 31,
+                                                        date == as.Date("2020-10-18") ~ 32,
+                                                        date == as.Date("2020-10-25") ~ 33,
+                                                        date == as.Date("2020-11-01") ~ 34,
+                                                        date == as.Date("2020-11-08") ~ 35,
+                                                        date == as.Date("2020-11-15") ~ 36,
+                                                        date == as.Date("2020-11-22") ~ 37,
+                                                        date == as.Date("2020-11-29") ~ 38,
+                                                        date == as.Date("2020-12-06") ~ 39,
+                                                        date == as.Date("2020-12-13") ~ 40,
+                                                        date == as.Date("2020-12-20") ~ 41,
+                                                        date == as.Date("2020-12-27") ~ 42,
+                                                        date == as.Date("2021-01-03") ~ 43,
+                                                        date == as.Date("2021-01-10") ~ 44,
+                                                        date == as.Date("2021-01-17") ~ 45,
+                                                        date == as.Date("2021-01-24") ~ 46,
+                                                        date == as.Date("2021-01-31") ~ 47,
+                                                        date == as.Date("2021-02-07") ~ 48,
+                                                        date == as.Date("2021-02-14") ~ 49,
+                                                        date == as.Date("2021-02-21") ~ 50,
+                                                        date == as.Date("2021-02-28") ~ 51,
+                                                        date > as.Date("2021-03-01") ~ 10^7))
 
 #dataFull <- dataFull %>% filter(date < "2023-01-01")
 
@@ -342,6 +361,16 @@ p <- arrangeGrob(p1_2023, p2_2023, p3_2023, nrow=3)
 ggsave("DataBerlin2023.pdf", p, w = 12, h = 9, dpi = 500)
 ggsave("DataBerlin2023.png", p, w = 12, h = 9, dpi = 500)
 
+dataFull <- dataFull %>% filter(date > "2020-03-28")
 
+dataFull <- dataFull %>% mutate(Reffective_Norm = case_when(Reffective_Norm == 0 ~ 0.00001,
+                                                               .default = Reffective_Norm)) %>%
+                        mutate(Infection_Incidence_Norm = case_when(Infection_Cases_Norm == 0 ~ 0.00001,
+                                                                    .default = Infection_Incidence_Norm))
+
+setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
+write_delim(dataFull, "allVariablesHierarchicalModel.csv", delim = ",")
 
 write_delim(dataFull, "inputDataBerlinHHHB.csv", delim = ",")
+
+write_delim(dataFull, "allVariablesHierarchicalModel.csv", delim = ",")
