@@ -207,7 +207,7 @@ def get_out_of_home_duration(chosen_model):
         baseline_mobility = [8] * 100 * 16
     if chosen_model == "cities":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
-        baseline_mobility = [8] * 99 * 6
+        baseline_mobility = [8] * 100 * 6
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -247,10 +247,10 @@ def get_out_of_home_duration_long(chosen_model):
         baseline_mobility = [8] * 103 * 16
     if chosen_model == "cities":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
-        baseline_mobility = [8] * 102 * 6
+        baseline_mobility = [8] * 103 * 6
     if chosen_model == "cities_non_hierarchical":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
-        baseline_mobility = [8] * 102 * 6
+        baseline_mobility = [8] * 103 * 6
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
