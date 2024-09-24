@@ -31,8 +31,8 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2024-09-03_16"  # Name of the experiment
-test = True  # Whether to run a test with fewer samples
+name = "2024-09-24_cities"  # Name of the experiment
+test = False  # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -41,7 +41,10 @@ ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set t
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
 #chosen_model = "BEHHHB"
-chosen_model = "fedStates"
+#chosen_model = "fedStates"
+chosen_model = "cities"
+#chosen_model = "national"
+#chosen_model = "cities_non_hierarchical"
 
 #Include population density if required by giving any value
 pop_density = None
@@ -55,6 +58,7 @@ daylight = 1
 #Include school vacations and public holidays if required by giving any value
 school = 1
 holiday = 1
+
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -94,7 +98,7 @@ disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R
 
 # Get R_effective value for disease data
 disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
-#disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
+disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
 disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model)
@@ -169,6 +173,8 @@ if chosen_model == "BEHHHB":
     fedState_coord = np.array([0, 1, 2])
 if chosen_model == "fedStates":
     fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+if chosen_model == "cities":
+    fedState_coord = np.array([0,1,2,3,4,5])
 #fedState = fedState_coord
 counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 counter_long = xarray.DataArray.to_numpy(time_counter["time_counter_long"])
@@ -177,7 +183,7 @@ if single:
     all_combinations = [
         #["R"],
         # ["logR"],
-        ["C"],
+        [["C"], ["R"]],
         # ["logC"],
         # ["ICU"],
         # ["logICU"],
@@ -250,8 +256,8 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 100 #200
-                tune = 100 #200
+                draws = 10 #200
+                tune = 10 #200
             else:
                 draws = 1000 #1000
                 tune = 1000 #1000

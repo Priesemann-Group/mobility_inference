@@ -3,6 +3,9 @@ library(readxl)
 library(tidyverse)
 library(MMWRweek)
 
+#chosen_model = "cities"
+#chosen_model = "cities_non_hierarchical"
+
 # LK Population, corresp. Fed State ---------------------------------------
 
 LK <- read_xlsx("/Users/sydney/Downloads/04-kreise.xlsx", sheet = 2)
@@ -60,6 +63,7 @@ LK <- LK[-c(6:8),]
 # Mobility Data -----------------------------------------------------------
 
 mobility_data <- read_delim("https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/episim/mobilityData/landkreise/LK_mobilityData_weekly.csv") %>%
+  filter(Landkreis != "Landkreis München") %>%
   dplyr::rowwise() %>%
   mutate(Landkreis = str_remove(Landkreis, "Landkreis ")) %>%
   mutate(Landkreis = str_remove(Landkreis, "Kreis "))
@@ -276,13 +280,18 @@ dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~
                                         TRUE ~ as.numeric(as.character(logDeath_Incidence))))
   #mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
                                 #TRUE ~ as.numeric(as.character(Reffective))))
+chosen_model <- "cities"
 
+if(chosen_model == "cities"){
 dataFull <- dataFull %>% mutate(index = case_when(LK_Name == "Berlin" ~ 0,
                                                   LK_Name == "Bremen" ~ 1,
                                                   LK_Name == "Hamburg" ~ 2,
                                                   LK_Name == "München" ~ 3,
                                                   LK_Name == "Stuttgart" ~ 4,
                                                   LK_Name == "Köln" ~ 5,))
+} else if(chosen_model == "cities_non_hierarchical"){
+  dataFull <- dataFull %>% mutate(index = 0) 
+}
 
 dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-03-08") ~ 0,
                                                         date == as.Date("2020-03-15") ~ 1,
@@ -338,3 +347,20 @@ dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-03
                                                         date == as.Date("2021-02-28") ~ 51,
                                                         date > as.Date("2021-03-01") ~ 10^7))
 
+dataFull <- dataFull %>% filter(date > "2020-03-01")
+
+dataFull <- dataFull %>% mutate(Reffective_Norm = case_when(is.na(Reffective_Norm) ~ 0.00001,
+                                                            Reffective_Norm == 0 ~ 0.00001,
+                                                            .default = Reffective_Norm)) %>%
+  mutate(Infection_Incidence_Norm = case_when(is.na(Infection_Incidence_Norm) ~ 0.00001,
+                                              Infection_Incidence_Norm == 0 ~ 0.00001,
+                                              .default = Infection_Incidence_Norm))
+
+
+
+dataFull <- dataFull[,c(12,2:ncol(dataFull))]
+dataFull <- dataFull[,-12]
+dataFull <- dataFull %>% ungroup()
+
+setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
+write_delim(dataFull, "inputDataBEHBHHCGNMUCSTUTT_long.csv", delim = ",")

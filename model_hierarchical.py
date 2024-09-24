@@ -292,7 +292,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
-    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 3)
+    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(15), sigma = 2)
     sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
     slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
     
@@ -300,14 +300,19 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 10)
     multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease, dims=("fedState"))
 
+    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(1), sigma = 0.1)
+    sigma_intercept_disease = pm.HalfCauchy(f"sigma_intercept_{indicator}", beta = 10)
+    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease, dims=("fedState"))
+
+
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
-    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]), dims=("obs_id"))
+    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]) + intercept_disease[fedState_idx], dims=("obs_id"))
     
-    #factor_disease_fin = pm.math.switch(114 > idx, factor_disease_1, 0)
+    factor_disease_fin = pm.math.switch(52 > time_counter, factor_disease, 0)
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(disease_data/1), dims=("fedState"))
     #exponent = pm.Deterministic(f"exponent_{indicator}", - factor_disease * risk, dims = "fedState")
 
-    d = pm.Deterministic(f"d_{indicator}", at.exp(- factor_disease * risk[fedState_idx]), dims = "obs_id")
+    d = pm.Deterministic(f"d_{indicator}", at.exp(- factor_disease_fin * risk[fedState_idx]), dims = "obs_id")
 
     return d
 
