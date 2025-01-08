@@ -31,8 +31,8 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2024-09-24_cities"  # Name of the experiment
-test = False  # Whether to run a test with fewer samples
+name = "2024-12-27_temp_no2023_cities"  # Name of the experiment
+test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -43,6 +43,7 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "BEHHHB"
 #chosen_model = "fedStates"
 chosen_model = "cities"
+#chosen_model = "cities_MeckPomm"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
 
@@ -53,7 +54,7 @@ pop_density = None
 # If not required, set these to None
 precipitation = None
 temperature = 1
-daylight = 1
+daylight = None
 
 #Include school vacations and public holidays if required by giving any value
 school = 1
@@ -168,13 +169,21 @@ time_counter = {
 
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model)
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+lk = None
+#lk = data_prep_hierarchical.get_lk(chosen_model)
 fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model)
+#lk_long = data_prep_hierarchical.get_lk_long(chosen_model)
+lk_long = None
 if chosen_model == "BEHHHB":
     fedState_coord = np.array([0, 1, 2])
 if chosen_model == "fedStates":
     fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 if chosen_model == "cities":
     fedState_coord = np.array([0,1,2,3,4,5])
+if chosen_model == "cities_MeckPomm":
+    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11])
+if chosen_model == "cities_non_hierarchical":
+    fedState_coord = np.array([0])
 #fedState = fedState_coord
 counter = xarray.DataArray.to_numpy(time_counter["time counter"])
 counter_long = xarray.DataArray.to_numpy(time_counter["time_counter_long"])
@@ -183,7 +192,8 @@ if single:
     all_combinations = [
         #["R"],
         # ["logR"],
-        [["C"], ["R"]],
+        #["C"],
+        ["C"],
         # ["logC"],
         # ["ICU"],
         # ["logICU"],
@@ -249,6 +259,8 @@ for indicators in all_combinations:
             pop_density_in = pop_density,
             fed_states_in = fedState,
             fed_states_in_long = fedState_long,
+            lk_in = lk,
+            lk_in_long = lk_long,
             counter_in = counter
         )
         models[i] = inference_model
@@ -256,16 +268,18 @@ for indicators in all_combinations:
         if run:
             # Perform inference
             if test:
-                draws = 10 #200
-                tune = 10 #200
+                draws = 20 #200
+                tune = 20 #200
             else:
-                draws = 1000 #1000
-                tune = 1000 #1000
+                draws = 5000 #1000
+                tune = 5000 #1000
             with inference_model:
-                trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
-                    idata_kwargs={"include_transformed": False}
-                )
+                approx = pm.fit(n=draws*50)
+                trace = approx.sample(draws=draws)
+                # trace = pm.sample(
+                #     model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
+                #     idata_kwargs={"include_transformed": False}
+                # )
             with inference_model:
                 pm.compute_log_likelihood(trace)
 

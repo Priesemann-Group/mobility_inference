@@ -100,6 +100,7 @@ def temperature_factor(temperature_in, fedState_x):
     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
 
     mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 0.5)
+    #mu_amp_temp = pm.Lognormal("mu_amp_temp", mu = np.log(1.3), sigma = 0.5)
     sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
     amplitude_temperature = pm.Normal("amplitude_temp", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
 
@@ -111,7 +112,7 @@ def temperature_factor(temperature_in, fedState_x):
     mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(1), sigma = 0.25)
     sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
     slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
-    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.1, dims = "fedState")
+    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.2, dims = "fedState")
     intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(20/slope_temperature-shift_temperature)))), dims = "fedState")
 
     temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature[fedState_x]*(1/(1+np.exp(-(Tmax_2020/slope_temperature[fedState_x]-shift_temperature[fedState_x])))) + intercept_temperature[fedState_x], dims = "obs_id")
@@ -266,7 +267,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     #disease_data_len = len(disease_data_in["C_full"])
     disease_data_len = disease_data.shape[0].eval()
     #idx = np.arange(0,37*16,1)
-    idx = np.arange(0, 89*3,1)
+    idx = np.arange(0, 100*3,1)
     time_counter = pm.MutableData(f"counter_{indicator}", time_counter_in["time counter"], dims = ("obs_id"))
     time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
@@ -292,23 +293,25 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
-    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(15), sigma = 2)
+    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 1)
     sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
     slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
     
-    mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1), sigma = 0.1)
+    mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1.5), sigma = 0.1)
     sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 10)
     multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease, dims=("fedState"))
 
-    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(1), sigma = 0.1)
+    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(0.1), sigma = 0.1)
     sigma_intercept_disease = pm.HalfCauchy(f"sigma_intercept_{indicator}", beta = 10)
     intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease, dims=("fedState"))
 
 
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
-    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]) + intercept_disease[fedState_idx], dims=("obs_id"))
+    #factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]) + intercept_disease[fedState_idx], dims=("obs_id"))
+    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]), dims=("obs_id"))
     
     factor_disease_fin = pm.math.switch(52 > time_counter, factor_disease, 0)
+    #factor_disease_fin = pm.math.switch(time_counter < 52, factor_disease, 0)
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(disease_data/1), dims=("fedState"))
     #exponent = pm.Deterministic(f"exponent_{indicator}", - factor_disease * risk, dims = "fedState")
 
@@ -334,48 +337,52 @@ def create_model(
     pop_density_in=None,
     fed_states_in=None,
     fed_states_in_long=None,
+    lk_in=None,
+    lk_in_long=None,
     counter_in=None
 ):
 
     len_data = observed_mobility_data_in.shape[0]
     with model_in:
+        #lk_name = pm.MutableData("lk_name", lk_in, dims=("obs_id",))
+        #lk_name_long = pm.MutableData("lk_name_long", lk_in_long, dims=("obs_id_long",))
         fedState_x = pm.MutableData("fedState_idx", fed_states_in, dims=("obs_id",))
         fedState_x_long = pm.MutableData("fedState_idx_long", fed_states_in_long, dims=("obs_id_long",))
         # define data
         m = duration_base(base_mobility_data_in, fedState_x)
 
-        # # #impact of disease spread
+        # # # #impact of disease spread
         if indicators_in is not None:
             for indicator in indicators_in:
                 mu_z_prior1 = np.power(0.9, 1/len(indicators_in))
                 mu_z_prior2 = np.power(0.9, 1/len(indicators_in))
                 m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2)
 
-        # if pop_density_in is not None:
-        #     m *= pop_density_factor(pop_density_in, fed_states_in)
+        if pop_density_in is not None:
+            m *= pop_density_factor(pop_density_in, fed_states_in)
 
         #impact of school vacations
         if school_in is not None:
             m *= vacation_factor(school_in, fed_states_in)
 
-        # #impact of holiday data
+        # # #impact of holiday data
         if holiday_in is not None:
             m*= holiday_factor(holiday_in, fed_states_in)
 
-        # #impact of weather
-        # # precipitation
+        # # #impact of weather
+        # # # precipitation
         if precipitation_in is not None:
             m *= precipitation_factor(precipitation_in, fed_states_in)
             
-        # temperature
+        # # temperature
         if temperature_in is not None:
             m *= temperature_factor(temperature_in, fed_states_in)
 
-        # # daylight
+        # # # daylight
         if daylight_in is not None:
             m *= daylight_factor(daylight_in, fed_states_in)
 
-        # # define likelihood
+        # # # define likelihood
 
         m = pm.Deterministic("m", m, dims="obs_id") #Here: dims=fedState?? or rather m[fedState_idx]?
 
