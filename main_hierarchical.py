@@ -31,7 +31,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2024-12-27_temp_no2023_cities"  # Name of the experiment
+name = "2025-01-20_MeckPommincl2023"  # Name of the experiment
 test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
@@ -42,8 +42,8 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
 #chosen_model = "BEHHHB"
 #chosen_model = "fedStates"
-chosen_model = "cities"
-#chosen_model = "cities_MeckPomm"
+#chosen_model = "cities"
+chosen_model = "cities_MeckPomm"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
 
@@ -179,7 +179,7 @@ if chosen_model == "BEHHHB":
 if chosen_model == "fedStates":
     fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 if chosen_model == "cities":
-    fedState_coord = np.array([0,1,2,3,4,5])
+    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9])
 if chosen_model == "cities_MeckPomm":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11])
 if chosen_model == "cities_non_hierarchical":
@@ -307,7 +307,7 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-            inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
+           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
         )
 
 

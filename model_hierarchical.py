@@ -286,10 +286,12 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
         scale_delay=sigma_disease,
         len_input_arr=disease_data_len,
         len_output_arr=len_data,
+        num_seperated_axes = 10,
         diff_input_output=disease_data_len - len_data,
     )
-    #risk = disease_data
-    risk = pm.Deterministic(f"risk_{indicator}", risk, dims = "obs_id")
+    
+    #risk = pm.Deterministic(f"risk_{indicator}", disease_data, dims = ("obs_id"))
+    risk = pm.Deterministic(f"risk_{indicator}", risk, dims = ("obs_id"))
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))

@@ -282,7 +282,7 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+       "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -354,7 +354,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -480,7 +480,7 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -591,7 +591,7 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -692,7 +692,7 @@ def plot_all_timeseries(
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -750,14 +750,14 @@ def plot_all_timeseries(
                 else:
                     if year == 2020:
                         if indicator == "C":
-                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==1))
+                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
                         if indicator == "R":
                             y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
                         if indicator == "H":
                             y_first = trace_in.posterior.risk_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
                     if year == 2023:
                         if indicator == "C":
-                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==1))
+                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
                         if indicator == "R":
                             y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
                         if indicator == "H":
@@ -1202,7 +1202,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
             "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -1412,7 +1412,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Essen"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
@@ -1449,15 +1449,15 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             axs = axs.ravel()
             ax = axs[0]
             if indicator == "C":
-                y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_C_long<52)&(trace_in.constant_data.fedState_idx_long==i))
             if indicator == "R":
-                y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_R_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_R_long<52)&(trace_in.constant_data.fedState_idx_long==i))
             if indicator == "H":
-                y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_H_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_H_long<52)&(trace_in.constant_data.fedState_idx_long==i))
             y = y_first.dropna(dim="obs_id_long", how = "any")
             plot_timeseries(
                 ax,
-                dates_plot_long,
+                dates_plot,
                 y,
                 color_in=colors[indicator],
                 label_in=labels[indicator],
@@ -1503,7 +1503,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
                 alpha=0.2,
             )
             ax.set_ylim(0, 10)
-            format_x_axis(ax, dates)
+            format_x_axis(ax, dates_plot)
             # set y label
             ax.set_ylabel("Scaling \n Factor")
 
