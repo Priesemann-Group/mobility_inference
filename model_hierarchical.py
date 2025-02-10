@@ -1,12 +1,14 @@
 # general modules
 import numpy as np
 import pymc as pm
+import pandas as pd
 from pyparsing import alphanums
 import pytensor.tensor as at
 #import xarray as xr
 
 # local modules
 import covid19_inference as cov19
+import covid19_inference.model
 
 #Out-of-home-duration_base --> DEPENDS ON FED STATE
 def duration_base(d_base_input, fedState_idx):
@@ -17,7 +19,7 @@ def duration_base(d_base_input, fedState_idx):
     Base duration
     """
 
-    mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=10, sigma=2)
+    mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=1, sigma=1)
     sigma_dbase = pm.Exponential("sigma_dbase_hyperprior", 1)
     d_factor = pm.Normal("d_factor", mu = mu_dbase, sigma = sigma_dbase , dims = ("fedState"))
 
@@ -99,23 +101,24 @@ def temperature_factor(temperature_in, fedState_x):
 
     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
 
-    mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 0.5)
+    mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 1)
     #mu_amp_temp = pm.Lognormal("mu_amp_temp", mu = np.log(1.3), sigma = 0.5)
     sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
-    amplitude_temperature = pm.Normal("amplitude_temp", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
+    amplitude_temperature = pm.Normal("amplitude_temperature", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
 
     #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
     mu_shift_temp = pm.Normal("mu_shift_temp", mu = 15, sigma = 10)
     sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
     shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
     
-    mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(1), sigma = 0.25)
+    mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(1), sigma = 0.5)
     sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
     slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
-    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(0.9), sigma = 0.2, dims = "fedState")
-    intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(20/slope_temperature-shift_temperature)))), dims = "fedState")
+    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(1), sigma = 0.1, dims = "fedState")
+    #intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(15/slope_temperature-shift_temperature)))), dims = "fedState")
+    intercept_temperature = pm.Deterministic("intercept_temperature", 1-amplitude_temperature/2)
 
-    temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature[fedState_x]*(1/(1+np.exp(-(Tmax_2020/slope_temperature[fedState_x]-shift_temperature[fedState_x])))) + intercept_temperature[fedState_x], dims = "obs_id")
+    temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature[fedState_x]*(1/(1+np.exp(-(Tmax_2020-shift_temperature[fedState_x])/slope_temperature[fedState_x]))) + intercept_temperature[fedState_x], dims = "obs_id")
 
     return temperature_factor
 
@@ -248,7 +251,7 @@ def daylight_factor(daylight_data_in, fedState_x):
 #     return day
 
 #Impact of disease spread
-def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8):
+def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None):
     """Models impact of disease spread on mobility.
 
     Args:
@@ -272,52 +275,61 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
     ## define priors
-    mu_disease = pm.LogNormal(f"mu_{indicator}", mu=np.log(2), sigma=0.5) #Mean of Gamma distribution
+    mu_gamma_disease = pm.LogNormal(f"mu_gamma_{indicator}", mu=np.log(1), sigma=1) #Mean of Gamma distribution
+    sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 0.2)
+    mu_disease = pm.Normal(f"mu_{indicator}", mu = mu_gamma_disease, sigma = sigma_gamma_disease+0.01, dims = "fedState")
+    
     alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.5) 
     sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
-        f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease)
+        f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
     )
-
+    
+    disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix.csv", header = 0, index_col=0, parse_dates=True)
+    disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    
     # convolve disease data with delay kernel
-    risk = cov19.model.delay_cases(
-        cases=disease_data,
-        delay_kernel="gamma",
+    risk = cov19.model.delay._delay_kernel(
+        input_arr=disease_data,
+        kernel_type="gamma",
         median_delay=mu_disease,
-        scale_delay=sigma_disease,
-        len_input_arr=disease_data_len,
-        len_output_arr=len_data,
-        num_seperated_axes = 10,
-        diff_input_output=disease_data_len - len_data,
+        scale_delay= sigma_disease + 0.05,
+        len_input_arr=108,
+        len_output_arr=104,
+        #num_seperated_axes = 10,
+        delay_betw_input_output=4,
     )
     
     #risk = pm.Deterministic(f"risk_{indicator}", disease_data, dims = ("obs_id"))
-    risk = pm.Deterministic(f"risk_{indicator}", risk, dims = ("obs_id"))
+    risk = pm.Deterministic(f"risk_{indicator}", risk.T.flatten(), dims = ("obs_id"))
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
     mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 1)
     sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
-    slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
+    slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease+0.01, dims=("fedState"))
     
     mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1.5), sigma = 0.1)
-    sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 10)
-    multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease, dims=("fedState"))
+    sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 0.25)
+    #multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease+0.01, dims=("fedState"))
+    #Reparmetrization
+    multiplicator_disease_tilde = pm.Normal(f"multiplicator_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    multiplicator_disease = pm.Deterministic(f"multiplicator_{indicator}", mu_multiplicator_disease + sigma_multiplicator_disease*multiplicator_disease_tilde, dims=("fedState"))
 
-    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(0.1), sigma = 0.1)
+    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(1), sigma = 0.1)
     sigma_intercept_disease = pm.HalfCauchy(f"sigma_intercept_{indicator}", beta = 10)
-    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease, dims=("fedState"))
+    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease+0.01, dims=("fedState"))
 
 
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
     #factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]) + intercept_disease[fedState_idx], dims=("obs_id"))
-    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/slope_disease[fedState_idx]), dims=("obs_id"))
+    factor_disease = pm.Deterministic(f"factor_{indicator}", multiplicator_disease[fedState_idx]*np.exp(-time_counter/(slope_disease[fedState_idx]+0.01)), dims=("obs_id"))
     
-    factor_disease_fin = pm.math.switch(52 > time_counter, factor_disease, 0)
+    #factor_disease_fin = pm.math.switch(56 > time_counter, factor_disease, 0)
     #factor_disease_fin = pm.math.switch(time_counter < 52, factor_disease, 0)
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(disease_data/1), dims=("fedState"))
     #exponent = pm.Deterministic(f"exponent_{indicator}", - factor_disease * risk, dims = "fedState")
 
-    d = pm.Deterministic(f"d_{indicator}", at.exp(- factor_disease_fin * risk[fedState_idx]), dims = "obs_id")
+    d = pm.Deterministic(f"d_{indicator}", at.exp(- factor_disease*risk), dims = "obs_id")
 
     return d
 
@@ -358,7 +370,7 @@ def create_model(
             for indicator in indicators_in:
                 mu_z_prior1 = np.power(0.9, 1/len(indicators_in))
                 mu_z_prior2 = np.power(0.9, 1/len(indicators_in))
-                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2)
+                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in)
 
         if pop_density_in is not None:
             m *= pop_density_factor(pop_density_in, fed_states_in)
@@ -389,6 +401,6 @@ def create_model(
         m = pm.Deterministic("m", m, dims="obs_id") #Here: dims=fedState?? or rather m[fedState_idx]?
 
         model_error = pm.HalfCauchy("sigma_model", beta=0.2)
-        d = pm.Normal(
-            "d", mu=m, sigma=model_error, observed=observed_mobility_data_in, dims="obs_id"
+        d = pm.StudentT(
+            "d", mu=m, sigma=model_error+0.01, nu = 4, observed=observed_mobility_data_in, dims="obs_id"
         )

@@ -307,18 +307,18 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
         for indicator in indicators_in:
             #mu_median = np.median(trace_in.posterior[f"mu_{indicator}"])
             if chosen_model == "cities_non_hierarchical":
-                trace_filtered = trace_in.posterior[f"mu_{indicator}"].where(trace_in.constant_data.fedState_idx==i)
+                trace_filtered = trace_in.posterior[f"mu_{indicator}"][:,:,i]
             else:    
-                trace_filtered = trace_in.posterior[f"mu_{indicator}"].where(trace_in.constant_data.fedState_idx==i)
-            y_first =  trace_filtered.dropna(dim="obs_id", how = "all")
-            mu_median = np.median(y_first)
+                trace_filtered = trace_in.posterior[f"mu_{indicator}"][:,:,i]
+            y_first =  trace_filtered
+            mu_median = np.median(trace_filtered)
             #sigma_median = np.median(trace_in.posterior[f"sigma_{indicator}"]) 
             if chosen_model == "cities_non_hierarchical":
-                trace_filtered_2 = trace_in.posterior[f"sigma_{indicator}"].where(trace_in.constant_data.fedState_idx==i)
+                trace_filtered_2 = trace_in.posterior[f"sigma_{indicator}"][:,:,i]
             else:
-                trace_filtered_2 = trace_in.posterior[f"sigma_{indicator}"].where(trace_in.constant_data.fedState_idx==i)
-            y_first_2 = trace_filtered_2.dropna(dim="obs_id", how = "all")
-            sigma_median = np.median(y_first_2)
+                trace_filtered_2 = trace_in.posterior[f"sigma_{indicator}"][:,:,i]
+            
+            sigma_median = np.median(trace_filtered_2)
             y = Gamma(
                 x,
                 mu=mu_median,
@@ -342,7 +342,7 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
 
 
 ## plot temperature time series
-def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_model):
+def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         federalStates = (
        "Berlin", "Bremen", "Hamburg")
@@ -361,9 +361,11 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
-              
-    #years = (2020, 2023)
-    years = [2020]
+    
+    if incl2024:          
+        years = (2020, 2023)
+    else:
+        years = [2020]
     for year in years:
         if year == 2020:
             dates_filtered = dates_in[dates_in < np.datetime64("2021-03-01")]
@@ -381,33 +383,33 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
             if year == 2020:
                 if chosen_model == "cities_non_hierarchical":
                     if indicators[0] == 'C':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'R':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'H':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
                 else:
                     if indicators[0] == 'C':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'R':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'H':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             if year == 2023:
                 if chosen_model == "cities_non_hierarchical":
                     if indicators[0] == 'C':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'R':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'H':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
                 else:
                     if indicators[0] == 'C':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'R':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicators[0] == 'H':
-                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "all")
             #dates = np.unique(dates_in)
             
@@ -433,18 +435,18 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
             ax = axs[1]
             if year == 2020:
                 if indicators[0] == 'C':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicators[0] == 'R':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicators[0] == 'H':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             if year == 2023:
                 if indicators[0] == 'C':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicators[0] == 'R':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicators[0] == 'H':
-                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "all")
             plot_timeseries(
                 ax,
@@ -454,7 +456,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
                 label_in="$Delta_temp$",
             )
             ax.set_ylim(0.75, 1.25)
-            date_form = DateFormatter("%b")
+            date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             # set y label
             ax.set_ylabel("temperature_factor")
@@ -468,7 +470,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
             fig.savefig(plotnamepdf, bbox_inches="tight")
 
     ## plot daylight time series
-def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_model):
+def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         federalStates = (  
         "Berlin", "Bremen", "Hamburg")
@@ -488,8 +490,10 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
         
-    #years = (2020, 2023)
-    years = [2020]
+    if incl2024:
+        years = (2020, 2023)
+    else:
+        years = [2020]
     for year in years:
         if year == 2020:
             dates_filtered = dates_in[dates_in < np.datetime64("2021-03-01")]
@@ -558,7 +562,7 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
                 label_in="Daylight factor",
             )
             ax.set_ylim(0.75, 1.25)
-            date_form = DateFormatter("%b")
+            date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             ## create custom legend
             ### for median line and 94% CI
@@ -619,8 +623,8 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
             axs = axs.ravel()
             # First plot
             ax = axs[0]
-            y_first = trace_in.constant_data.C.where(trace_in.constant_data.fedState_idx==i)
-            y = y_first.dropna(dim="obs_id_long", how = "all")
+            y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+            y = y_first.dropna(dim="obs_id", how = "all")
             dates = np.unique(dates_in)
             plot_timeseries(
                 ax,
@@ -647,7 +651,7 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
                 label_in=labels[indicator],
             )
             ax.set_ylim(0.5, 1.25)
-            date_form = DateFormatter("%b")
+            date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             ## create custom legend
             ### for median line and 94% CI
@@ -681,6 +685,7 @@ def plot_all_timeseries(
     daylight_in=None,
     pop_density_in=None,
     log=False,
+    incl2024=True
 ):
     if chosen_model == "BEHHHB":
         federalStates = ("Berlin", "Bremen", "Hamburg")
@@ -702,11 +707,13 @@ def plot_all_timeseries(
             
     for i, c in enumerate(federalStates):
         # upper plot
-        fig, axs = plt.subplots(3, 1, figsize=(13, 17), sharex=True)
+        fig, axs = plt.subplots(4, 1, figsize=(13, 24), sharex=True)
         axs = axs.ravel()
 
-        #years = (2020, 2023)
-        years = [2020]
+        if incl2024:
+            years = (2020, 2023)
+        else:
+            years = [2020]
         for year in years:
             if year == 2020:
                 dates_filtered = dates_in[dates_in < np.datetime64("2021-03-01")]
@@ -730,6 +737,200 @@ def plot_all_timeseries(
             "logD": "log(deaths $d_D$)",
             "G": "Growh Multiplier $d_G$",
             }  
+            for indicator in indicators_in: 
+            # daylight
+                if daylight_in is not None:
+                    if chosen_model == "cities_non_hierarchical":
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                    else:
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how = "all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors["L"],
+                        label_in="daylight",
+                        alpha=0.2
+                )
+                # school vacation
+                if school_in is not None:
+                    if chosen_model == "cities_non_hierarchical":
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    else:
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how="all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors["v"],
+                        label_in="school vacation",
+                        alpha=0.2
+                )
+                # public holidays
+                if holiday_in is not None:
+                    if chosen_model == "cities_non_hierarchical":
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    else:
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how = "all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors["h"],
+                        label_in="public holidays",
+                        alpha=0.2
+                )
+                # temperature
+                if temperature_in is not None:
+                    if chosen_model == "cities_non_hierarchical":
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    else:
+                        if year == 2020:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                        if year == 2023:
+                            if indicator == "C":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "R":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                            if indicator == "H":
+                                y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how = "all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors["T"],
+                        label_in="temperature",
+                        alpha=0.2
+                )
+                ## precipitation
+                # if precipitation_in is not None:
+                #     plot_timeseries(
+                #         ax,
+                #         dates_in,
+                #         trace_in.posterior["precipitation_factor"],
+                #         color_in=colors["p"],
+                #         label_in="precipitation $p$",
+                #         alpha=0.2,
+                #     )
+            ax.hlines(
+                1,
+                xmin=dates[0],
+                xmax=dates[-1],
+                color="grey",
+                linestyle="--",
+                linewidth=1,
+            )
+            format_x_axis(ax, dates)
+            ## set y label
+            ax.set_ylabel("Data (Dayl (hrs), Temp (C°), \nVac (Counter), PubHol (Counter))")
+            ax.legend(
+                ncol=2,
+                # bbox_to_anchor=(0.7, 2)
+            )
+            
+            #2nd plot
+            ax = axs[1]
+            
             ## plot disease indicators
             for indicator in indicators_in:
                 if chosen_model == "cities_non_hierarchical":
@@ -750,19 +951,19 @@ def plot_all_timeseries(
                 else:
                     if year == 2020:
                         if indicator == "C":
-                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                            y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_C_long<56)&(trace_in.constant_data.fedState_idx_long==i))
                         if indicator == "R":
-                            y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                            y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_R_long<56)&(trace_in.constant_data.fedState_idx_long==i))
                         if indicator == "H":
-                            y_first = trace_in.posterior.risk_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                            y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_H_long<56)&(trace_in.constant_data.fedState_idx_long==i))
                     if year == 2023:
                         if indicator == "C":
-                            y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                            y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_C_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
                         if indicator == "R":
-                            y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                            y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_R_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
                         if indicator == "H":
-                            y_first = trace_in.posterior.risk_H.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                y = y_first.dropna(dim="obs_id", how = "any")
+                            y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_H_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
+                y = y_first.dropna(dim="obs_id_long", how = "any")
                 plot_timeseries(
                     ax,
                     dates,
@@ -771,198 +972,16 @@ def plot_all_timeseries(
                     label_in=labels[indicator],
                     alpha=0.2,
                 )
-                # daylight
-            if daylight_in is not None:
-                if chosen_model == "cities_non_hierarchical":
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                else:
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.daylight_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                y = y_first.dropna(dim="obs_id", how = "all")
-                plot_timeseries(
-                    ax,
-                    dates,
-                    y,
-                    color_in=colors["L"],
-                    label_in="daylight",
-                    alpha=0.2
-            )
-            # school vacation
-            if school_in is not None:
-                if chosen_model == "cities_non_hierarchical":
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                else:
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.vacation_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                y = y_first.dropna(dim="obs_id", how="all")
-                plot_timeseries(
-                    ax,
-                    dates,
-                    y,
-                    color_in=colors["v"],
-                    label_in="school vacation",
-                    alpha=0.2
-            )
-            # public holidays
-            if holiday_in is not None:
-                if chosen_model == "cities_non_hierarchical":
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                else:
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.holiday_data_in.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                y = y_first.dropna(dim="obs_id", how = "all")
-                plot_timeseries(
-                    ax,
-                    dates,
-                    y,
-                    color_in=colors["h"],
-                    label_in="public holidays",
-                    alpha=0.2
-            )
-            # temperature
-            if temperature_in is not None:
-                if chosen_model == "cities_non_hierarchical":
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                else:
-                    if year == 2020:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
-                    if year == 2023:
-                        if indicator == "C":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "R":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
-                        if indicator == "H":
-                            y_first = trace_in.constant_data.max_Temp.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
-                y = y_first.dropna(dim="obs_id", how = "all")
-                plot_timeseries(
-                    ax,
-                    dates,
-                    y,
-                    color_in=colors["T"],
-                    label_in="temperature",
-                    alpha=0.2
-            )
-            ## precipitation
-            # if precipitation_in is not None:
-            #     plot_timeseries(
-            #         ax,
-            #         dates_in,
-            #         trace_in.posterior["precipitation_factor"],
-            #         color_in=colors["p"],
-            #         label_in="precipitation $p$",
-            #         alpha=0.2,
-            #     )
-            ax.hlines(
-                1,
-                xmin=dates[0],
-                xmax=dates[-1],
-                color="grey",
-                linestyle="--",
-                linewidth=1,
-            )
             format_x_axis(ax, dates)
             ## set y label
-            ax.set_ylabel("Data (Dayl [hrs], Temp [C°], \nVac [Counter], PubHol [Counter])")
+            ax.set_ylabel("Normalized Disease Indicator")
             ax.legend(
                 ncol=2,
                 # bbox_to_anchor=(0.7, 2)
             )
 
-            # Middle plot
-            ax = axs[1]
+            #3rd plot
+            ax = axs[2]
             labels = {
                 "C": "new cases $d_C$",
                 "logC": "log(new cases $d_C$)",
@@ -980,18 +999,18 @@ def plot_all_timeseries(
             for indicator in indicators_in:
                 if year == 2020:
                     if indicator == "C":
-                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
                 if year == 2023:
                     if indicator == "C":
-                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==1))
+                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==1))
                     if indicator == "R":
-                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
                 y = y_first.dropna(dim="obs_id", how = "all")
                 plot_timeseries(
                     ax,
@@ -1030,18 +1049,18 @@ def plot_all_timeseries(
             if school_in is not None:
                 if year == 2020:
                     if indicator == "C":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
                 if year == 2023:
                     if indicator == "C":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
                 y = y_first.dropna(dim="obs_id", how = "all")
                 plot_timeseries(
                     ax,
@@ -1056,18 +1075,18 @@ def plot_all_timeseries(
                 if year == 2020:
                     #trace_filtered = trace_in.sel(fedState = i)
                     if indicator == "C":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
                 if year == 2023:
                     if indicator == "C":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
                 y = y_first.dropna(dim="obs_id", how = "all")
                 plot_timeseries(
                     ax,
@@ -1081,18 +1100,18 @@ def plot_all_timeseries(
             if temperature_in is not None:
                 if year == 2020:
                     if indicator == "C":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
                 if year == 2023:
                     if indicator == "C":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "R":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                     if indicator == "H":
-                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
                 y = y_first.dropna(dim="obs_id", how = "all")
                 plot_timeseries(
                     ax,
@@ -1120,7 +1139,7 @@ def plot_all_timeseries(
                 linestyle="--",
                 linewidth=1,
             )
-            date_form = DateFormatter("%b")
+            date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             ## set y label
             ax.set_ylabel("Multiplicative impact on\nout-of-home duration")
@@ -1131,21 +1150,21 @@ def plot_all_timeseries(
             ax.set_title(c)
 
             # lower plot
-            ax = axs[2]
+            ax = axs[3]
             if year == 2020:
                 if indicator == "C":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "R":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "H":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             if year == 2023:
                 if indicator == "C":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "R":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "H":
-                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "all")
             ax.plot(
                 dates,
@@ -1157,18 +1176,18 @@ def plot_all_timeseries(
 
             if year == 2020:
                 if indicator == "C":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "R":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "H":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             if year == 2023:
                 if indicator == "C":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "R":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
                 if indicator == "H":
-                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H>=52)&(trace_in.constant_data.fedState_idx==i))
+                    y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "all")
             plot_timeseries(ax, dates, y, "inferred $d$", colors["d"])
             # ax.legend(
@@ -1210,12 +1229,12 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
         
-    for j, c in enumerate(federalStates):
+    for i, c in enumerate(federalStates):
             # --- base parameters ---
         if len(indicators_in) == 0:
             fig, axs = plt.subplots(1, 8, figsize=(18, 3))
         if len(indicators_in) == 1:
-            fig, axs = plt.subplots(2, 8, figsize=(18, 6))
+            fig, axs = plt.subplots(2, 8, figsize=(25, 10))
         elif len(indicators_in) == 2:
             fig, axs = plt.subplots(3, 8, figsize=(18, 9))
         elif len(indicators_in) == 3:
@@ -1229,55 +1248,67 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         axs = axs.flatten()
 
         cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=j), "d_factor", dist_math="d_factor", ax=axs[0]
+            model_in, trace_in.sel(fedState=i), "d_factor", dist_math="d_factor", ax=axs[0]
         )
 
-        # cov19.plot.distribution( 
-        #     model_in, trace_in.sel(fedState=i), "theta_v", dist_math="\\theta_{v}", ax=axs[1]
-        # )
-
-        # cov19.plot.distribution( 
-        #     model_in, trace_in.sel(fedState=i), "theta_h", dist_math="\\theta_{h}", ax=axs[2]
-        # )
+        cov19.plot.distribution( 
+            model_in, trace_in.sel(fedState=i), "theta_v", dist_math="\\theta_{v}", ax=axs[1]
+        )
+        cov19.plot.distribution( 
+            model_in, trace_in, "mu_vac", dist_math="mu_vac", ax=axs[2]
+        )
 
         cov19.plot.distribution( 
-            model_in, trace_in, "sigma_model", dist_math="\\sigma_{model}", ax=axs[3]
+            model_in, trace_in.sel(fedState=i), "theta_h", dist_math="\\theta_{h}", ax=axs[3]
+        )
+        cov19.plot.distribution( 
+            model_in, trace_in, "mu_hol", dist_math="mu_hol", ax=axs[4]
+        )
+
+        cov19.plot.distribution( 
+            model_in, trace_in, "sigma_model", dist_math="\\sigma_{model}", ax=axs[5]
         )
 
     # disease
-        # i = 8
-        # for indicator in indicators_in:
-        #     cov19.plot.distribution( 
-        #     model_in, trace_in, f"mu_{indicator}", dist_math=f"mu_{{{indicator}}}", ax=axs[i]
-        #     )
-        #     cov19.plot.distribution( 
-        #     model_in, trace_in, f"sigma_{indicator}", dist_math=f"sigma_{{{indicator}}}", ax=axs[i+1]
-        #     )
-        #     # cov19.plot.distribution(
-        #     #     model_in, trace_in.sel(fedState=j), f"amplitude_{indicator}", dist_math=f"amplitude_{{{indicator}}}", ax=axs[i+2]
-        #     # )
-        #     # cov19.plot.distribution(
-        #     #     model_in, trace_in.sel(fedState=j), f"shift_{indicator}", dist_math=f"shift_{{{indicator}}}", ax=axs[i+3]
-        #     # )
-        #     cov19.plot.distribution(
-        #         model_in, trace_in.sel(fedState=j), f"slope_{indicator}", dist_math=f"slope_{{{indicator}}}", ax=axs[i+4]
-        #     )
-        #     cov19.plot.distribution(
-        #         model_in, trace_in.sel(fedState=j), f"intercept_{indicator}", dist_math=f"intercept_{{{indicator}}}", ax=axs[i+5]
-        #     )
-        #     cov19.plot.distribution(
-        #         model_in, trace_in, f"mu_{indicator}", dist_math=f"\\mu_{{{indicator}}}", ax=axs[i+6]
-        #     )
-        #     cov19.plot.distribution(
-        #         model_in, trace_in, f"alpha_{indicator}", dist_math=f"\\alpha_{{{indicator}}}", ax=axs[i+7]
-        #     )
-        #     i += 6
+        j = 6
+        for indicator in indicators_in:
+            cov19.plot.distribution( 
+            model_in, trace_in.sel(fedState=i), f"mu_{indicator}", dist_math=f"mu_{{{indicator}}}", ax=axs[j]
+            )
+            cov19.plot.distribution( 
+            model_in, trace_in, f"mu_gamma_{indicator}", dist_math=f"mu_gamma_{{{indicator}}}", ax=axs[j+1]
+            )
+            cov19.plot.distribution( 
+            model_in, trace_in.sel(fedState=i), f"sigma_{indicator}", dist_math=f"sigma_{{{indicator}}}", ax=axs[j+2]
+            )
+            cov19.plot.distribution(
+                model_in, trace_in.sel(fedState=i), f"multiplicator_{indicator}", dist_math=f"multiplicator_{{{indicator}}}", ax=axs[j+3]
+            )
+            cov19.plot.distribution(
+                model_in, trace_in, f"mu_multiplicator_{indicator}", dist_math=f"mu_multiplicator_{{{indicator}}}", ax=axs[j+4]
+            )
+            # cov19.plot.distribution(
+            #     model_in, trace_in.sel(fedState=i), f"shift_{indicator}", dist_math=f"shift_{{{indicator}}}", ax=axs[i+3]
+            # )
+            cov19.plot.distribution(
+                model_in, trace_in.sel(fedState=i), f"slope_{indicator}", dist_math=f"slope_{{{indicator}}}", ax=axs[j+5]
+            )
+            cov19.plot.distribution(
+                model_in, trace_in, f"mu_slope_{indicator}", dist_math=f"mu_slope_{{{indicator}}}", ax=axs[j+6]
+            )
+            # cov19.plot.distribution(
+            #     model_in, trace_in.sel(fedState=i), f"intercept_{indicator}", dist_math=f"intercept_{{{indicator}}}", ax=axs[j+7]
+            # )
+            # cov19.plot.distribution(
+            #     model_in, trace_in, f"mu_intercept_{indicator}", dist_math=f"mu_intercept_{{{indicator}}}", ax=axs[j+8]
+            # )
+            i += 8
 
-        # plotnamepng= f"{tag_in}/" + c + "-distributions.png"
-        # plotnamepdf = f"{tag_in}/" + c + "-distributions.pdf"
+        plotnamepng= f"{tag_in}/" + c + "-distributions.png"
+        plotnamepdf = f"{tag_in}/" + c + "-distributions.pdf"
 
-        # fig.savefig(plotnamepng, dpi=300, bbox_inches="tight")
-        # fig.savefig(plotnamepdf, dpi=300, bbox_inches="tight")
+        fig.savefig(plotnamepng, dpi=300, bbox_inches="tight")
+        fig.savefig(plotnamepdf, dpi=300, bbox_inches="tight")
     for indicator in indicators:
         axes = az.plot_forest(trace_in,
                            kind='forestplot',
@@ -1439,7 +1470,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
     #dates = dates_x[dates_x > np.datetime64("2020-03-28")]
     dates_plot_long = np.unique(dates_x)
 
-    dates = dates_x[dates_x > np.datetime64("2020-03-28")]
+    dates = dates_x[dates_x > np.datetime64("2020-03-01")]
     dates_plot = np.unique(dates)
 
 
@@ -1449,11 +1480,11 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             axs = axs.ravel()
             ax = axs[0]
             if indicator == "C":
-                y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_C_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.C.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_C_long<56)&(trace_in.constant_data.fedState_idx_long==i))
             if indicator == "R":
-                y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_R_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.R.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_R_long<56)&(trace_in.constant_data.fedState_idx_long==i))
             if indicator == "H":
-                y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_C_long>2)&(trace_in.constant_data.counter_H_long<52)&(trace_in.constant_data.fedState_idx_long==i))
+                y_first = trace_in.constant_data.H.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_H_long<56)&(trace_in.constant_data.fedState_idx_long==i))
             y = y_first.dropna(dim="obs_id_long", how = "any")
             plot_timeseries(
                 ax,
@@ -1468,11 +1499,11 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
 
             ax = axs[1]
             if indicator == "C":
-                y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
-                y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.risk_R.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "H":
-                y_first = trace_in.posterior.risk_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.risk_H.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "any")
             plot_timeseries(
                 ax,
@@ -1487,11 +1518,11 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
 
             ax = axs[2] 
             if indicator == "C":
-                y_first = trace_in.posterior.factor_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.factor_C.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
-                y_first = trace_in.posterior.factor_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.factor_R.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "H":
-                y_first = trace_in.posterior.factor_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.factor_H.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
             y = y_first.dropna(dim="obs_id", how = "all")
             #dates = np.unique(dates_in)
             plot_timeseries(
@@ -1502,7 +1533,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
                 label_in=labels[indicator],
                 alpha=0.2,
             )
-            ax.set_ylim(0, 10)
+            ax.set_ylim(-10, 10)
             format_x_axis(ax, dates_plot)
             # set y label
             ax.set_ylabel("Scaling \n Factor")
@@ -1510,11 +1541,11 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             # lower plot
             ax = axs[3] 
             if indicator == "C":
-                y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
-                y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R<52)&(trace_in.constant_data.fedState_idx==i))
+                y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "H":  
-                y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H<52)&(trace_in.constant_data.fedState_idx==i))          
+                y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))          
             y = y_first.dropna(dim="obs_id", how = "all")
             #dates = np.unique(dates_in)
             plot_timeseries(
@@ -1536,7 +1567,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             ### create legend
             ax.legend(handles=[median_line, ci_94], loc="lower right", frameon=False)
             
-            date_form = DateFormatter("%b")
+            date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
         
             plt.subplots_adjust(hspace=0.1)
@@ -1564,19 +1595,19 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model
+    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024
 ):
     utils.make_dir(tag_in)
     if indicators_in:
-       #convolution_figure(indicators_in, trace_in, dates_in, tag_in)
+       convolution_figure(indicators_in, trace_in, dates_in, tag_in)
        plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
-       #plot_gamma_parameters(trace_in, indicators_in, tag_in)
+       plot_gamma_parameters(trace_in, indicators_in, tag_in)
        plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model)
        plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
     if temperature_in:
-        plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
+        plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     if daylight_in:
-        plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
+        plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
     plot_all_timeseries(
         chosen_model,
@@ -1590,5 +1621,6 @@ def analysis_figures(
         precipitation_in,
         daylight_in,
         pop_density_in,
+        incl2024
     )
     #plot_chains(trace_in, tag_in)

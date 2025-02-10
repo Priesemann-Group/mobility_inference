@@ -12,10 +12,12 @@ The results are saved in the results directory and figures are saved in the figu
 # Import necessary modules
 import pymc as pm
 import pickle
+import cloudpickle
 import shutil
 import pandas as pd
 import numpy as np
 import arviz as az
+import pickle
 from collections import defaultdict
 #import numba
 #import numpyro
@@ -27,12 +29,13 @@ import model_hierarchical
 import data_prep_hierarchical
 import plot_hierarchical
 import utils
+
 import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-01-20_MeckPommincl2023"  # Name of the experiment
-test = False # Whether to run a test with fewer samples
+name = "2025-02-10_citiesMeckpomm_reparam"  # Name of the experiment
+test = True # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -47,6 +50,8 @@ chosen_model = "cities_MeckPomm"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
 
+incl2024 = True
+
 #Include population density if required by giving any value
 pop_density = None
 
@@ -59,7 +64,6 @@ daylight = None
 #Include school vacations and public holidays if required by giving any value
 school = 1
 holiday = 1
-
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -89,23 +93,22 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model)
-d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model)
-
+d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model, incl2024)
+d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model, incl2024)
 
 # Get R_effective value for disease data
-disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model)
-disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"], chosen_model)
+disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model, incl2024)
+disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"], chosen_model, incl2024)
 
 # Get R_effective value for disease data
 disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
 disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model)
-disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model)
+disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model, incl2024)
+disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model, incl2024)
 
-disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model)
+disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model, incl2024)
 disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
 
 #disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
@@ -114,14 +117,14 @@ disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
 #disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
 #disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
 
-disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(chosen_model)
-disease_data["H"] = data_prep_hierarchical.get_H_transformed(chosen_model)
+disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(chosen_model, incl2024)
+disease_data["H"] = data_prep_hierarchical.get_H_transformed(chosen_model, incl2024)
 
 disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(chosen_model)
 disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(chosen_model)
 
-disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(chosen_model)
-disease_data["D"] = data_prep_hierarchical.get_D_transformed(chosen_model)
+disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(chosen_model, incl2024)
+disease_data["D"] = data_prep_hierarchical.get_D_transformed(chosen_model, incl2024)
 
 disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(chosen_model)
 disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
@@ -142,36 +145,36 @@ disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
 # # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep_hierarchical.get_temperature(chosen_model)
+        "temperature": data_prep_hierarchical.get_temperature(chosen_model, incl2024)
     }
 
 if daylight is not None:
     daylight = {
-        "daylight": data_prep_hierarchical.get_daylight(chosen_model),
+        "daylight": data_prep_hierarchical.get_daylight(chosen_model, incl2024),
     }
 
 #If school is included, get school data
 if school is not None:
     school = {
-        "school vacation": data_prep_hierarchical.get_school_vacations(chosen_model)
+        "school vacation": data_prep_hierarchical.get_school_vacations(chosen_model, incl2024)
     }
 
 #If public holidays are included, get public holiday data
 if holiday is not None:
     holiday = {
-        "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model)
+        "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model, incl2024)
     }
 
 time_counter = {
-        "time counter": data_prep_hierarchical.get_counter(chosen_model),
-        "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model)
+        "time counter": data_prep_hierarchical.get_counter(chosen_model, incl2024),
+        "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model, incl2024)
 }
 
-obs_id_long = data_prep_hierarchical.get_index_long(chosen_model)
-fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model)
+obs_id_long = data_prep_hierarchical.get_index_long(chosen_model, incl2024)
+fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model, incl2024)
 lk = None
 #lk = data_prep_hierarchical.get_lk(chosen_model)
-fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model)
+fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model, incl2024)
 #lk_long = data_prep_hierarchical.get_lk_long(chosen_model)
 lk_long = None
 if chosen_model == "BEHHHB":
@@ -271,15 +274,16 @@ for indicators in all_combinations:
                 draws = 20 #200
                 tune = 20 #200
             else:
-                draws = 5000 #1000
-                tune = 5000 #1000
+                draws = 2000 #1000
+                tune = 3000 #1000
             with inference_model:
-                approx = pm.fit(n=draws*50)
-                trace = approx.sample(draws=draws)
-                # trace = pm.sample(
-                #     model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
-                #     idata_kwargs={"include_transformed": False}
-                # )
+                # map = pm.find_MAP(maxeval=20000)
+                # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
+                # trace = approx.sample(draws=draws)
+                trace = pm.sample(
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
+                    idata_kwargs={"include_transformed": False}, nuts_sampler_kwargs= {"max_treedepth": 10}
+                )
             with inference_model:
                 pm.compute_log_likelihood(trace)
 
@@ -299,6 +303,32 @@ for indicators in all_combinations:
 
     inference_model.add_coord("timeCounter", counter, mutable = True)
 
+    # with open(f"{supDir_name}/"f"trace_{tag}.pickle", "wb") as output_file:
+    #     pickle.dump([trace, tag, indicators, chosen_model, dates, indicators, temperature, daylight, school, holiday], output_file)
+       
+    pickle_filepath = f"{supDir_name}/"f"trace_{tag}.pickle"
+    dict_to_save = {'model': inference_model,
+                    'trace': trace,
+                    'tag': tag,
+                    'indicators': indicators,
+                    'chosen_model': chosen_model,
+                    'dates': dates,
+                    'indicators': indicators,
+                    'temperature': temperature,
+                    'daylight': daylight,
+                    'school': school, 
+                    'holiday': holiday
+                }
+
+    with open(pickle_filepath , 'wb') as buff:
+        cloudpickle.dump(dict_to_save, buff) 
+        
+    #Create output for post-processing
+    pretest = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.d_C)
+    test = np.median(pretest, axis=0)
+    test2 = pd.DataFrame(test)
+    test2.to_csv("test.csv")
+    
     # # Save ELPD result to file
     # if ELPD_method is not None:
     #     model_comparison.save_ELPD(models, traces, L, M, len(dates), dir_name, draws, ELPD_method)
@@ -307,10 +337,5 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model
+           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024
         )
-
-
-#gv = pm.model_to_graphviz(inference_model)
-#gv.format = 'png'
-#gv.render(filename='model_graph')
