@@ -1251,20 +1251,21 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
             model_in, trace_in.sel(fedState=i), "d_factor", dist_math="d_factor", ax=axs[0]
         )
 
-        cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=i), "theta_v", dist_math="\\theta_{v}", ax=axs[1]
-        )
-        cov19.plot.distribution( 
-            model_in, trace_in, "mu_vac", dist_math="mu_vac", ax=axs[2]
-        )
-
-        cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=i), "theta_h", dist_math="\\theta_{h}", ax=axs[3]
-        )
-        cov19.plot.distribution( 
-            model_in, trace_in, "mu_hol", dist_math="mu_hol", ax=axs[4]
-        )
-
+        if school_in:
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(fedState=i), "theta_v", dist_math="\\theta_{v}", ax=axs[1]
+            )
+            cov19.plot.distribution( 
+                model_in, trace_in, "mu_vac", dist_math="mu_vac", ax=axs[2]
+            )
+        if holiday_in:
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(fedState=i), "theta_h", dist_math="\\theta_{h}", ax=axs[3]
+            )
+            cov19.plot.distribution( 
+                model_in, trace_in, "mu_hol", dist_math="mu_hol", ax=axs[4]
+            )
+        
         cov19.plot.distribution( 
             model_in, trace_in, "sigma_model", dist_math="\\sigma_{model}", ax=axs[5]
         )
@@ -1623,4 +1624,4 @@ def analysis_figures(
         pop_density_in,
         incl2024
     )
-    #plot_chains(trace_in, tag_in)
+    plot_chains(trace_in, tag_in)

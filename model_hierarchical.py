@@ -268,16 +268,18 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     disease_data = pm.MutableData(indicator, disease_data_in[indicator], dims = "obs_id_long")
 
     #disease_data_len = len(disease_data_in["C_full"])
-    disease_data_len = disease_data.shape[0].eval()
+    #disease_data_len = disease_data.shape[0].eval()
     #idx = np.arange(0,37*16,1)
-    idx = np.arange(0, 100*3,1)
+    #idx = np.arange(0, 100*3,1)
     time_counter = pm.MutableData(f"counter_{indicator}", time_counter_in["time counter"], dims = ("obs_id"))
     time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
     ## define priors
     mu_gamma_disease = pm.LogNormal(f"mu_gamma_{indicator}", mu=np.log(1), sigma=1) #Mean of Gamma distribution
-    sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 0.2)
-    mu_disease = pm.Normal(f"mu_{indicator}", mu = mu_gamma_disease, sigma = sigma_gamma_disease+0.01, dims = "fedState")
+    #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
+    sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)
+    mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = 0, sigma = 1, dims = "fedState")
+    mu_disease = pm.Deterministic(f"mu_{indicator}", mu_gamma_disease + (sigma_gamma_disease)*mu_disease_tilde, dims = "fedState")
     
     alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.5) 
     sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
@@ -305,19 +307,23 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
     mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 1)
-    sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
-    slope_disease = pm.Normal(f"slope_{indicator}", mu = mu_slope_disease, sigma = sigma_slope_disease+0.01, dims=("fedState"))
+    #sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
+    sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
+    slope_disease_tilde = pm.Normal(f"slope_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    slope_disease = pm.Deterministic(f"slope_{indicator}", mu_slope_disease + sigma_slope_disease*slope_disease_tilde, dims=("fedState"))
     
     mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1.5), sigma = 0.1)
-    sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 0.25)
+    #sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 0.25)
+    sigma_multiplicator_disease = pm.Gamma(f"sigma_multiplicator_{indicator}", alpha = 2, beta = 1)
     #multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease+0.01, dims=("fedState"))
-    #Reparmetrization
+    #02/10 Reparmetrization to overcome divergences
     multiplicator_disease_tilde = pm.Normal(f"multiplicator_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))
     multiplicator_disease = pm.Deterministic(f"multiplicator_{indicator}", mu_multiplicator_disease + sigma_multiplicator_disease*multiplicator_disease_tilde, dims=("fedState"))
 
-    mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(1), sigma = 0.1)
-    sigma_intercept_disease = pm.HalfCauchy(f"sigma_intercept_{indicator}", beta = 10)
-    intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease+0.01, dims=("fedState"))
+    #2/10 : Intercept not used anymore, turned into comment
+    #mu_intercept_disease = pm.LogNormal(f"mu_intercept_{indicator}", mu = np.log(1), sigma = 0.1)
+    #sigma_intercept_disease = pm.HalfCauchy(f"sigma_intercept_{indicator}", beta = 10)
+    #intercept_disease = pm.LogNormal(f"intercept_{indicator}", mu = mu_intercept_disease, sigma = sigma_intercept_disease+0.01, dims=("fedState"))
 
 
     # # #factor_disease = pm.Deterministic(f"factor_{indicator}", amplitude_disease[fedState_idx]*(1/(1+np.exp((disease_data[fedState_idx]/slope_disease[fedState_idx]-shift_disease[fedState_idx])))) + intercept_disease[fedState_idx], dims="obs_id")
