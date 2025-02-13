@@ -60,8 +60,11 @@ def vacation_factor(vacation_data_in, fedState_idx):
 
     vacation_data = pm.MutableData("vacation_data_in", vacation_data_in["school vacation"], dims="obs_id")
     mu_vac = pm.Uniform("mu_vac", lower=0.8, upper=1.0)
-    sigma_vac = pm.HalfCauchy("sigma_vac", beta = 10)
-    theta = pm.Normal("theta_v", mu = mu_vac, sigma = sigma_vac, dims = "fedState")
+    #sigma_vac = pm.HalfCauchy("sigma_vac", beta = 10)
+    sigma_vac = pm.Exponential("sigma_vac", 1.0)
+    theta_tilde = pm.Normal("theta_v_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    theta = pm.Deterministic("theta_v", mu_vac + sigma_vac*theta_tilde, dims=("fedState"))
+
 
     #scale_v = pm.LogNormal("scale_v", mu=np.log(0.5), tau=5)
     v = pm.Deterministic("vacation_factor", ((theta[fedState_idx]-1) / 7 * vacation_data + 1), dims = "obs_id")
@@ -79,8 +82,10 @@ def holiday_factor(holiday_data_in, fedState_idx):
     holiday_data = pm.MutableData("holiday_data_in", holiday_data_in["pub holiday"], dims ="obs_id")
 
     mu_hol = pm.Uniform("mu_hol", lower=0.9, upper=1.0)
-    sigma_hol = pm.HalfCauchy("sigma_hol", beta = 10)
-    theta = pm.Normal("theta_h", mu = mu_hol, sigma = sigma_hol, dims = "fedState")
+    #theta = pm.Normal("theta_h", mu = mu_hol, sigma = sigma_hol, dims = "fedState")
+    sigma_hol = pm.Exponential("sigma_hol", 1.0)
+    theta_tilde = pm.Normal("theta_h_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    theta = pm.Deterministic("theta_h", mu_hol + sigma_hol*theta_tilde, dims=("fedState"))
 
     h = pm.Deterministic("holiday_factor", ((theta[fedState_idx]-1) / 7 * holiday_data + 1), dims = "obs_id")
     
@@ -103,17 +108,29 @@ def temperature_factor(temperature_in, fedState_x):
 
     mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 1)
     #mu_amp_temp = pm.Lognormal("mu_amp_temp", mu = np.log(1.3), sigma = 0.5)
-    sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
-    amplitude_temperature = pm.Normal("amplitude_temperature", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
+    #sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
+    #sigma_amp_temp = pm.Gamma(f"sigma_amp_temp", alpha = 2, beta = 1)
+    sigma_amp_temp = pm.Exponential("sigma_amp_temp", 1.0)
+    #amplitude_temperature = pm.Normal("amplitude_temperature", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
+    amplitude_temperature_tilde = pm.Normal("amplitude_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    amplitude_temperature = pm.Deterministic("amplitude_temperature", mu_amp_temp + sigma_amp_temp*amplitude_temperature_tilde, dims=("fedState"))
 
     #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
     mu_shift_temp = pm.Normal("mu_shift_temp", mu = 15, sigma = 10)
-    sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
-    shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
-    
-    mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(1), sigma = 0.5)
-    sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
-    slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
+    #sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
+    sigma_shift_temp = pm.Gamma(f"sigma_shift_temp", alpha = 2, beta = 1)
+    #shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
+    shift_temperature_tilde = pm.Normal("shift_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    shift_temperature = pm.Deterministic("shift_temperature", mu_shift_temp + sigma_shift_temp*shift_temperature_tilde, dims=("fedState"))
+
+    mu_slope_temp = pm.Lognormal("mu_slope_temp", mu = np.log(4), sigma = 0.5)
+    #sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
+    #sigma_slope_temp = pm.Gamma(f"sigma_slope_temp", alpha = 2, beta = 1)
+    sigma_slope_temp = pm.Exponential("sigma_slope_temp", 1.0)
+    #slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
+    slope_temperature_tilde = pm.Normal("slope_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    slope_temperature = pm.Deterministic("slope_temperature", mu_slope_temp + sigma_slope_temp*slope_temperature_tilde, dims=("fedState"))
+
     #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(1), sigma = 0.1, dims = "fedState")
     #intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(15/slope_temperature-shift_temperature)))), dims = "fedState")
     intercept_temperature = pm.Deterministic("intercept_temperature", 1-amplitude_temperature/2)
@@ -277,7 +294,8 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     ## define priors
     mu_gamma_disease = pm.LogNormal(f"mu_gamma_{indicator}", mu=np.log(1), sigma=1) #Mean of Gamma distribution
     #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
-    sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)
+    #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)
+    sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 1.0)
     mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = 0, sigma = 1, dims = "fedState")
     mu_disease = pm.Deterministic(f"mu_{indicator}", mu_gamma_disease + (sigma_gamma_disease)*mu_disease_tilde, dims = "fedState")
     
@@ -306,15 +324,17 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     # amplitude_disease = pm.LogNormal(f"amplitude_{indicator}", mu = np.log(0.6), sigma = 0.3, dims=("fedState"))
     # shift_disease = pm.LogNormal(f"shift_{indicator}", mu = np.log(0.3), sigma = 0.1, dims=("fedState"))
-    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(10), sigma = 1)
+    mu_slope_disease = pm.LogNormal(f"mu_slope_{indicator}", mu = np.log(15), sigma = 0.5)
     #sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
-    sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
+    #sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
+    sigma_slope_disease = pm.Exponential(f"sigma_slope_{indicator}", 1.0)
     slope_disease_tilde = pm.Normal(f"slope_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))
     slope_disease = pm.Deterministic(f"slope_{indicator}", mu_slope_disease + sigma_slope_disease*slope_disease_tilde, dims=("fedState"))
     
     mu_multiplicator_disease = pm.LogNormal(f"mu_multiplicator_{indicator}", mu = np.log(1.5), sigma = 0.1)
     #sigma_multiplicator_disease = pm.HalfCauchy(f"sigma_multiplicator_{indicator}", beta = 0.25)
-    sigma_multiplicator_disease = pm.Gamma(f"sigma_multiplicator_{indicator}", alpha = 2, beta = 1)
+    #sigma_multiplicator_disease = pm.Gamma(f"sigma_multiplicator_{indicator}", alpha = 2, beta = 1)
+    sigma_multiplicator_disease = pm.Exponential(f"sigma_multiplicator_{indicator}", 1.0)
     #multiplicator_disease = pm.Normal(f"multiplicator_{indicator}", mu = mu_multiplicator_disease, sigma = sigma_multiplicator_disease+0.01, dims=("fedState"))
     #02/10 Reparmetrization to overcome divergences
     multiplicator_disease_tilde = pm.Normal(f"multiplicator_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))

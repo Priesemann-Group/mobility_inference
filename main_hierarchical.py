@@ -34,7 +34,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-02-10_citiesMeckpomm_reparam"  # Name of the experiment
+name = "2025-02-13_larger"  # Name of the experiment
 test = True # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
@@ -46,7 +46,8 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "BEHHHB"
 #chosen_model = "fedStates"
 #chosen_model = "cities"
-chosen_model = "cities_MeckPomm"
+#chosen_model = "cities_MeckPomm"
+chosen_model = "large"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
 
@@ -185,6 +186,8 @@ if chosen_model == "cities":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9])
 if chosen_model == "cities_MeckPomm":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11])
+if chosen_model == "large":
+    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49])
 if chosen_model == "cities_non_hierarchical":
     fedState_coord = np.array([0])
 #fedState = fedState_coord
@@ -274,14 +277,14 @@ for indicators in all_combinations:
                 draws = 20 #200
                 tune = 20 #200
             else:
-                draws = 2000 #1000
-                tune = 3000 #1000
+                draws = 1000 #1000
+                tune = 1000 #1000
             with inference_model:
                 # map = pm.find_MAP(maxeval=20000)
                 # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
                 # trace = approx.sample(draws=draws)
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc",
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc", target_accept = 0.9,
                     idata_kwargs={"include_transformed": False}, nuts_sampler_kwargs= {"max_treedepth": 10}
                 )
             with inference_model:

@@ -286,6 +286,14 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Bonn", "Mannheim",
+            "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+            "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+            "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -358,6 +366,14 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Bonn", "Mannheim",
+            "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+            "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+            "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -486,6 +502,14 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Bonn", "Mannheim",
+            "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+            "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+            "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -599,6 +623,14 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Bonn", "Mannheim",
+            "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+            "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+            "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -701,6 +733,14 @@ def plot_all_timeseries(
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Bonn", "Mannheim",
+            "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+            "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+            "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -1225,6 +1265,13 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg",
+            "Wuppertal", "Karsruhe", "Bielefeld", "Bonn", "Mannheim", "Rostock", 
+            "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordsachsen", "Meißen", "Bautzen",
+            "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -1234,7 +1281,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         if len(indicators_in) == 0:
             fig, axs = plt.subplots(1, 8, figsize=(18, 3))
         if len(indicators_in) == 1:
-            fig, axs = plt.subplots(2, 8, figsize=(25, 10))
+            fig, axs = plt.subplots(2, 10, figsize=(25, 10))
         elif len(indicators_in) == 2:
             fig, axs = plt.subplots(3, 8, figsize=(18, 9))
         elif len(indicators_in) == 3:
@@ -1269,9 +1316,31 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         cov19.plot.distribution( 
             model_in, trace_in, "sigma_model", dist_math="\\sigma_{model}", ax=axs[5]
         )
+        
+        if temperature_in:
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(fedState=i), "amplitude_temperature", dist_math="amplitude_temperature", ax=axs[6]
+            )
+            cov19.plot.distribution( 
+                model_in, trace_in, "mu_amp_temp", dist_math="mu_amp_temp", ax=axs[7]
+            )
+            
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(fedState=i), "shift_temperature", dist_math="shift_temperature", ax=axs[8]
+            )
+            cov19.plot.distribution( 
+                model_in, trace_in, "mu_shift_temp", dist_math="mu_shift_temp", ax=axs[9]
+            )
+            
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(fedState=i), "slope_temperature", dist_math="slope_temperature", ax=axs[10]
+            )
+            cov19.plot.distribution( 
+                model_in, trace_in, "mu_slope_temp", dist_math="mu_slope_temp", ax=axs[11]
+            )
 
     # disease
-        j = 6
+        j = 12
         for indicator in indicators_in:
             cov19.plot.distribution( 
             model_in, trace_in.sel(fedState=i), f"mu_{indicator}", dist_math=f"mu_{{{indicator}}}", ax=axs[j]
@@ -1448,6 +1517,13 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen"]
+    if chosen_model == "large":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg",
+            "Wuppertal", "Karsruhe", "Bielefeld", "Bonn", "Mannheim", "Rostock", 
+            "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordsachsen", "Meißen", "Bautzen",
+            "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis"
+        ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
