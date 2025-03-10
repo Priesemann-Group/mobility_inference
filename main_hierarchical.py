@@ -19,9 +19,9 @@ import numpy as np
 import arviz as az
 import pickle
 from collections import defaultdict
-#import numba
+import numba
 #import numpyro
-#import nutpie
+import nutpie
 #import blackjax
 
 # Import local module
@@ -34,8 +34,8 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-02-13_larger"  # Name of the experiment
-test = True # Whether to run a test with fewer samples
+name = "2025-03-07_large_different sampler"  # Name of the experiment
+test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -172,6 +172,7 @@ time_counter = {
 }
 
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model, incl2024)
+
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model, incl2024)
 lk = None
 #lk = data_prep_hierarchical.get_lk(chosen_model)
@@ -185,9 +186,10 @@ if chosen_model == "fedStates":
 if chosen_model == "cities":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9])
 if chosen_model == "cities_MeckPomm":
-    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11])
+    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22])
 if chosen_model == "large":
-    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49])
+    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,
+                      80,81,82,83,84,85,86,87,88,89,90,91,92,93,94])
 if chosen_model == "cities_non_hierarchical":
     fedState_coord = np.array([0])
 #fedState = fedState_coord
@@ -284,8 +286,9 @@ for indicators in all_combinations:
                 # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
                 # trace = approx.sample(draws=draws)
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc", target_accept = 0.9,
-                    idata_kwargs={"include_transformed": False}, nuts_sampler_kwargs= {"max_treedepth": 10}
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", target_accept = 0.9,
+                    idata_kwargs={"include_transformed": False}
+                    #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
                 )
             with inference_model:
                 pm.compute_log_likelihood(trace)
@@ -341,4 +344,4 @@ for indicators in all_combinations:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
            inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024
-        )
+        ) 
