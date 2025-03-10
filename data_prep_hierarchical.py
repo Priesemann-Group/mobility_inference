@@ -225,6 +225,9 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "cities_non_hierarchical":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
         baseline_mobility = [8] * 100 * 6
+    if chosen_model == "countieswithproblems":
+        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
+        baseline_mobility = [8] * 100 * 24
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -282,6 +285,9 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
         baseline_mobility = [8] * 103 * 6
+    if chosen_model == "countieswithproblems":
+        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
+        baseline_mobility = [8] * 103 * 24
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -334,6 +340,8 @@ def get_R_raw(chosen_model, incl2024):
         path_R = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_R = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_R = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -374,6 +382,8 @@ def get_R_transformed(R_raw, chosen_model, incl2024):
         path_R = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_R = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_R = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     #df = transform_data(df["PS_7_Tage_R_Wert"])
@@ -414,6 +424,8 @@ def get_C_raw(chosen_model, incl2024):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     #case_data = cases_df[["fedState","Infection_Incidence", "timeCounter"]]
@@ -448,6 +460,8 @@ def get_logC_raw(chosen_model, incl2024):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["logInfection_Incidence"].to_xarray()
@@ -481,6 +495,8 @@ def get_C_transformed(chosen_model, incl2024):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
@@ -503,6 +519,8 @@ def get_logC_transformed (chosen_model):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     case_data = cases_df["logInfection_Incidence_Norm"].to_xarray()
@@ -583,6 +601,8 @@ def get_H_raw(chosen_model, incl2024):
         path_hospital = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     hospital_data = hospital_df["Hospital_Incidence"].to_xarray()
@@ -610,6 +630,8 @@ def get_logH_raw(chosen_model):
         path_hospital = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     hospital_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     hospital_data = hospital_df["logHospital_Incidence"].to_xarray()
@@ -643,6 +665,8 @@ def get_H_transformed(chosen_model, incl2024):
         path_hospital = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     H_data = H_df["Hospital_Incidence_Norm"].to_xarray()
@@ -663,6 +687,8 @@ def get_logH_transformed(chosen_model):
         path_hospital = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     H_df = pd.read_csv(path_hospital, index_col=0, parse_dates=True)
 
     H_data = H_df["logHospital_Incidence_Norm"].to_xarray()
@@ -696,6 +722,8 @@ def get_D_raw(chosen_model, incl2024):
         path_death = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_death = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_death = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence"].to_xarray()
@@ -723,6 +751,8 @@ def get_logD_raw(chosen_model):
         path_death = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_death = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_death = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["logDeath_Incidence"].to_xarray()
@@ -756,6 +786,8 @@ def get_D_transformed(chosen_model, incl2024):
         path_death = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_death = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_death = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["Death_Incidence_Norm"].to_xarray()
@@ -775,6 +807,8 @@ def get_logD_transformed(chosen_model):
         path_death = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_death = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_death = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     D_df = pd.read_csv(path_death, index_col=0, parse_dates=True)
 
     D_data = D_df["logDeath_Incidence_Norm"].to_xarray()
@@ -811,6 +845,8 @@ def get_school_vacations(chosen_model, incl2024):
         path_school = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_school = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_school = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     school_df = pd.read_csv(path_school, index_col=0, parse_dates=True)
 
     school_data = school_df["schoolVacation"].to_xarray()
@@ -847,6 +883,8 @@ def get_pub_holidays(chosen_model, incl2024):
         path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_pubHol = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     pubHol_df = pd.read_csv(path_pubHol, index_col=0, parse_dates=True)
 
     pubHolidays_data  = pubHol_df["pubHoliday"].to_xarray()
@@ -880,6 +918,8 @@ def get_counter(chosen_model, incl2024):
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_counter = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_counter = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     counter_df = pd.read_csv(path_counter, index_col=0, parse_dates=True)
 
     counter_data  = counter_df["timeCounter"].to_xarray()
@@ -913,6 +953,8 @@ def get_counter_long(chosen_model, incl2024):
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_counter = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_counter = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     counter_df = pd.read_csv(path_counter, index_col=0, parse_dates=True)
 
     counter_data  = counter_df["timeCounter"].to_xarray()
@@ -942,6 +984,8 @@ def get_precipitation(chosen_model):
         path_prcp = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_prcp = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_prcp = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     precipitation_df = pd.read_csv(path_prcp, index_col=0, parse_dates=True)
 
     precipitation_data  = precipitation_df["prcp"].to_xarray()
@@ -978,6 +1022,8 @@ def get_temperature(chosen_model, incl2024):
         path_temp = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_temp = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_temp = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True)
 
     temperature_data  = temp_df["tmax"].to_xarray()
@@ -1026,6 +1072,8 @@ def get_daylight(chosen_model, incl2024):
         path_daylight = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_daylight = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_daylight = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     daylight_df = pd.read_csv(path_daylight, index_col=0, parse_dates=True)
 
     daylight_data  = daylight_df["daylight"].to_xarray()
@@ -1056,6 +1104,8 @@ def get_pop_density(chosen_model):
         pop_density_df = pd.read_csv("./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv", parse_dates=True, index_col=0)
     if chosen_model == "cities_non_hierarchical":
         pop_density_df = pd.read_csv("./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv", parse_dates=True, index_col=0)
+    if chosen_model == "countieswithproblems":
+        path_density_df = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     pop_density = pop_density_df["EinwohnerInnenJeKm2"].to_xarray()
 
     return pop_density
@@ -1089,6 +1139,8 @@ def get_federal_states(chosen_model, incl2024):
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     fedStates_df = pd.read_csv(path_fedStates)
 
     if chosen_model == "BEHHHB":
@@ -1123,6 +1175,8 @@ def get_lk(chosen_model):
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "cities_non_hierarchical":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     
     fedStates_df = pd.read_csv(path_fedStates)
     fedState = fedStates_df["LK_Name"].to_xarray()
@@ -1156,6 +1210,9 @@ def get_federal_states_long(chosen_model, incl2024):
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
+    
     fedStates_df = pd.read_csv(path_fedStates)
 
     if chosen_model == "BEHHHB":
@@ -1190,6 +1247,9 @@ def get_lk_long(chosen_model):
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
+        
     fedStates_df = pd.read_csv(path_fedStates)
 
     fedState = fedStates_df["LK_Name"].to_xarray()
@@ -1221,6 +1281,9 @@ def get_index_long(chosen_model, incl2024):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
+        
     cases_df = pd.read_csv(path_cases)
 
     cases_df.federalState = cases_df.federalState.map(str.strip)
