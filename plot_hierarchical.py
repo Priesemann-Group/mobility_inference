@@ -304,6 +304,12 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
+            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
         
     for i, c in enumerate(federalStates):
         fig, ax = plt.subplots(1, 1, figsize=(5, 4))
@@ -391,7 +397,13 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
-    
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
+            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
+        
     if incl2024:          
         years = (2020, 2023)
     else:
@@ -534,7 +546,13 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
-        
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
+            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]   
+         
     if incl2024:
         years = (2020, 2023)
     else:
@@ -662,7 +680,13 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
-        
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
+            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]  
+          
     labels = {
             "C": "new cases $d_C$",
             "logC": "log(new cases $d_C$)",
@@ -779,7 +803,13 @@ def plot_all_timeseries(
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
-            
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
+            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]  
+              
     for i, c in enumerate(federalStates):
         # upper plot
         fig, axs = plt.subplots(4, 1, figsize=(13, 24), sharex=True)
