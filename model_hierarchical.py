@@ -281,7 +281,7 @@ def daylight_factor(daylight_data_in, fedState_x):
 #     return day
 
 #Impact of disease spread
-def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None):
+def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None, chosen_model):
     """Models impact of disease spread on mobility.
 
     Args:
@@ -301,20 +301,28 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
     ## define priors
-    mu_gamma_disease = pm.LogNormal(f"mu_gamma_{indicator}", mu=np.log(1), sigma=0.5) #Mean of Gamma distribution
+    mu_gamma_disease = pm.Normal(f"mu_gamma_log_{indicator}", mu=np.log(1), sigma=0.5) #Mean of Gamma distribution
+    mu_gamma_exp_disease = pm.Deterministic(f"mu_gamma_{indicator}", at.exp(mu_gamma_disease)) #Mean of Gamma distribution
     #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
     #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)
     sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 10)
     mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = 0, sigma = 1, dims = "fedState")
-    mu_disease = pm.Deterministic(f"mu_{indicator}", mu_gamma_disease + (sigma_gamma_disease)*mu_disease_tilde, dims = "fedState")
+    mu_disease = pm.Deterministic(f"mu_{indicator}", at.exp(mu_gamma_disease + (sigma_gamma_disease)*mu_disease_tilde), dims = "fedState")
     
     alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.5) 
     sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
     )
     
-    disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix.csv", header = 0, index_col=0, parse_dates=True)
-    disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    if chosen_model == "countieswithproblems":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_countieswithproblems.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    if chosen_model == "cities_MeckPomm":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities_MeckPomm.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    if chosen_model == "large":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_large.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
     
     # convolve disease data with delay kernel
     risk = cov19.model.delay._delay_kernel(
@@ -375,7 +383,8 @@ def create_model(
     fed_states_in_long=None,
     lk_in=None,
     lk_in_long=None,
-    counter_in=None
+    counter_in=None,
+    chosen_model_in=None
 ):
 
     len_data = observed_mobility_data_in.shape[0]
@@ -392,7 +401,7 @@ def create_model(
             for indicator in indicators_in:
                 mu_z_prior1 = np.power(0.9, 1/len(indicators_in))
                 mu_z_prior2 = np.power(0.9, 1/len(indicators_in))
-                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in)
+                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in)
 
         if pop_density_in is not None:
             m *= pop_density_factor(pop_density_in, fed_states_in)

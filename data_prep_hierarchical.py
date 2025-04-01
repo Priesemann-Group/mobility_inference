@@ -227,7 +227,7 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
         baseline_mobility = [8] * 100 * 6
     if chosen_model == "countieswithproblems":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
-        baseline_mobility = [8] * 100 * 24
+        baseline_mobility = [8] * 104 * 23
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
@@ -287,7 +287,7 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
         baseline_mobility = [8] * 103 * 6
     if chosen_model == "countieswithproblems":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
-        baseline_mobility = [8] * 103 * 24
+        baseline_mobility = [8] * 108 * 23
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0
     )
