@@ -18,13 +18,13 @@ import pandas as pd
 import numpy as np
 import arviz as az
 from collections import defaultdict
-#import numba
+import numba
 #import numpyro
-#import nutpie
+import nutpie
 #import blackjax
 
 # Import local module
-import model_hierarchical
+import model_hierarchical  
 import data_prep_hierarchical
 import plot_hierarchical
 import utils
@@ -33,12 +33,12 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-03-31_counties"  # Name of the experiment
+name = "2025-04-11_evenlarger_onebase"  # Name of the experiment
 test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
-plot_figures = True    # Whether to plot figures
+plot_figures = False    # Whether to plot figures
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
@@ -46,10 +46,10 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "fedStates"
 #chosen_model = "cities"
 #chosen_model = "cities_MeckPomm"
-#chosen_model = "large"
+chosen_model = "large"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
-chosen_model = "countieswithproblems"
+#chosen_model = "countieswithproblems"
 
 incl2024 = True
 
@@ -184,12 +184,11 @@ if chosen_model == "BEHHHB":
 if chosen_model == "fedStates":
     fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 if chosen_model == "cities":
-    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9])
+    fedState_coord = np.arange(0,33)
 if chosen_model == "cities_MeckPomm":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22])
 if chosen_model == "large":
-    fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,
-                      80,81,82,83,84,85,86,87,88,89,90,91,92,93,94])
+    fedState_coord = np.arange(0,307)
 if chosen_model == "cities_non_hierarchical":
     fedState_coord = np.array([0])
 if chosen_model == "countieswithproblems":
@@ -271,7 +270,8 @@ for indicators in all_combinations:
             fed_states_in_long = fedState_long,
             lk_in = lk,
             lk_in_long = lk_long,
-            counter_in = counter
+            counter_in = counter,
+            chosen_model_in = chosen_model
         )
         models[i] = inference_model
 
@@ -288,7 +288,7 @@ for indicators in all_combinations:
                 # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
                 # trace = approx.sample(draws=draws)
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "pymc", target_accept = 0.9,
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie",
                     idata_kwargs={"include_transformed": False}
                     #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
                 )

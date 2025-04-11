@@ -208,7 +208,7 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "cities":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
-            baseline_mobility = [8] * 1040
+            baseline_mobility = [8] * 3432
         else:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
             baseline_mobility = [8] * 520
@@ -221,7 +221,7 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
             baseline_mobility = [8] * 624
     if chosen_model == "large":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
-        baseline_mobility = [8] * 9880
+        baseline_mobility = [8] * 31928
     if chosen_model == "cities_non_hierarchical":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
         baseline_mobility = [8] * 100 * 6
@@ -268,7 +268,7 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "cities":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
-            baseline_mobility = [8] * 1080
+            baseline_mobility = [8] * 3564
         else:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
             baseline_mobility = [8] * 560
@@ -281,7 +281,7 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
             baseline_mobility = [8] * 672
     if chosen_model == "large":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
-        baseline_mobility = [8] * 10260
+        baseline_mobility = [8] * 33156
     if chosen_model == "cities_non_hierarchical":
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
         baseline_mobility = [8] * 103 * 6
@@ -1024,7 +1024,7 @@ def get_temperature(chosen_model, incl2024):
         path_temp = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
     if chosen_model == "countieswithproblems":
         path_temp = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
-    temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True)
+    temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True, dtype={"tmax": float, "tavg":float, "tmin":float})
 
     temperature_data  = temp_df["tmax"].to_xarray()
 

@@ -282,33 +282,111 @@ def plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model):
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-       "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
     if chosen_model == "countieswithproblems":
         federalStates = [
-            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
-            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
         ]
         
     for i, c in enumerate(federalStates):
@@ -375,33 +453,111 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
     if chosen_model == "countieswithproblems":
         federalStates = [
-            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
-            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
         ]
         
     if incl2024:          
@@ -524,34 +680,112 @@ def plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators, chosen_mode
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
     if chosen_model == "countieswithproblems":
         federalStates = [
-            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
-            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
-        ]   
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]  
          
     if incl2024:
         years = (2020, 2023)
@@ -658,34 +892,112 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
     if chosen_model == "countieswithproblems":
         federalStates = [
-            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
-            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
-        ]  
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
           
     labels = {
             "C": "new cases $d_C$",
@@ -781,34 +1093,112 @@ def plot_all_timeseries(
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
     if chosen_model == "countieswithproblems":
         federalStates = [
-            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", 
-            "Helmstedt", "Holzminden", "Schaumburg", "Delemhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
-        ]  
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
               
     for i, c in enumerate(federalStates):
         # upper plot
@@ -1326,28 +1716,112 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
             "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
         
     for i, c in enumerate(federalStates):
             # --- base parameters ---
@@ -1371,7 +1845,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
             model_in, trace_in.sel(fedState=i), "d_factor", dist_math="d_factor", ax=axs[0]
         )
         cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=i), "d_factor2024", dist_math="d_factor", ax=axs[1]
+            model_in, trace_in.sel(fedState=i), "d_factor", dist_math="d_factor", ax=axs[1]
         )
 
         if school_in:
@@ -1455,126 +1929,126 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
 
         fig.savefig(plotnamepng, dpi=300, bbox_inches="tight")
         fig.savefig(plotnamepdf, dpi=300, bbox_inches="tight")
-    for indicator in indicators:
-        axes = az.plot_forest(trace_in,
-                           kind='forestplot',
-                           var_names=[f"slope_{indicator}", f"multiplicator_{indicator}", f"intercept_{indicator}"],
-                           filter_vars="regex",
-                           combined=True,
-                           figsize=(4, len(federalStates)))
-        axes[0].set_title('Estimated Disease parameters')
-        figure = axes.ravel()[0].figure
+    # for indicator in indicators:
+    #     axes = az.plot_forest(trace_in,
+    #                        kind='forestplot',
+    #                        var_names=[f"slope_{indicator}", f"multiplicator_{indicator}", f"intercept_{indicator}"],
+    #                        filter_vars="regex",
+    #                        combined=True,
+    #                        figsize=(4, len(federalStates)))
+    #     axes[0].set_title('Estimated Disease parameters')
+    #     figure = axes.ravel()[0].figure
 
-        figure.savefig(
-                    f"{tag_in}/" + f"{indicator}" + "_distributions.png",
-                    dpi=300,
-                    bbox_inches="tight",
-        )
-    # --- School vacation and holdiays --- 
-    if school_in:
-        if holiday_in: 
-            axes = az.plot_forest(trace_in,
-                           kind='forestplot',
-                           var_names=["theta_v", "theta_h"],
-                           filter_vars="regex",
-                           combined=True,
-                           figsize=(4, 4))
-            axes[0].set_title('Estimated School Vac./Pub Holiday parameters')
-            figure = axes.ravel()[0].figure
+    #     figure.savefig(
+    #                 f"{tag_in}/" + f"{indicator}" + "_distributions.png",
+    #                 dpi=300,
+    #                 bbox_inches="tight",
+    #     )
+    # # --- School vacation and holdiays --- 
+    # if school_in:
+    #     if holiday_in: 
+    #         axes = az.plot_forest(trace_in,
+    #                        kind='forestplot',
+    #                        var_names=["theta_v", "theta_h"],
+    #                        filter_vars="regex",
+    #                        combined=True,
+    #                        figsize=(4, 4))
+    #         axes[0].set_title('Estimated School Vac./Pub Holiday parameters')
+    #         figure = axes.ravel()[0].figure
 
-            figure.savefig(
-                    f"{tag_in}/" + "SchoolPubHol_distributions.png",
-                    dpi=300,
-                    bbox_inches="tight",
-            )
+    #         figure.savefig(
+    #                 f"{tag_in}/" + "SchoolPubHol_distributions.png",
+    #                 dpi=300,
+    #                 bbox_inches="tight",
+    #         )
 
-    # --- temperature ---
-    if temperature_in:
-        # for i, c in enumerate(federalStates):
-        #     fig, axs = plt.subplots(1, 4, figsize=(12, 3))
-        #     axs = axs.flatten()
+    # # --- temperature ---
+    # if temperature_in:
+    #     # for i, c in enumerate(federalStates):
+    #     #     fig, axs = plt.subplots(1, 4, figsize=(12, 3))
+    #     #     axs = axs.flatten()
         
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "amplitude_temperature", nSamples_prior=100, dist_math="amplitude-temp", ax=axs[0])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "amplitude_temperature", nSamples_prior=100, dist_math="amplitude-temp", ax=axs[0])
 
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "intercept_temperature", dist_math="intercept-temp", ax=axs[1])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "intercept_temperature", dist_math="intercept-temp", ax=axs[1])
         
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "shift_temperature", dist_math="shift-temp", ax=axs[2])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "shift_temperature", dist_math="shift-temp", ax=axs[2])
 
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "slope_temperature", dist_math="slope-temp", ax=axs[3])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "slope_temperature", dist_math="slope-temp", ax=axs[3])
 
-        #     # save figure
-        #     plotnamepng= f"{tag_in}/" + c + "-distributions_temperature.png"
-        #     plotnamepdf = f"{tag_in}/" + c + "-distributions_temperature.pdf"
+    #     #     # save figure
+    #     #     plotnamepng= f"{tag_in}/" + c + "-distributions_temperature.png"
+    #     #     plotnamepdf = f"{tag_in}/" + c + "-distributions_temperature.pdf"
 
-        #     fig.savefig(
-        #         plotnamepng,
-        #         dpi=300,
-        #         bbox_inches="tight",
-        #     )
-        #     fig.savefig(
-        #         plotnamepdf,
-        #         dpi=300,
-        #         bbox_inches="tight",
-        # )
+    #     #     fig.savefig(
+    #     #         plotnamepng,
+    #     #         dpi=300,
+    #     #         bbox_inches="tight",
+    #     #     )
+    #     #     fig.savefig(
+    #     #         plotnamepdf,
+    #     #         dpi=300,
+    #     #         bbox_inches="tight",
+    #     # )
 
-        axes = az.plot_forest(trace_in,
-                           kind='forestplot',
-                           var_names=["temperature$"],
-                           filter_vars="regex",
-                           combined=True,
-                           figsize=(4, 4))
-        axes[0].set_title('Estimated temperature parameters')
-        figure = axes.ravel()[0].figure
+    #     axes = az.plot_forest(trace_in,
+    #                        kind='forestplot',
+    #                        var_names=["temperature$"],
+    #                        filter_vars="regex",
+    #                        combined=True,
+    #                        figsize=(4, 4))
+    #     axes[0].set_title('Estimated temperature parameters')
+    #     figure = axes.ravel()[0].figure
 
-        figure.savefig(
-                    f"{tag_in}/" + "temperature_distributions.png",
-                    dpi=300,
-                    bbox_inches="tight",
-        )
+    #     figure.savefig(
+    #                 f"{tag_in}/" + "temperature_distributions.png",
+    #                 dpi=300,
+    #                 bbox_inches="tight",
+    #     )
 
-    # # --- daylight ---
-    if daylight_in:
-        # for i, c in enumerate(federalStates):
-        #     fig, axs = plt.subplots(1, 4, figsize=(12, 3))
-        #     axs = axs.flatten()
-        #     #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
+    # # # --- daylight ---
+    # if daylight_in:
+    #     # for i, c in enumerate(federalStates):
+    #     #     fig, axs = plt.subplots(1, 4, figsize=(12, 3))
+    #     #     axs = axs.flatten()
+    #     #     #cov19.plot.distribution(model_in, trace_in, "z_T", dist_math="z_{T}", ax=axs[0])
         
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "amplitude_daylight", dist_math="amplitude-day", ax=axs[0])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "amplitude_daylight", dist_math="amplitude-day", ax=axs[0])
 
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "shift_daylight", dist_math="shift-day", ax=axs[1])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "shift_daylight", dist_math="shift-day", ax=axs[1])
             
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "intercept_daylight", dist_math="intercept-day", ax=axs[2])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "intercept_daylight", dist_math="intercept-day", ax=axs[2])
 
-        #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "slope_daylight", dist_math="slope-day", ax=axs[3])
+    #     #     cov19.plot.distribution(model_in, trace_in.sel(fedState=i), "slope_daylight", dist_math="slope-day", ax=axs[3])
         
-        #     plotnamepng= f"{tag_in}/" + c + "-distributions_daylight.png"
-        #     plotnamepdf = f"{tag_in}/" + c + "-distributions_daylight.pdf"
+    #     #     plotnamepng= f"{tag_in}/" + c + "-distributions_daylight.png"
+    #     #     plotnamepdf = f"{tag_in}/" + c + "-distributions_daylight.pdf"
 
-        #     fig.savefig(
-        #         plotnamepng,
-        #         dpi=300,
-        #         bbox_inches="tight",
-        #     )
-        #     fig.savefig(
-        #         plotnamepdf,
-        #         dpi=300,
-        #         bbox_inches="tight",
-        #     )
+    #     #     fig.savefig(
+    #     #         plotnamepng,
+    #     #         dpi=300,
+    #     #         bbox_inches="tight",
+    #     #     )
+    #     #     fig.savefig(
+    #     #         plotnamepdf,
+    #     #         dpi=300,
+    #     #         bbox_inches="tight",
+    #     #     )
 
-        axes = az.plot_forest(trace_in,
-                           kind='forestplot',
-                           var_names=["daylight$"],
-                           filter_vars="regex",
-                           combined=True,
-                           figsize=(4, 4))
-        axes[0].set_title('Estimated daylight parameters')
-        figure = axes.ravel()[0].figure
+    #     axes = az.plot_forest(trace_in,
+    #                        kind='forestplot',
+    #                        var_names=["daylight$"],
+    #                        filter_vars="regex",
+    #                        combined=True,
+    #                        figsize=(4, 4))
+    #     axes[0].set_title('Estimated daylight parameters')
+    #     figure = axes.ravel()[0].figure
 
-        figure.savefig(
-                    f"{tag_in}/" + "daylight_distributions.png",
-                    dpi=300,
-                    bbox_inches="tight",
-        )
+    #     figure.savefig(
+    #                 f"{tag_in}/" + "daylight_distributions.png",
+    #                 dpi=300,
+    #                 bbox_inches="tight",
+    #     )
     
     ## plot temperature time series
 def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data, disease_data_raw, chosen_model):
@@ -1589,25 +2063,110 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
        "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
     if chosen_model == "cities":  
         federalStates = [
-        "Berlin", "Bremen", "Hamburg", "München", "Stuttgart", "Köln", "Frankfurt", "Düsseldorf", "Leipzig", "Bonn"]
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
     if chosen_model == "cities_MeckPomm":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
        "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
     if chosen_model == "large":
-        federalStates = [
-                    "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
-                    "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
-                    "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
-                    "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
-                    "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
-                    "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde",      
-                    "Schleswig-Flensburg", "Steinburg", "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz",                   
-                    "Hildesheim", "Holzminden", "Schaumburg", "Celle", "Cuxhaven", "Lüneburg", "Osterholz", "Rotenburg (Wümme)",          
-                    "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich",                     
-                    "Cloppenburg", "Emsland", "Friesland", "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld",                    
-                    "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid"         
+        federalStates = ["Ahrweiler", "Alb-Donau-Kreis", "Altmarkkreis Salzwedel",             
+        "Altötting", "Alzey-Worms", "Amberg",
+        "Amberg-Sulzbach", "Anhalt-Bitterfeld" , "Aurich",                             
+        "Bad Dürkheim", "Bad Kissingen", "Bad Kreuznach",                      
+        "Baden-Baden",  "Bautzen",  "Berchtesgadener Land",               
+        "Berlin", "Bernkastel-Wittlich", "Bielefeld",                          
+        "Birkenfeld", "Böblingen","Bodenseekreis",                      
+        "Bonn", "Borken", "Braunschweig",                       
+        "Breisgau-Hochschwarzwald", "Bremen",  "Bremerhaven",                        
+        "Burgenlandkreis", "Calw", "Celle",                              
+        "Chemnitz", "Cloppenburg", "Cochem-Zell",                        
+        "Coesfeld", "Cuxhaven",  "Dachau",                             
+        "Darmstadt-Dieburg", "Deggendorf", "Delmenhorst",                        
+        "Dessau-Roßlau", "Diepholz", "Dillingen an der Donau",             
+        "Dingolfing-Landau", "Dithmarschen", "Donau-Ries",                         
+        "Donnersbergkreis", "Dortmund","Dresden",                           
+        "Duisburg",  "Düren", "Düsseldorf",                         
+        "Ebersberg", "Eichstätt", "Eifelkreis Bitburg-Prüm",            
+        "Elbe-Elster", "Emden", "Emmendingen",                        
+        "Emsland", "Ennepe-Ruhr-Kreis", "Enzkreis",                           
+        "Erding", "Erfurt", "Erlangen",                           
+        "Erlangen-Höchstadt", "Erzgebirgskreis", "Essen",                              
+        "Esslingen", "Euskirchen", "Flensburg",                          
+        "Forchheim", "Frankfurt am Main", "Freiburg im Breisgau",               
+        "Freising", "Freudenstadt", "Freyung-Grafenau",                   
+        "Friesland", "Fulda", "Fürstenfeldbruck",                   
+        "Garmisch-Partenkirchen",  "Gießen", "Gifhorn",                            
+        "Görlitz", "Goslar", "Göttingen",                          
+        "Günzburg", "Gütersloh", "Halle (Saale)",                      
+        "Hamburg", "Hannover", "Harz",                               
+        "Haßberge", "Heidekreis", "Heidenheim",                         
+        "Heinsberg", "Helmstedt", "Herford",                            
+        "Hersfeld-Rotenburg", "Herzogtum Lauenburg", "Hildesheim",                         
+        "Hochsauerlandkreis", "Hohenlohekreis", "Holzminden",                         
+        "Höxter", "Ingolstadt", "Karlsruhe",                          
+        "Kaufbeuren", "Kempten (Allgäu)", "Kiel",                               
+        "Kitzingen", "Kleve", "Köln",                               
+        "Konstanz",  "Krefeld", "Kronach",                            
+        "Lahn-Dill-Kreis", "Landsberg am Lech", "Leer",                               
+        "Leipzig", "Leverkusen","Limburg-Weilburg",                   
+        "Lippe", "Lörrach","Lübeck",                             
+        "Ludwigsburg", "Ludwigslust-Parchim", "Lüneburg",                           
+        "Magdeburg", "Main-Kinzig-Kreis", "Main-Spessart",                      
+        "Mainz-Bingen", "Mannheim", "Marburg-Biedenkopf",                 
+        "Märkisch-Oderland",  "Märkischer Kreis", "Mecklenburgische Seenplatte",        
+        "Meißen", "Memmingen", "Merzig-Wadern",                      
+        "Mettmann", "Miesbach", "Miltenberg",                         
+        "Minden-Lübbecke", "Mittelsachsen", "Mönchengladbach",                    
+        "Mühldorf am Inn", "Mülheim an der Ruhr", "München",                            
+        "Münster", "Neckar-Odenwald-Kreis", "Neuburg-Schrobenhausen",             
+        "Neumarkt in der Oberpfalz", "Neumünster", "Neunkirchen",                        
+        "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab", "Neuwied",                            
+        "Nordfriesland", "Nordsachsen", "Nordwestmecklenburg",
+        "Nürnberg", "Oberallgäu", "Oberbergischer Kreis",               
+        "Oberspreewald-Lausitz", "Odenwaldkreis", "Offenbach",                         
+        "Offenbach am Main", "Oldenburg", "Olpe",                               
+        "Ortenaukreis", "Osnabrück", "Ostalbkreis",                        
+        "Osterholz", "Ostholstein", "Ostprignitz-Ruppin",                 
+        "Paderborn", "Pforzheim", "Pinneberg",                          
+        "Plön", "Potsdam", "Potsdam-Mittelmark",                 
+        "Prignitz",  "Rastatt", "Ravensburg",                         
+        "Recklinghausen", "Regen",  "Regionalverband Saarbrücken",        
+        "Remscheid", "Rendsburg-Eckernförde", "Reutlingen",                         
+        "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rhein-Neuss",                        
+        "Rhein-Sieg-Kreis",  "Rostock", "Rotenburg (Wümme)",                  
+        "Roth", "Rottal-Inn", "Rottweil",                           
+        "Saalekreis", "Saarlouis",   "Salzgitter",                         
+        "Salzlandkreis",  "Schaumburg", "Schleswig-Flensburg",                
+        "Schwalm-Eder-Kreis", "Schwandorf", "Schwarzwald-Baar-Kreis",             
+        "Schwerin", "Siegen-Wittgenstein","Sigmaringen",                        
+        "Soest", "Spree-Neiße", "Stade",                              
+        "Städteregion Aachen", "Steinburg", "Steinfurt",                          
+        "Stendal", "Straubing", "Straubing-Bogen",                    
+        "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",                       
+        "Teltow-Fläming", "Tirschenreuth", "Traunstein",                         
+        "Trier-Saarburg", "Tuttlingen",  "Uckermark",                          
+        "Uelzen", "Ulm", "Unna",                               
+        "Viersen", "Vogelsbergkreis","Vogtlandkreis",                      
+        "Vorpommern-Greifswald", "Vorpommern-Rügen", "Waldeck-Frankenberg",                
+        "Waldshut", "Warendorf", "Weiden in der Oberpfalz",            
+        "Weilheim-Schongau","Weißenburg-Gunzenhausen","Wiesbaden" ,                         
+        "Wilhelmshaven", "Wittenberg", "Wittmund",                           
+        "Wolfsburg", "Wunsiedel im Fichtelgebirge", "Wuppertal",                          
+        "Zollernalbkreis", "Zwickau"  
         ]
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
+    
     if chosen_model == "cities_non_hierarchical":  
         federalStates = [
        "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
@@ -1760,28 +2319,28 @@ def analysis_figures(
 ):
     utils.make_dir(tag_in)
     if indicators_in:
-       convolution_figure(indicators_in, trace_in, dates_in, tag_in)
-       plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
+       #convolution_figure(indicators_in, trace_in, dates_in, tag_in)
+       #plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
       #plot_gamma_parameters(trace_in, indicators_in, tag_in)
-       plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model)
+       #plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model)
        plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
-    if temperature_in:
-        plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
-    if daylight_in:
-        plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
-    #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
-    plot_all_timeseries(
-        chosen_model,
-        dates_in,
-        trace_in,
-        tag_in,
-        indicators_in, 
-        school_in,
-        holiday_in,
-        temperature_in,
-        precipitation_in,
-        daylight_in,
-        pop_density_in,
-        incl2024
-    )
-    plot_chains(trace_in, tag_in)
+    # if temperature_in:
+    #     plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+    # if daylight_in:
+    #     plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+    # #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
+    # plot_all_timeseries(
+    #     chosen_model,
+    #     dates_in,
+    #     trace_in,
+    #     tag_in,
+    #     indicators_in, 
+    #     school_in,
+    #     holiday_in,
+    #     temperature_in,
+    #     precipitation_in,
+    #     daylight_in,
+    #     pop_density_in,
+    #     incl2024
+    # )
+    #plot_chains(trace_in, tag_in)
