@@ -203,11 +203,19 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
         path_mobility = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
         baseline_mobility = [8] * 100 * 3
     if chosen_model == "fedStates":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
-        baseline_mobility = [8] * 1664
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+            baseline_mobility = [8] * 1664
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fedStates.csv"
+            baseline_mobility = [8] * 16 * 52 
     if chosen_model == "fedStates_nat":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
-        baseline_mobility = [8] * 1664
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+            baseline_mobility = [8] * 1664
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fedStates.csv"
+            baseline_mobility = [8] * 16 * 52 
     if chosen_model == "cities":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -229,8 +237,12 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
         baseline_mobility = [8] * 100 * 6
     if chosen_model == "firsthundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
-        baseline_mobility = [8] * 8736
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+            baseline_mobility = [8] * 8736
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_firsthundred.csv"
+            baseline_mobility = [8] * 52 * 84
     if chosen_model == "secondhundred":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
         baseline_mobility = [8] * 8424
@@ -287,11 +299,19 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
         path_mobility = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
         baseline_mobility = [8] * 103 * 3
     if chosen_model == "fedStates":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
-        baseline_mobility = [8] * 108 * 16
+        if incl2024:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+            baseline_mobility = [8] * 108 * 16
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
+            baseline_mobility = [8] * 56 * 16
     if chosen_model == "fedStates_nat":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
-        baseline_mobility = [8] * 108 * 16
+        if incl2024:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+            baseline_mobility = [8] * 108 * 16
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
+            baseline_mobility = [8] * 56 * 16
     if chosen_model == "cities":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -313,8 +333,12 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
         path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
         baseline_mobility = [8] * 103 * 6
     if chosen_model == "firsthundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
-        baseline_mobility = [8] * 9072
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+            baseline_mobility = [8] * 9072
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
+            baseline_mobility = [8] * 52 * 84
     if chosen_model == "secondhundred":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
         baseline_mobility = [8] * 8748
@@ -461,9 +485,15 @@ def get_C_raw(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -479,7 +509,10 @@ def get_C_raw(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
@@ -497,8 +530,11 @@ def get_C_raw(chosen_model, incl2024):
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
     #case_data = cases_df[["fedState","Infection_Incidence", "timeCounter"]]
-    case_data = cases_df["Infection_Incidence"].to_xarray()
-
+    if chosen_model == "fedStates_nat":
+        case_data = cases_df["Infection_Incidence_nat"].to_xarray()
+    else: 
+        case_data = cases_df["Infection_Incidence"].to_xarray()
+        
     return case_data
 
 def get_logC_raw(chosen_model, incl2024):
@@ -550,9 +586,15 @@ def get_C_transformed(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -568,7 +610,10 @@ def get_C_transformed(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv" 
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv" 
     if chosen_model == "thirdhundred":
@@ -585,7 +630,10 @@ def get_C_transformed(chosen_model, incl2024):
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
 
-    case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
+    if chosen_model == "fedStates_nat":
+        case_data = cases_df["Infection_Incidence_Norm_nat"].to_xarray()
+    else:
+        case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
    
     #case_data = cases_df[["fedState","Infection_Incidence_Norm", "timeCounter"]]
    
@@ -598,7 +646,10 @@ def get_logC_transformed (chosen_model):
     if chosen_model == "fedStates":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
     if chosen_model == "cities_MeckPomm":
@@ -678,9 +729,15 @@ def get_H_raw(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_hospital= "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":   
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":   
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -703,7 +760,7 @@ def get_H_raw(chosen_model, incl2024):
 
     return hospital_data
 
-def get_logH_raw(chosen_model):
+def get_logH_raw(chosen_model, incl2024 = True):
     """Get log(weekly hospitalisation data) from preprocessed data set.
 
     Args:
@@ -715,9 +772,15 @@ def get_logH_raw(chosen_model):
     if chosen_model == "BEHHHB":
         path_hospital = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else: 
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else: 
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
     if chosen_model == "cities_MeckPomm":
@@ -746,9 +809,15 @@ def get_H_transformed(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_hospital = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_hospital = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_hospital = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_hospital = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -938,9 +1007,15 @@ def get_school_vacations(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_school = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     if chosen_model == "fedStates":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_school = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -956,7 +1031,10 @@ def get_school_vacations(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_school = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
         path_school = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
     if chosen_model == "thirdhundred":
@@ -992,9 +1070,15 @@ def get_pub_holidays(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_pubHol = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     if chosen_model == "fedStates":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_pubHol = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -1010,7 +1094,10 @@ def get_pub_holidays(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_pubHol = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
         path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
     if chosen_model == "thirdhundred":
@@ -1043,9 +1130,15 @@ def get_counter(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_counter = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     if chosen_model == "fedStates":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_counter = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -1059,7 +1152,10 @@ def get_counter(chosen_model, incl2024):
     if chosen_model == "large":
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
     if chosen_model == "firsthundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
     if chosen_model == "thirdhundred":
@@ -1094,9 +1190,15 @@ def get_counter_long(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_counter = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_counter = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -1112,7 +1214,10 @@ def get_counter_long(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_counter = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
@@ -1181,9 +1286,15 @@ def get_temperature(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_temp = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     if chosen_model == "fedStates":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_temp = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_temp = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_temp = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -1199,7 +1310,10 @@ def get_temperature(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_temp = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        if incl2024 == True:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_temp = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
         path_temp = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
     if chosen_model == "thirdhundred":
@@ -1249,7 +1363,10 @@ def get_daylight(chosen_model, incl2024):
     if chosen_model == "fedStates":
         path_daylight = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
     if chosen_model == "fedStates_nat":
-        path_daylight = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_daylight = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_daylight = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_daylight = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -1318,9 +1435,15 @@ def get_federal_states(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_fedStates = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
     if chosen_model == "fedStates":   
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "fedStates_nat":   
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         if incl2024:
             path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
@@ -1336,7 +1459,10 @@ def get_federal_states(chosen_model, incl2024):
     if chosen_model == "cities_non_hierarchical":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
     if chosen_model == "firsthundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
     if chosen_model == "thirdhundred":
@@ -1364,7 +1490,7 @@ def get_federal_states(chosen_model, incl2024):
 
     return fedState, fed_States, obs_id
 
-def get_lk(chosen_model):
+def get_lk(chosen_model, incl2024=True):
     """Get index-array
 
     Args:
@@ -1378,7 +1504,10 @@ def get_lk(chosen_model):
     if chosen_model == "fedStates":   
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
     if chosen_model == "fedStates_nat":   
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
     if chosen_model == "cities_MeckPomm":
@@ -1421,9 +1550,15 @@ def get_federal_states_long(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_fedStates = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":    
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":    
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -1437,7 +1572,10 @@ def get_federal_states_long(chosen_model, incl2024):
     if chosen_model == "large":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "firsthundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
@@ -1482,7 +1620,10 @@ def get_lk_long(chosen_model):
     if chosen_model == "fedStates":   
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
     if chosen_model == "fedStates_nat":   
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        if incl2024:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else: 
+            path_fedStates = "./data/input_data_hierarchical/inputData_fedStates.csv"
     if chosen_model == "cities":
         path_fedStates = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
     if chosen_model == "cities_MeckPomm":
@@ -1524,9 +1665,15 @@ def get_index_long(chosen_model, incl2024):
     if chosen_model == "BEHHHB":
         path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
     if chosen_model == "fedStates":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "fedStates_nat":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        if incl2024:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
     if chosen_model == "cities":
         if incl2024:
             path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
@@ -1540,7 +1687,10 @@ def get_index_long(chosen_model, incl2024):
     if chosen_model == "large":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
     if chosen_model == "firsthundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
     if chosen_model == "thirdhundred":

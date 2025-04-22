@@ -33,9 +33,9 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-04-11_evenlarger_onebase"  # Name of the experiment
-test = False # Whether to run a test with fewer samples
-single = True  # Whether to run a single model
+name = "2025-04-22_firsthundred_no2024"  # Name of the experiment
+test = False# Whether to run a test with fewer samples
+single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
 plot_figures = False    # Whether to plot figures
@@ -46,12 +46,17 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "fedStates"
 #chosen_model = "cities"
 #chosen_model = "cities_MeckPomm"
-chosen_model = "large"
+#chosen_model = "large"
+chosen_model = "firsthundred"
+#chosen_model = "secondhundred"
+#chosen_model = "fourthhundred"
 #chosen_model = "national"
 #chosen_model = "cities_non_hierarchical"
 #chosen_model = "countieswithproblems"
 
-incl2024 = True
+incl2024 = False
+
+
 
 #Include population density if required by giving any value
 pop_density = None
@@ -98,37 +103,37 @@ d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_m
 d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model, incl2024)
 
 # Get R_effective value for disease data
-disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model, incl2024)
-disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"], chosen_model, incl2024)
+# disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model, incl2024)
+# disease_data["R"] = data_prep_hierarchical.get_R_transformed(disease_data_raw["R"], chosen_model, incl2024)
 
-# Get R_effective value for disease data
-disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
-disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
+# # Get R_effective value for disease data
+# disease_data_raw["logR"] = data_prep_hierarchical.get_logR_raw(disease_data_raw["R"])
+# disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
 disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model, incl2024)
 disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model, incl2024)
 
-disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model, incl2024)
-disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
+# disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model, incl2024)
+# disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
 
-#disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
-#disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
+# #disease_data_raw["ICU"] = data_prep_hierarchical.get_ICU_raw()
+# #disease_data["ICU"] = data_prep_hierarchical.get_ICU_transformed(disease_data_raw["ICU"])
 
-#disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
-#disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
+# #disease_data_raw["logICU"] = data_prep_hierarchical.get_logICU_raw(disease_data_raw["ICU"])
+# #disease_data["logICU"] = data_prep_hierarchical.get_logICU_transformed(disease_data_raw["logICU"])
 
-disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(chosen_model, incl2024)
-disease_data["H"] = data_prep_hierarchical.get_H_transformed(chosen_model, incl2024)
+# disease_data_raw["H"] = data_prep_hierarchical.get_H_raw(chosen_model, incl2024)
+# disease_data["H"] = data_prep_hierarchical.get_H_transformed(chosen_model, incl2024)
 
-disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(chosen_model)
-disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(chosen_model)
+# disease_data_raw["logH"] = data_prep_hierarchical.get_logH_raw(chosen_model)
+# disease_data["logH"] = data_prep_hierarchical.get_logH_transformed(chosen_model)
 
-disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(chosen_model, incl2024)
-disease_data["D"] = data_prep_hierarchical.get_D_transformed(chosen_model, incl2024)
+# disease_data_raw["D"] = data_prep_hierarchical.get_D_raw(chosen_model, incl2024)
+# disease_data["D"] = data_prep_hierarchical.get_D_transformed(chosen_model, incl2024)
 
-disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(chosen_model)
-disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
+# disease_data_raw["logD"] = data_prep_hierarchical.get_logD_raw(chosen_model)
+# disease_data["logD"] = data_prep_hierarchical.get_logD_transformed(chosen_model)
 
 
 # # If population density is included, get population density
@@ -183,12 +188,28 @@ if chosen_model == "BEHHHB":
     fedState_coord = np.array([0, 1, 2])
 if chosen_model == "fedStates":
     fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+if chosen_model == "fedStates_nat":
+    fedState_coord = np.array([0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 if chosen_model == "cities":
     fedState_coord = np.arange(0,33)
 if chosen_model == "cities_MeckPomm":
     fedState_coord = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22])
 if chosen_model == "large":
     fedState_coord = np.arange(0,307)
+if chosen_model == "firsthundred":
+    fedState_coord = np.arange(0,84)
+if chosen_model == "secondhundred":
+    fedState_coord = np.arange(0,81)
+if chosen_model == "thirdhundred":
+    fedState_coord = np.arange(0,93)
+if chosen_model == "fourthhundred":
+    fedState_coord = np.arange(0,87)
+if chosen_model == "firstsecondhundred":
+    fedState_coord = np.arange(0,165)
+if chosen_model == "thirdfourthhundred":
+    fedState_coord = np.arange(0,180)
+if chosen_model == "fourhundred":
+    fedState_coord = np.arange(0,345)
 if chosen_model == "cities_non_hierarchical":
     fedState_coord = np.array([0])
 if chosen_model == "countieswithproblems":
@@ -271,7 +292,8 @@ for indicators in all_combinations:
             lk_in = lk,
             lk_in_long = lk_long,
             counter_in = counter,
-            chosen_model_in = chosen_model
+            chosen_model_in = chosen_model,
+            incl2024_in = incl2024
         )
         models[i] = inference_model
 
@@ -335,7 +357,7 @@ for indicators in all_combinations:
     pretest = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.d_C)
     test = np.median(pretest, axis=0)
     test2 = pd.DataFrame(test)
-    test2.to_csv("test.csv")
+    test2.to_csv(f"{supDir_name}diseaseFactor.csv")
     
     # # Save ELPD result to file
     # if ELPD_method is not None:
@@ -346,4 +368,4 @@ for indicators in all_combinations:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
            inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024
-        ) 
+        )
