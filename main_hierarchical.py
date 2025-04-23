@@ -56,7 +56,7 @@ chosen_model = "firsthundred"
 
 incl2024 = False
 
-
+plus_nat_incidence = True
 
 #Include population density if required by giving any value
 pop_density = None
@@ -113,6 +113,7 @@ d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_du
 # Get cases, ICU, deaths and hospitalisations data from OWID
 disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model, incl2024)
 disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model, incl2024)
+disease_data["C_nat"] = data_prep_hierarchical.get_C_transformed_nat(chosen_model, incl2024)
 
 # disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model, incl2024)
 # disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
@@ -293,7 +294,8 @@ for indicators in all_combinations:
             lk_in_long = lk_long,
             counter_in = counter,
             chosen_model_in = chosen_model,
-            incl2024_in = incl2024
+            incl2024_in = incl2024,
+            plus_nat_incidence_in = plus_nat_incidence
         )
         models[i] = inference_model
 

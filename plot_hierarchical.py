@@ -25,7 +25,8 @@ colors = {
     # diseaes
     "R": colormap(0.0),
     "logR": colormap(0.0),
-    "C": colormap(0.05),
+    "Cnat": colormap(0.0),
+    "C": colormap(0.1),
     "logC": colormap(0.05),
     "H": colormap(0.1),
     "logH": colormap(0.1),
@@ -1649,7 +1650,9 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
           
     labels = {
             "C": "new cases $d_C$",
+            "Cnat": "new national cases",
             "logC": "log(new cases $d_C$)",
+            "Cnat": "new national cases",
             "ICU": "ICU patients $d_{ICU}$",
             "logICU": "log(ICU patients $d_{ICU}$)",
             "H": "hospitalisations $d_H$",
@@ -1732,7 +1735,8 @@ def plot_all_timeseries(
     daylight_in=None,
     pop_density_in=None,
     log=False,
-    incl2024=None
+    incl2024=True,
+    plus_nat_incidence = True
 ):
     if chosen_model == "BEHHHB":
         federalStates = ("Berlin", "Bremen", "Hamburg")
@@ -1932,10 +1936,11 @@ def plot_all_timeseries(
         fig, axs = plt.subplots(4, 1, figsize=(13, 24), sharex=True)
         axs = axs.ravel()
 
-        if incl2024 == True:
-            years = (2020, 2023)
-        else:
-            years = [2020]
+        # if incl2024 == True:
+        #     years = (2020, 2023)
+        # else:
+        years = [2020]
+            
         for year in years:
             if year == 2020:
                 dates_filtered = dates_in[dates_in < np.datetime64("2021-03-01")]
@@ -1948,6 +1953,7 @@ def plot_all_timeseries(
             
             labels = {
             "C": "new cases $d_C$",
+            "Cnat": "new national cases",
             "logC": "log(new cases $d_C$)",
             "ICU": "ICU patients $d_{ICU}$",
             "logICU": "log(ICU patients $d_{ICU}$)",
@@ -2194,6 +2200,32 @@ def plot_all_timeseries(
                     label_in=labels[indicator],
                     alpha=0.2,
                 )
+            
+            for indicator in indicators_in:
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.constant_data.C_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_C_long<56)&(trace_in.constant_data.fedState_idx_long==i))
+                    if indicator == "R":
+                        y_first = trace_in.constant_data.R_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_R_long<56)&(trace_in.constant_data.fedState_idx_long==i))
+                    if indicator == "H":
+                        y_first = trace_in.constant_data.H_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_H_long<56)&(trace_in.constant_data.fedState_idx_long==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.constant_data.C_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_C_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
+                    if indicator == "R":
+                        y_first = trace_in.constant_data.R_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_R_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
+                    if indicator == "H":
+                        y_first = trace_in.constant_data.H_nat.where((trace_in.constant_data.counter_C_long>3)&(trace_in.constant_data.counter_H_long>=56)&(trace_in.constant_data.fedState_idx_long==i))
+                y = y_first.dropna(dim="obs_id_long", how = "any")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["Cnat"],
+                    label_in=labels["Cnat"],
+                    alpha=0.2,
+                )
+                
             format_x_axis(ax, dates)
             ## set y label
             ax.set_ylabel("Normalized Disease Indicator")
@@ -2206,6 +2238,7 @@ def plot_all_timeseries(
             ax = axs[2]
             labels = {
                 "C": "new cases $d_C$",
+                "Cnat": "new national cases",
                 "logC": "log(new cases $d_C$)",
                 "ICU": "ICU patients $d_{ICU}$",
                 "logICU": "log(ICU patients $d_{ICU}$)",
@@ -2238,10 +2271,36 @@ def plot_all_timeseries(
                     ax,
                     dates,
                     y,
-                    color_in=colors[indicator],
-                    label_in=labels[indicator],
+                    color_in=colors["Cnat"],
+                    label_in=labels["Cnat"],
                     alpha=0.2,
                 )
+                
+            if plus_nat_incidence == True: 
+                for indicator in indicators_in:
+                    if year == 2020:
+                        if indicator == "C":
+                            y_first = trace_in.posterior.d_C_nat.where((trace_in.constant_data.counter_C<56)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "R":
+                            y_first = trace_in.posterior.d_R_nat.where((trace_in.constant_data.counter_R<56)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "H":
+                            y_first = trace_in.posterior.d_H_nat.where((trace_in.constant_data.counter_H<56)&(trace_in.constant_data.fedState_idx==i))
+                    if year == 2023:
+                        if indicator == "C":
+                            y_first = trace_in.posterior.d_C_nat.where((trace_in.constant_data.counter_C>=56)&(trace_in.constant_data.fedState_idx==1))
+                        if indicator == "R":
+                            y_first = trace_in.posterior.d_R_nat.where((trace_in.constant_data.counter_R>=56)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "H":
+                            y_first = trace_in.posterior.d_H_nat.where((trace_in.constant_data.counter_H>=56)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how = "all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors[indicator],
+                        label_in=labels[indicator],
+                        alpha=0.2,
+                    )
                 # daylight
             if daylight_in is not None:
                 if year == 2020:
@@ -3280,6 +3339,7 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
 
     labels = {
         "C": "new cases $d_C$",
+        "Cnat": "new national cases",
         "logC": "log(new cases $d_C$)",
         "ICU": "ICU patients $d_{ICU}$",
         "logICU": "log(ICU patients $d_{ICU}$)",
@@ -3421,17 +3481,17 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024
+    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024, plus_nat_incidence
 ):
     utils.make_dir(tag_in)
-    if indicators_in:
+    #if indicators_in:
     #    #convolution_figure(indicators_in, trace_in, dates_in, tag_in)
-        plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
-        plot_gamma_parameters(trace_in, indicators_in, tag_in)
+        #plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
+        #plot_gamma_parameters(trace_in, indicators_in, tag_in)
         #plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model)
-        plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
-    if temperature_in:
-        plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+        #plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
+    #if temperature_in:
+    #    plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     # if daylight_in:
     #     plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
@@ -3447,6 +3507,7 @@ def analysis_figures(
         precipitation_in,
         daylight_in,
         pop_density_in,
-        incl2024
+        incl2024,
+        plus_nat_incidence
     )
     # plot_chains(trace_in, tag_in)

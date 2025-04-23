@@ -413,6 +413,140 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
 
     return d
 
+#Impact of disease spread (nat)
+def disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None, chosen_model = None, incl2024 = True):
+    """Models impact of disease spread on mobility.
+
+    Args:
+    indicator: Name of disease indicator (str)
+    disease_data_in: Disease data (dict of xr.DataArray)
+    len_data: Length of mobility time series (int)
+    mu_z_prior: Prior mean for disease impact (float)
+
+    Returns:
+    Disease spread modulation factor (pymc variable)
+    """
+
+    ## data
+    disease_data = pm.MutableData(f"{indicator}_nat", disease_data_in["C_nat"], dims = "obs_id_long")
+
+    time_counter = pm.MutableData(f"counter_{indicator}_nat", time_counter_in["time counter"], dims = ("obs_id"))
+    time_counter_long = pm.MutableData(f"counter_{indicator}_long_nat", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
+
+    ## define priors
+    mu_gamma_disease = pm.Normal(f"mu_gamma_log_{indicator}_nat", mu=3, sigma=0.5) #Mean of Gamma distribution
+    mu_gamma_exp_disease = pm.Deterministic(f"mu_gamma_{indicator}_nat", at.softplus(mu_gamma_disease)) #Mean of Gamma distribution
+    # #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
+    # #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)    
+    #sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 10)
+    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}_nat", sigma = 0.5)
+    mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde_nat", mu = mu_gamma_disease, sigma = sigma_gamma_disease, dims = "fedState")
+    mu_disease = pm.Deterministic(f"mu_{indicator}_nat", at.softplus(mu_disease_tilde), dims = "fedState")
+    
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}_nat", mu=np.log(3), sigma=0.5) 
+    sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
+        f"sigma_{indicator}_nat", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
+    )
+    
+    if chosen_model == "cities":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "fedStates":
+        if incl2024 == True:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+        else:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "fedStates_nat":
+        if incl2024 == True:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+        else:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "countieswithproblems":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_countieswithproblems_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "cities_MeckPomm":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities_MeckPomm_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "large":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_large_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "firsthundred":
+        if incl2024 == True:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+        else:
+            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "secondhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "thirdhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "fourthhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "firstsecondhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "fourhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    if chosen_model == "thirdfourthhundred":
+        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+        disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
+    
+    if incl2024:
+        long = 108
+        short = 104
+    else:
+        long = 56
+        short = 52
+    
+    # convolve disease data with delay kernel
+    risk = cov19.model.delay._delay_kernel(
+        input_arr=disease_data,
+        kernel_type="gamma",
+        median_delay=mu_disease,
+        scale_delay= sigma_disease,
+        len_input_arr=long,
+        len_output_arr=short,
+        #num_seperated_axes = 10,
+        delay_betw_input_output=4,
+    )
+    
+    risk = pm.Deterministic(f"risk_{indicator}_nat", risk.T.flatten(), dims = ("obs_id"))
+
+    mu_slope_disease = pm.Normal(f"mu_slope_log_{indicator}_nat", mu = 15, sigma = 2)
+    mu_slope_exp_dis = pm.Deterministic(f"mu_slope_{indicator}_nat", at.softplus(mu_slope_disease))
+    #sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
+    #sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
+    #sigma_slope_disease = pm.Exponential(f"sigma_slope_{indicator}", 10)
+    sigma_slope_disease = pm.HalfNormal(f"sigma_slope_{indicator}_nat", sigma = 2)
+    slope_disease_tilde = pm.Normal(f"slope_{indicator}_tilde_nat", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
+    slope_disease = pm.Deterministic(f"slope_{indicator}_nat", at.softplus(slope_disease_tilde), dims=("fedState"))
+    
+    mu_multiplicator_disease = pm.Normal(f"mu_multiplicator_log_{indicator}_nat", mu = np.log(1.5), sigma = 0.5)
+    mu_multiplicator_disease = pm.Deterministic(f"mu_multiplicator_{indicator}_nat", at.exp(mu_multiplicator_disease))
+    sigma_multiplicator_disease = pm.Exponential(f"sigma_multiplicator_{indicator}_nat", 10)
+    multiplicator_disease_tilde = pm.Normal(f"multiplicator_{indicator}_tilde_nat", mu = 0, sigma = 1, dims=("fedState"))
+    multiplicator_disease = pm.Deterministic(f"multiplicator_{indicator}_nat", at.exp(mu_multiplicator_disease + sigma_multiplicator_disease*multiplicator_disease_tilde), dims=("fedState"))
+
+    factor_disease = pm.Deterministic(f"factor_{indicator}_nat", multiplicator_disease[fedState_idx]*np.exp(-time_counter/(slope_disease[fedState_idx]+0.01)), dims=("obs_id"))
+    
+    #factor_disease_fin = pm.math.switch(56 > time_counter, factor_disease, 0)
+    #factor_disease_fin = pm.math.switch(time_counter < 52, factor_disease, 0)
+    # # #factor_disease = pm.Deterministic(f"factor_{indicator}", np.exp(disease_data/1), dims=("fedState"))
+    #exponent = pm.Deterministic(f"exponent_{indicator}", - factor_disease * risk, dims = "fedState")
+
+    d = pm.Deterministic(f"d_{indicator}_nat", at.exp(- factor_disease*risk), dims = "obs_id")
+
+    return d
+
 # --- Total model --- #
 
 
@@ -435,7 +569,8 @@ def create_model(
     lk_in_long=None,
     counter_in=None,
     chosen_model_in=None,
-    incl2024_in = True
+    incl2024_in = True,
+    plus_nat_incidence_in = False
 ):
 
     len_data = observed_mobility_data_in.shape[0]
@@ -453,6 +588,9 @@ def create_model(
                 mu_z_prior1 = np.power(0.9, 1/len(indicators_in))
                 mu_z_prior2 = np.power(0.9, 1/len(indicators_in))
                 m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in, incl2024 = incl2024_in)
+
+        if plus_nat_incidence_in == True:
+                m *= disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in, incl2024 = incl2024_in)
 
         if pop_density_in is not None:
             m *= pop_density_factor(pop_density_in, fed_states_in)
