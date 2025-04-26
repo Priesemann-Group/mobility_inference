@@ -280,7 +280,7 @@ def daylight_factor(daylight_data_in, fedState_x):
 #     return day
 
 #Impact of disease spread
-def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None, chosen_model = None, incl2024 = True):
+def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedState_idx, counter, mu_z_prior_1=0.7, mu_z_prior_2=0.8, model = None, chosen_model = None, incl2024 = True, mix_of_incidences= None):
     """Models impact of disease spread on mobility.
 
     Args:
@@ -292,10 +292,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     Returns:
     Disease spread modulation factor (pymc variable)
     """
-
-    ## data
-    disease_data = pm.MutableData(indicator, disease_data_in[indicator], dims = "obs_id_long")
-
+    
     time_counter = pm.MutableData(f"counter_{indicator}", time_counter_in["time counter"], dims = ("obs_id"))
     time_counter_long = pm.MutableData(f"counter_{indicator}_long", time_counter_in["time_counter_long"], dims = ("obs_id_long"))
 
@@ -314,64 +311,108 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
     )
     
-    if chosen_model == "cities":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    disease_data_local = pm.MutableData(indicator, disease_data_in[indicator], dims = "obs_id_long")
+    disease_data_nat = pm.MutableData("C_nat", disease_data_in["C_nat"], dims = "obs_id_long")
+        
+    # if chosen_model == "cities":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities.csv", header = 0, index_col=0, parse_dates=True)
+    #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
     if chosen_model == "fedStates":
         if incl2024 == True:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
         else:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_no2024.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "fedStates_nat":
-        if incl2024 == True:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-        else:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "countieswithproblems":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_countieswithproblems.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "cities_MeckPomm":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities_MeckPomm.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "large":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_large.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+    # if chosen_model == "fedStates_nat":
+    #     if incl2024 == True:
+    #         disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
+    #         #disease_data_nat = pm.Data(f"disease_{indicator}_long", np.array(disease_data_nat))
+    #     else:
+    #         disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+    #         #disease_data_nat = pm.Data(f"disease_{indicator}_long", np.array(disease_data_nat))
+    # if chosen_model == "countieswithproblems":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_countieswithproblems.csv", header = 0, index_col=0, parse_dates=True)
+    #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
+    # if chosen_model == "cities_MeckPomm":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities_MeckPomm.csv", header = 0, index_col=0, parse_dates=True)
+    #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
+    # if chosen_model == "large":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_large.csv", header = 0, index_col=0, parse_dates=True)
+    #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
     if chosen_model == "firsthundred":
         if incl2024 == True:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
         else:
-            disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
-            disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     if chosen_model == "secondhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     if chosen_model == "thirdhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "fourthhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "firstsecondhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "fourhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
-    if chosen_model == "thirdfourthhundred":
-        disease_data = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred.csv", header = 0, index_col=0, parse_dates=True)
-        disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+    if chosen_model== "fourthhundred":
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+    # if chosen_model == "firstsecondhundred":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred.csv", header = 0, index_col=0, parse_dates=True)
+    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
+    # if chosen_model == "fourhundred":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred.csv", header = 0, index_col=0, parse_dates=True)
+    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
+    # if chosen_model == "thirdfourthhundred":
+    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred.csv", header = 0, index_col=0, parse_dates=True)
+    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
     
     if incl2024:
-        long = 108
+        long = 113
         short = 104
     else:
-        long = 56
+        long = 61
         short = 52
+   
+    if mix_of_incidences:
+        weigh_param = pm.Normal("incidence_weight_param", mu = 0, sigma = 1)
+        weight = pm.Deterministic("incidence_weight", 1/(1 + np.exp(-weigh_param)))
+        disease_data = pm.Deterministic("combined_incidence", weight*disease_data_local + (1-weight)*disease_data_nat)
+        #disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+    else:
+        disease_data = disease_data_local
+    #disease_data = pm.MutableData(f"disease_{indicator}_long", np.array(disease_data_local))
     
     # convolve disease data with delay kernel
     risk = cov19.model.delay._delay_kernel(
@@ -382,7 +423,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
         len_input_arr=long,
         len_output_arr=short,
         #num_seperated_axes = 10,
-        delay_betw_input_output=4,
+        delay_betw_input_output=9,
     )
     
     risk = pm.Deterministic(f"risk_{indicator}", risk.T.flatten(), dims = ("obs_id"))
@@ -501,10 +542,10 @@ def disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fe
         disease_data = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data))
     
     if incl2024:
-        long = 108
+        long = 113
         short = 104
     else:
-        long = 56
+        long = 61
         short = 52
     
     # convolve disease data with delay kernel
@@ -514,9 +555,9 @@ def disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fe
         median_delay=mu_disease,
         scale_delay= sigma_disease,
         len_input_arr=long,
-        len_output_arr=short,
+        len_output_arr=long,
         #num_seperated_axes = 10,
-        delay_betw_input_output=4,
+        delay_betw_input_output=8,
     )
     
     risk = pm.Deterministic(f"risk_{indicator}_nat", risk.T.flatten(), dims = ("obs_id"))
@@ -559,6 +600,9 @@ def create_model(
     time_counter_in,
     school_in,
     holiday_in,
+    incl2024_in,
+    plus_nat_incidence_in,
+    mix_in,
     precipitation_in=None,
     temperature_in=None,
     daylight_in=None,
@@ -568,9 +612,7 @@ def create_model(
     lk_in=None,
     lk_in_long=None,
     counter_in=None,
-    chosen_model_in=None,
-    incl2024_in = True,
-    plus_nat_incidence_in = False
+    chosen_model_in=None
 ):
 
     len_data = observed_mobility_data_in.shape[0]
@@ -587,7 +629,7 @@ def create_model(
             for indicator in indicators_in:
                 mu_z_prior1 = np.power(0.9, 1/len(indicators_in))
                 mu_z_prior2 = np.power(0.9, 1/len(indicators_in))
-                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in, incl2024 = incl2024_in)
+                m *= disease_factor(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in, incl2024 = incl2024_in, mix_of_incidences=mix_in)
 
         if plus_nat_incidence_in == True:
                 m *= disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fed_states_in, mu_z_prior1, mu_z_prior2, model = model_in, chosen_model = chosen_model_in, incl2024 = incl2024_in)

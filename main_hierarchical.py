@@ -33,7 +33,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-04-22_firsthundred_no2024"  # Name of the experiment
+name = "2025-04-25_thirdhundred_incidencemix_no2024"  # Name of the experiment
 test = False# Whether to run a test with fewer samples
 single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
@@ -47,7 +47,7 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "cities"
 #chosen_model = "cities_MeckPomm"
 #chosen_model = "large"
-chosen_model = "firsthundred"
+chosen_model = "thirdhundred"
 #chosen_model = "secondhundred"
 #chosen_model = "fourthhundred"
 #chosen_model = "national"
@@ -56,7 +56,9 @@ chosen_model = "firsthundred"
 
 incl2024 = False
 
-plus_nat_incidence = True
+plus_nat_incidence = False
+
+mix_incidence = True
 
 #Include population density if required by giving any value
 pop_density = None
@@ -284,6 +286,9 @@ for indicators in all_combinations:
             time_counter,
             school_in = school,
             holiday_in = holiday,
+            incl2024_in = incl2024,
+            plus_nat_incidence_in = plus_nat_incidence,
+            mix_in = mix_incidence,
             temperature_in=temperature,
             precipitation_in=precipitation,
             daylight_in = daylight,
@@ -294,8 +299,6 @@ for indicators in all_combinations:
             lk_in_long = lk_long,
             counter_in = counter,
             chosen_model_in = chosen_model,
-            incl2024_in = incl2024,
-            plus_nat_incidence_in = plus_nat_incidence
         )
         models[i] = inference_model
 
@@ -349,7 +352,9 @@ for indicators in all_combinations:
                     'temperature': temperature,
                     'daylight': daylight,
                     'school': school, 
-                    'holiday': holiday
+                    'holiday': holiday,
+                    'incl_2024': incl2024,
+                    'mix_incidence' : mix_incidence
                 }
 
     with open(pickle_filepath , 'wb') as buff:
@@ -369,5 +374,5 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024
+           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024, plus_nat_incidence
         )

@@ -239,19 +239,31 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "firsthundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
-            baseline_mobility = [8] * 8736
+            baseline_mobility = [8] * 84 * 104
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_firsthundred.csv"
             baseline_mobility = [8] * 52 * 84
     if chosen_model == "secondhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
-        baseline_mobility = [8] * 8424
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+            baseline_mobility = [8] * 52 * 81
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_secondhundred.csv"
+            baseline_mobility = [8] * 52 * 81
     if chosen_model == "thirdhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
-        baseline_mobility = [8] * 9672
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+            baseline_mobility = [8] * 104 * 93
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
+            baseline_mobility = [8] * 52 * 93
     if chosen_model == "fourthhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
-        baseline_mobility = [8] * 9048
+        if incl2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+            baseline_mobility = [8] * 104 * 87
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
+            baseline_mobility = [8] * 52 * 87
     if chosen_model == "firstsecondhundred":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
         baseline_mobility = [8] * 104 * 165
@@ -301,14 +313,14 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "fedStates":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
-            baseline_mobility = [8] * 108 * 16
+            baseline_mobility = [8] * 113 * 16
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
-            baseline_mobility = [8] * 56 * 16
+            baseline_mobility = [8] * 61 * 16
     if chosen_model == "fedStates_nat":
         if incl2024:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
-            baseline_mobility = [8] * 108 * 16
+            baseline_mobility = [8] * 113 * 16
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
             baseline_mobility = [8] * 56 * 16
@@ -335,19 +347,31 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "firsthundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
-            baseline_mobility = [8] * 9072
+            baseline_mobility = [8] * 113 * 84
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
-            baseline_mobility = [8] * 52 * 84
+            baseline_mobility = [8] * 61 * 84
     if chosen_model == "secondhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
-        baseline_mobility = [8] * 8748
+        if incl2024==True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+            baseline_mobility = [8] * 113 * 81
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
+            baseline_mobility = [8] * 61 * 81
     if chosen_model == "thirdhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
-        baseline_mobility = [8] * 10044
+        if incl2024==True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+            baseline_mobility = [8] * 113 * 93
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
+            baseline_mobility = [8] * 61 * 93
     if chosen_model == "fourthhundred":
-        path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
-        baseline_mobility = [8] * 9396
+        if incl2024==True:
+            path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+            baseline_mobility = [8] * 113 * 87
+        else:
+            path_mobility = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
+            baseline_mobility = [8] * 61 * 87
     if chosen_model == "firstsecondhundred":
         path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
         baseline_mobility = [8] * 165 * 108
@@ -514,11 +538,20 @@ def get_C_raw(chosen_model, incl2024):
         else:
             path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
     if chosen_model == "fourthhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
     if chosen_model == "firstsecondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
     if chosen_model == "fourhundred":
@@ -615,11 +648,20 @@ def get_C_transformed(chosen_model, incl2024):
         else: 
             path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv" 
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv" 
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv" 
     if chosen_model == "fourthhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv" 
     if chosen_model == "firstsecondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv" 
     if chosen_model == "fourhundred":
@@ -634,6 +676,77 @@ def get_C_transformed(chosen_model, incl2024):
         case_data = cases_df["Infection_Incidence_Norm_nat"].to_xarray()
     else:
         case_data = cases_df["Infection_Incidence_Norm"].to_xarray()
+   
+    #case_data = cases_df[["fedState","Infection_Incidence_Norm", "timeCounter"]]
+   
+    return case_data
+
+def get_C_transformed_nat(chosen_model, incl2024):
+    """Get normalized (standardized + mapped to [0,1]) weekly case data from preprocessed data.
+
+    Args:
+        None
+    Returns:
+        Xarray: Normalized 7-Day Cases Incidence/100,000.
+
+    """
+    if chosen_model == "BEHHHB":
+        path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB_long.csv"
+    if chosen_model == "fedStates":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
+    if chosen_model == "fedStates_nat":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fedStates_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fedStates_long.csv"
+    if chosen_model == "cities":
+        if incl2024:
+            path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
+    if chosen_model == "cities_MeckPomm":
+        if incl2024:
+            path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTMeckpommincl2024_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTMeckpomm_long.csv"
+    if chosen_model == "large":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_35counties_long.csv"
+    if chosen_model == "cities_non_hierarchical":
+        path_cases = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long_non_hierarchical.csv"
+    if chosen_model == "firsthundred":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
+    if chosen_model == "secondhundred":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
+    if chosen_model == "thirdhundred":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv" 
+    if chosen_model == "fourthhundred":
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else: 
+            path_cases = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
+    if chosen_model == "firstsecondhundred":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv" 
+    if chosen_model == "fourhundred":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv" 
+    if chosen_model == "thirdfourthhundred":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdfourthhundred_long.csv"    
+    if chosen_model == "countieswithproblems":
+        path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems_long.csv"
+    cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
+
+    case_data = cases_df["Infection_Incidence_Norm_nat"].to_xarray()
    
     #case_data = cases_df[["fedState","Infection_Incidence_Norm", "timeCounter"]]
    
@@ -661,7 +774,10 @@ def get_logC_transformed (chosen_model):
     if chosen_model == "firsthundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "countieswithproblems":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
     cases_df = pd.read_csv(path_cases, index_col=0, parse_dates=True)
@@ -1036,11 +1152,20 @@ def get_school_vacations(chosen_model, incl2024):
         else:
             path_school = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_school = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_school = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_school = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1099,11 +1224,20 @@ def get_pub_holidays(chosen_model, incl2024):
         else:
             path_pubHol = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_pubHol = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1157,11 +1291,20 @@ def get_counter(chosen_model, incl2024):
         else:
             path_counter = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1219,11 +1362,20 @@ def get_counter_long(chosen_model, incl2024):
         else:
             path_counter = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
     if chosen_model == "fourthhundred":
-        path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else:
+            path_counter = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
     if chosen_model == "firstsecondhundred":
         path_counter = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
     if chosen_model == "fourhundred":
@@ -1315,11 +1467,20 @@ def get_temperature(chosen_model, incl2024):
         else:
             path_temp = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_temp = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_temp = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_temp = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_temp = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_temp = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_temp = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1464,11 +1625,20 @@ def get_federal_states(chosen_model, incl2024):
         else:
             path_fedStates = "./data/input_data_hierarchical/inputData_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1519,11 +1689,20 @@ def get_lk(chosen_model, incl2024=True):
     if chosen_model == "firsthundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
     if chosen_model == "secondhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_secondhundred.csv"
     if chosen_model == "thirdhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
     if chosen_model == "fourthhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
     if chosen_model == "firstsecondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
     if chosen_model == "fourhundred":
@@ -1577,11 +1756,20 @@ def get_federal_states_long(chosen_model, incl2024):
         else:
             path_fedStates = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
     if chosen_model == "fourthhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
     if chosen_model == "firstsecondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
     if chosen_model == "fourhundred":
@@ -1606,7 +1794,7 @@ def get_federal_states_long(chosen_model, incl2024):
 
     return fedState, fed_States, obs_id
 
-def get_lk_long(chosen_model):
+def get_lk_long(chosen_model, incl2024 = True):
     """Get index-array
 
     Args:
@@ -1633,11 +1821,20 @@ def get_lk_long(chosen_model):
     if chosen_model == "firsthundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
     if chosen_model == "fourthhundred":
-        path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else:
+            path_fedStates = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
     if chosen_model == "firstsecondhundred":
         path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
     if chosen_model == "fourhundred":
@@ -1692,11 +1889,20 @@ def get_index_long(chosen_model, incl2024):
         else:
             path_cases = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
     if chosen_model == "secondhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_secondhundred_long.csv"
     if chosen_model == "thirdhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_thirdhundred_long.csv"
     if chosen_model == "fourthhundred":
-        path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        if incl2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred_long.csv"
+        else:
+            path_cases = "./data/input_data_hierarchical/inputData_fourthhundred_long.csv"
     if chosen_model == "firstsecondhundred":
         path_cases = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred_long.csv"
     if chosen_model == "fourhundred":
