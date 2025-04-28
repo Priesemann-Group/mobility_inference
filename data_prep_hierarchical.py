@@ -239,14 +239,14 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "firsthundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
-            baseline_mobility = [8] * 84 * 104
+            baseline_mobility = [8] * 104 * 104
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_firsthundred.csv"
             baseline_mobility = [8] * 52 * 84
     if chosen_model == "secondhundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
-            baseline_mobility = [8] * 52 * 81
+            baseline_mobility = [8] * 104 * 81
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_secondhundred.csv"
             baseline_mobility = [8] * 52 * 81
