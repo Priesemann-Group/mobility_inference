@@ -4,6 +4,7 @@ import pymc as pm
 import pandas as pd
 from pyparsing import alphanums
 import pytensor.tensor as at
+#import aesara.tensor
 #import xarray as xr
 
 # local modules
@@ -251,7 +252,7 @@ def daylight_factor(daylight_data_in, fedState_x):
     sigma_shift_light = pm.HalfCauchy("sigma_shift_daylight", beta = 10)
     shift_daylight = pm.Normal("shift_daylight", mu = mu_shift_light, sigma = sigma_shift_light, dims = "fedState") 
     
-    mu_slope_light = pm.LogNormal("mu_slope_daylight", mu = np.log(1), sigma = 0.1,)
+    mu_slope_light = pm.LogNormal("mu_slope_daylight", mu = np.log(1), sigma = 0.1)
     sigma_slope_light = pm.HalfCauchy("sigma_slope_daylight", beta = 10)
     slope_daylight = pm.Normal("slope_daylight", mu = mu_slope_light, sigma = sigma_slope_light, dims = "fedState")
     #intercept_daylight = pm.LogNormal("intercept_daylight", mu = np.log(0.8), sigma = 0.1, dims = "fedState")
@@ -302,11 +303,18 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     # #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
     # #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)    
     #sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 10)
-    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}", sigma = 0.5)
+    #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 0.3)
+    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}", sigma = 0.1)
+    
+    #Status 05/06/25
+    #mu_disease_tilde_noncentral = pm.Normal(f"mu_{indicator}_tilde_noncentral", mu = 0, sigma = 1, dims = "fedState")
+    #mu_disease_tilde = pm.Deterministic(f"mu_{indicator}_tilde", mu_gamma_disease + mu_disease_tilde_noncentral*sigma_gamma_disease, dims = "fedState")
+    #mu_disease = pm.Deterministic(f"mu_{indicator}", at.softplus(mu_disease_tilde), dims = "fedState")
+    
     mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = mu_gamma_disease, sigma = sigma_gamma_disease, dims = "fedState")
     mu_disease = pm.Deterministic(f"mu_{indicator}", at.softplus(mu_disease_tilde), dims = "fedState")
     
-    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.5) 
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.2) 
     sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
     )
@@ -318,6 +326,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_cities.csv", header = 0, index_col=0, parse_dates=True)
     #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
     if chosen_model == "fedStates":
+        dimension = 16
         if incl2024 == True:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
@@ -325,9 +334,9 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
             #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
         else:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_no2024.csv", header = 0, index_col=0, parse_dates=True)
-            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
             disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
-            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+            disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     # if chosen_model == "fedStates_nat":
     #     if incl2024 == True:
     #         disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fedstates_nat.csv", header = 0, index_col=0, parse_dates=True)
@@ -345,6 +354,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_large.csv", header = 0, index_col=0, parse_dates=True)
     #     #disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
     if chosen_model == "firsthundred":
+        dimension = 84
         if incl2024 == True:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
@@ -356,6 +366,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
             disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firsthundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     if chosen_model == "secondhundred":
+        dimension = 81
         if incl2024 == True:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
@@ -367,6 +378,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
             disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_secondhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     if chosen_model == "thirdhundred":
+        dimension = 93
         if incl2024 == True:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
@@ -378,6 +390,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
             disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     if chosen_model== "fourthhundred":
+        dimension = 87
         if incl2024 == True:
             disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
@@ -388,15 +401,42 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
             #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
             disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourthhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
             #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
-    # if chosen_model == "firstsecondhundred":
-    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred.csv", header = 0, index_col=0, parse_dates=True)
-    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
-    # if chosen_model == "fourhundred":
-    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred.csv", header = 0, index_col=0, parse_dates=True)
-    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
-    # if chosen_model == "thirdfourthhundred":
-    #     disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred.csv", header = 0, index_col=0, parse_dates=True)
-    #     disease_data_local = pm.Data(f"disease_{indicator}_long", np.array(disease_data_local))
+    if chosen_model == "firstsecondhundred":
+        dimension = 165
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_firstsecondhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+    if chosen_model == "fourhundred":
+        dimension = 345
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_fourhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
+    if chosen_model == "thirdfourthhundred":
+        dimension = 180
+        if incl2024 == True:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", disease_data_local)
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred_nat.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", disease_data_nat)
+        else:
+            disease_data_local = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_local = pm.Data(f"disease_{indicator}_long_local", np.array(disease_data_local))
+            disease_data_nat = pd.read_csv("./data/input_data_hierarchical/casesmatrix_thirdfourthhundred_nat_no2024.csv", header = 0, index_col=0, parse_dates=True)
+            #disease_data_nat = pm.Data(f"disease_{indicator}_long_nat", np.array(disease_data_nat))
     
     if incl2024:
         long = 113
@@ -406,10 +446,14 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
         short = 52
    
     if mix_of_incidences:
-        weigh_param = pm.Normal("incidence_weight_param", mu = 0, sigma = 1)
+        mu_weight = pm.Normal("mu_incidence_weight_param", mu = 0, sigma = 1)
+        mu_weight_sigmafct = pm.Deterministic("mu_incidence_weight_param_sigma", 1/(1 + np.exp(-mu_weight)))
+        weigh_param = pm.Normal("incidence_weight_param", mu = mu_weight, sigma = 1, shape=(1,dimension))
         weight = pm.Deterministic("incidence_weight", 1/(1 + np.exp(-weigh_param)))
-        disease_data = pm.Deterministic("combined_incidence", weight*disease_data_local + (1-weight)*disease_data_nat)
+        disease_data = pm.Deterministic("combined_incidence", weight*disease_data_local+(1-weight)*disease_data_nat)
         #disease_data = pm.Data(f"disease_{indicator}_long", np.array(disease_data))
+        #disease_data = pd.DataFrame(disease_data.numpy())
+        #disease_data = disease_data_local
     else:
         disease_data = disease_data_local
     #disease_data = pm.MutableData(f"disease_{indicator}_long", np.array(disease_data_local))

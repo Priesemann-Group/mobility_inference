@@ -2826,7 +2826,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
         if len(indicators_in) == 0:
             fig, axs = plt.subplots(1, 8, figsize=(18, 3))
         if len(indicators_in) == 1:
-            fig, axs = plt.subplots(2, 11, figsize=(28, 10))
+            fig, axs = plt.subplots(2, 12, figsize=(30, 10))
         elif len(indicators_in) == 2:
             fig, axs = plt.subplots(3, 8, figsize=(18, 9))
         elif len(indicators_in) == 3:
@@ -2855,7 +2855,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
                 model_in, trace_in.sel(fedState=i), "theta_h", dist_math="\\theta_{h}", ax=axs[3]
             )
             cov19.plot.distribution( 
-                model_in, trace_in, "mu_hol", dist_math="mu_{hol}", ax=axs[4]
+                model_in, trace_in, "mu_hol", dist_math="\\mu_{hol}", ax=axs[4]
             )
         
         cov19.plot.distribution( 
@@ -2867,55 +2867,63 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
                 model_in, trace_in.sel(fedState=i), "amplitude_temperature", dist_math="amplitude_{temperature}", ax=axs[6]
             )
             cov19.plot.distribution( 
-                model_in, trace_in, "mu_amp_temp", dist_math="mu_amp_{temp}", ax=axs[7]
+                model_in, trace_in, "mu_amp_temp", dist_math="\\mu_amp_{temp}", ax=axs[7]
             )
             
             cov19.plot.distribution( 
                 model_in, trace_in.sel(fedState=i), "shift_temperature", dist_math="shift_{temperature}", ax=axs[8]
             )
             cov19.plot.distribution( 
-                model_in, trace_in, "mu_shift_temp", dist_math="mu_shift_{temp}", ax=axs[9]
+                model_in, trace_in, "mu_shift_temp", dist_math="\\mu_shift_{temp}", ax=axs[9]
             )
             
             cov19.plot.distribution( 
                 model_in, trace_in.sel(fedState=i), "slope_temperature", dist_math="slope_{temperature}", ax=axs[10]
             )
             cov19.plot.distribution( 
-                model_in, trace_in, "mu_slope_temp", dist_math="mu_slope_temp", ax=axs[11]
+                model_in, trace_in, "mu_slope_temp", dist_math="\\mu_slope_{temp}", ax=axs[11]
             )
 
     # disease
         j = 12
         for indicator in indicators_in:
             cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=i), f"mu_{indicator}", dist_math=f"mu_{indicator}", ax=axs[j]
+                model_in, trace_in, "mu_incidence_weight_param_sigma", dist_math="mu_incidence_weight_param_sigma", ax=axs[j]
+            )
+            
+            cov19.plot.distribution( 
+                model_in, trace_in.sel(incidence_weight_dim_1=i), "incidence_weight", dist_math="incidence_weight", ax=axs[j+1]
+            )
+            
+            cov19.plot.distribution( 
+            model_in, trace_in.sel(fedState=i), f"mu_{indicator}", dist_math=f"mu_{indicator}", ax=axs[j+2]
             )
             cov19.plot.distribution( 
-            model_in, trace_in.sel(fedState=i), f"mu_gamma_log_{indicator}", dist_math=f"mu_gamma_log_{indicator}", ax=axs[j+1]
+            model_in, trace_in.sel(fedState=i), f"mu_gamma_log_{indicator}", dist_math=f"mu_gamma_log_{indicator}", ax=axs[j+3]
             )
             cov19.plot.distribution( 
-            model_in, trace_in, f"mu_gamma_{indicator}", dist_math=f"mu_gamma_{{{indicator}}}", ax=axs[j+2]
+            model_in, trace_in, f"mu_gamma_{indicator}", dist_math=f"mu_gamma_{{{indicator}}}", ax=axs[j+4]
             )
             cov19.plot.distribution( 
-            model_in, trace_in, f"sigma_gamma_{indicator}", dist_math=f"sigma_gamma_{indicator}", ax=axs[j+3]
+            model_in, trace_in, f"sigma_gamma_{indicator}", dist_math=f"sigma_gamma_{indicator}", ax=axs[j+5]
             )
             cov19.plot.distribution(
-                model_in, trace_in.sel(fedState=i), f"multiplicator_{indicator}", dist_math=f"multiplicator_{{{indicator}}}", ax=axs[j+4]
+                model_in, trace_in.sel(fedState=i), f"multiplicator_{indicator}", dist_math=f"multiplicator_{{{indicator}}}", ax=axs[j+6]
             )
             cov19.plot.distribution(
-                model_in, trace_in, f"mu_multiplicator_{indicator}", dist_math=f"mu_multiplicator_{{{indicator}}}", ax=axs[j+5]
+                model_in, trace_in, f"mu_multiplicator_{indicator}", dist_math=f"mu_multiplicator_{{{indicator}}}", ax=axs[j+7]
             )
             # cov19.plot.distribution(
             #     model_in, trace_in.sel(fedState=i), f"shift_{indicator}", dist_math=f"shift_{{{indicator}}}", ax=axs[i+3]
             # )
             cov19.plot.distribution(
-                model_in, trace_in.sel(fedState=i), f"slope_{indicator}", dist_math=f"slope_{{{indicator}}}", ax=axs[j+6]
+                model_in, trace_in.sel(fedState=i), f"slope_{indicator}", dist_math=f"slope_{{{indicator}}}", ax=axs[j+8]
             )
             cov19.plot.distribution(
-                model_in, trace_in, f"mu_slope_{indicator}", dist_math=f"mu_slope_{{{indicator}}}", ax=axs[j+7]
+                model_in, trace_in, f"mu_slope_{indicator}", dist_math=f"mu_slope_{{{indicator}}}", ax=axs[j+9]
             )
             cov19.plot.distribution(
-                model_in, trace_in, f"sigma_slope_{indicator}", dist_math=f"sigma_slope_{indicator}", ax=axs[j+8]
+                model_in, trace_in, f"sigma_slope_{indicator}", dist_math=f"sigma_slope_{indicator}", ax=axs[j+10]
             )
             
             # cov19.plot.distribution(
@@ -2924,7 +2932,7 @@ def plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in
             # cov19.plot.distribution(
             #     model_in, trace_in, f"mu_intercept_{indicator}", dist_math=f"mu_intercept_{{{indicator}}}", ax=axs[j+8]
             # )
-            i += 8
+            i += 10
 
         plotnamepng= f"{tag_in}/" + c + "-distributions.png"
         plotnamepdf = f"{tag_in}/" + c + "-distributions.pdf"
@@ -3361,7 +3369,10 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
 
     for indicator in indicators:
         for i, c in enumerate(federalStates):
-            fig, axs = plt.subplots(4, 1, figsize=(9, 20), sharex=False)
+            if mix_incidence == True:
+                fig, axs = plt.subplots(5, 1, figsize=(9, 25), sharex=False)                
+            else:
+                fig, axs = plt.subplots(4, 1, figsize=(9, 20), sharex=False)
             axs = axs.ravel()
             ax = axs[0]
             if indicator == "C":
@@ -3404,8 +3415,30 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             
             date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
+            
+            if mix_incidence == True:  
+                ax=axs[1]
+                y_first = trace_in.posterior.combined_incidence.where(trace_in.posterior.combined_incidence.combined_incidence_dim_1==i)
+                y = y_first.dropna(dim="combined_incidence_dim_1", how = "any")
+                y_test = y[:,:,:,0]
+                plot_timeseries(
+                    ax,
+                    dates_plot_long,
+                    y_test,
+                    color_in=colors[indicator],
+                    label_in=labels[indicator],
+                )
+                format_x_axis(ax, dates_plot_long)
+                ## set y label
+                ax.set_ylabel("Combined Incidence")
 
-            ax = axs[1]
+                date_form = DateFormatter("%m/%d")
+                ax.xaxis.set_major_formatter(date_form)
+            
+            if mix_incidence == True:
+                ax = axs[2]
+            else:
+                ax = axs[1]
             if indicator == "C":
                 y_first = trace_in.posterior.risk_C.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
@@ -3427,7 +3460,10 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             
-            ax = axs[2] 
+            if mix_incidence == True:
+                ax = axs[3]
+            else:
+                ax = axs[2]
             if indicator == "C":
                 y_first = trace_in.posterior.factor_C.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
@@ -3453,7 +3489,10 @@ def plot_disease_timeseries(dates_in, trace_in, tag_in, indicators, disease_data
             ax.xaxis.set_major_formatter(date_form)
 
             # # lower plot
-            ax = axs[3] 
+            if mix_incidence:
+                ax = axs[4]
+            else:
+                ax = axs[3] 
             if indicator == "C":
                 y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
             if indicator == "R":
@@ -3509,19 +3548,19 @@ def plot_chains(trace_in, tag_in):
 
 
 def analysis_figures(
-    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024, plus_nat_incidence
+    model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024, plus_nat_incidence, mix_incidence
 ):
     utils.make_dir(tag_in)
     if indicators_in:
        #convolution_figure(indicators_in, trace_in, dates_in, tag_in)
         plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
         #plot_gamma_parameters(trace_in, indicators_in, tag_in)
-        plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model, mix_incidence=False)
-        #plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
+        plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model, mix_incidence)
+       #plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
     if temperature_in:
-       plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
-    # if daylight_in:
-    #     plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+      plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+    #if daylight_in:
+    #    plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
     plot_all_timeseries(
         chosen_model,

@@ -33,12 +33,12 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-04-25_thirdhundred_incidencemix_no2024"  # Name of the experiment
+name = "2025-06-02_1000halfnormal"  # Name of the experiment
 test = False# Whether to run a test with fewer samples
 single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
-plot_figures = False    # Whether to plot figures
+plot_figures = False    # Whether to plot figures'
 ELPD_method = None   # ELPD calculation method: "LFO" or "k-fold_CV"; else set to None
 M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 
@@ -47,7 +47,7 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "cities"
 #chosen_model = "cities_MeckPomm"
 #chosen_model = "large"
-chosen_model = "thirdhundred"
+chosen_model = "fourhundred"
 #chosen_model = "secondhundred"
 #chosen_model = "fourthhundred"
 #chosen_model = "national"
@@ -315,7 +315,7 @@ for indicators in all_combinations:
                 # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
                 # trace = approx.sample(draws=draws)
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie",
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", target_accept = 0.9,
                     idata_kwargs={"include_transformed": False}
                     #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
                 )
@@ -364,7 +364,45 @@ for indicators in all_combinations:
     pretest = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.d_C)
     test = np.median(pretest, axis=0)
     test2 = pd.DataFrame(test)
-    test2.to_csv(f"{supDir_name}diseaseFactor.csv")
+    subDir_name = "results/" + name
+    test2.to_csv(f"{subDir_name}/d_C.csv")
+    
+    pretestb = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.factor_C)
+    testb = np.median(pretestb, axis=0)
+    test2b = pd.DataFrame(testb)
+    subDir_nameb = "results/" + name
+    test2b.to_csv(f"{subDir_nameb}/factor_C.csv")
+        
+    pretestc = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.multiplicator_C)
+    testc = np.median(pretestc, axis=0)
+    test2c = pd.DataFrame(testc)
+    subDir_namec = "results/" + name
+    test2c.to_csv(f"{subDir_namec}/multiplicator_C.csv")
+        
+    pretestd = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.slope_C)
+    testd = np.median(pretestd, axis=0)
+    test2d = pd.DataFrame(testd)
+    subDir_named = "results/" + name
+    test2d.to_csv(f"{subDir_named}/slope_C.csv")
+    
+    preteste = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.temperature_factor)
+    teste = np.median(preteste, axis=0)
+    test2e = pd.DataFrame(teste)
+    subDir_named = "results/" + name
+    test2e.to_csv(f"{subDir_named}/temperature_factor.csv")
+    
+    pretestf = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_v)
+    testf = np.median(pretestf, axis=0)
+    test2f = pd.DataFrame(testf)
+    subDir_named = "results/" + name
+    test2f.to_csv(f"{subDir_named}/theta_vac.csv")
+    
+    pretestg = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_h)
+    testg = np.median(pretestg, axis=0)
+    test2g = pd.DataFrame(testg)
+    subDir_named = "results/" + name
+    test2g.to_csv(f"{subDir_named}/theta_hol.csv")
+    
     
     # # Save ELPD result to file
     # if ELPD_method is not None:
@@ -374,5 +412,6 @@ for indicators in all_combinations:
     if plot_figures:
         subFigDir_name = figdir_name + "/" + tag
         plot_hierarchical.analysis_figures(
-           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024, plus_nat_incidence
+           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024, plus_nat_incidence, mix_incidence
         )
+        

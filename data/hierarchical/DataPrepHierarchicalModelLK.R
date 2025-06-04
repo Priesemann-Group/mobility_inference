@@ -2,9 +2,10 @@
 library(readxl)
 library(tidyverse)
 library(MMWRweek)
+library(zoo)
 
-#chosen_model = "cities"
-#chosen_model = "cities_non_hierarchical"
+model <- "cities"
+chosen_model <- "cities"
 
 # LK Population, corresp. Fed State ---------------------------------------
 
@@ -19,7 +20,23 @@ colnames(LK) <- c("LK_Id",
                   "Population_Female",
                   "Population_per_km2")
 LK <- LK %>% filter(nchar(LK_Id) == 5)
-LK <- LK %>% dplyr::rowwise() %>% mutate(LK_Name = str_split(LK_Name, ",")[[1]][1]) %>%
+LK$LK_Name <- str_replace(LK$LK_Name, ", Stadt$", "")
+LK$LK_Name <- str_replace(LK$LK_Name, ", Stadtkreis$", "")
+LK$LK_Name <- str_replace(LK$LK_Name, ", Landeshauptstadt$", "")
+LK$LK_Name <- str_replace(LK$LK_Name, ", Hansestadt$", "")
+LK$LK_Name <- str_replace(LK$LK_Name, ", Freie und Hansestadt$", "")
+LK <- LK %>% mutate(LK_Name = case_when(Kreisfreie_Stadt == "Landkreis" & LK_Name == "München" ~ "Landkreis München",
+                                        Kreisfreie_Stadt == "Landkreis" & LK_Name == "Karlsruhe" ~ "Landkreis Karlsruhe",
+                                        Kreisfreie_Stadt == "Landkreis" & LK_Name == "Rostock" ~ "Landkreis Rostock",
+                                        Kreisfreie_Stadt == "Landkreis" & LK_Name == "Leipzig" ~ "Landkreis Leipzig",
+                                        Kreisfreie_Stadt == "Kreisfreie Stadt" & LK_Name == "Oldenburg (Oldenburg)" ~ "Oldenburg",
+                                        Kreisfreie_Stadt == "Landkreis" & LK_Name == "Oldenburg" ~ "Landkreis Oldenburg",
+                                        Kreisfreie_Stadt == "Landkreis" & LK_Name == "Osnabrück" ~ "Landkreis Osnabrück",
+                                        Kreisfreie_Stadt == "Solingen, Klingenstadt" ~ "Solingen",
+                                        Kreisfreie_Stadt == "Darmstadt, Wissenschaftsstadt" ~ "Darmstadt",
+                                        Kreisfreie_Stadt == "Hagen, Stadt der FernUniversität" ~ "Hagen",
+                                        .default = LK_Name))
+LK <- LK %>%
   mutate(LK_Name = case_when(LK_Name == "Mühldorf a.Inn" ~ "Mühldorf am Inn",
                              LK_Name == "Pfaffenhofen a.d.Ilm" ~ "Pfaffenhofen an der Ilm",
                              LK_Name == "Neumarkt i.d.OPf." ~ "Neumarkt in der Oberpfalz",
@@ -33,6 +50,7 @@ LK <- LK %>% dplyr::rowwise() %>% mutate(LK_Name = str_split(LK_Name, ",")[[1]][
                              LK_Name == "Wunsiedel i.Fichtelgebirge" ~ "Wunsiedel im Fichtelgebirge",
                              LK_Name == "Lindau (Bodensee)" ~ "Lindau",
                              LK_Name == "Rhein-Kreis Neuss" ~ "Rhein-Neuss",
+                             LK_Name == "Region Hannover" ~ "Hannover",
                              .default = as.character(LK_Name)))
 LK <- LK %>% mutate(federalState = case_when(str_sub(LK_Id,1,2) == "01" ~ "Schleswig-Holstein",
                                          str_sub(LK_Id,1,2) == "02" ~ "Hamburg",
@@ -54,25 +72,63 @@ LK <- LK %>% mutate(federalState = case_when(str_sub(LK_Id,1,2) == "01" ~ "Schle
 
 WeatherStations <- read_csv("/Users/sydney/git/mobility_inference/data/weather/WeatherStations.csv")
 
+
+     
+
 LK <- left_join(LK, WeatherStations)
 
-#LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln", 
-#"Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen"))
-
-LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln", 
-                                   "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim"))
-
-
-#This manually removes some Munich entries, needs to be improved at some point
-LK <- LK[-c(5:7),]
+if(model == "cities"){
+LK <- LK %>% filter(LK_Name %in% c("Berlin","Hamburg", "München", "Köln", "Frankfurt am Main", "Düsseldorf", "Stuttgart", "Leipzig", "Dortmund", "Bremen",
+                                   "Essen", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Bielefeld", "Bonn",
+                                   "Karlsruhe", "Münster", "Wiesbaden", "Mönchengladbach", "Aachen", "Braunschweig", "Kiel", "Chemnitz",
+                                   "Magdeburg", "Krefeld", "Halle (Saale)", "Mainz", "Erfurt", "Lübeck", "Rostock", 
+                                   "Hagen", "Potsdam", "Oldenburg"))
+}else if(model == "cities_MeckPomm"){
+#LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+#                                   "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim"))
+LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                   "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+                                   "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"))
+#LK <- LK[-c(5:7),] #This manually removes some Munich entries, needs to be improved at some point
+}else if(model == "large"){
+LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                       "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
+                                       "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+                                       "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+                                       "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
+                                       "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde", "Schleswig-Flensburg", "Seberg", "Steinburg",
+                                       "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz", "Hameln-Piermont", "Hildesheim", "Holzminden", "Nienburg/Wesrer", "Schaumburg", "Celle", "Cuxhaven", "Haburg", "Lürchow-Dannenberg", "Lüneburg", "Osterholz",
+                                       "Rotenburg (Wümme)", "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich", "Cloppenburg", "Emsland", "Friesland",
+                                       "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld", "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid",
+                                   "Kleve", "Mettmann", "Rhein-Neuss", "Viersen", "Bonn", "Leverkusen", "Städteregion Aachen",
+                                   "Düren", "Euskirchen", "Heinsberg", "Oberbergischer Kreis", "Rhein-Sieg-Kreis", "Münster",
+                                   "Borken", "Coesfeld", "Recklinghausen", "Steinfurt", "Warendorf", "Gütersloh", "Herford", "Höxter", "Lippe", "Minden-Lübbecke", "Paderborn",
+                                   "Hagen", "Ennepe-Ruhr-Kreis", "Hochsauerlandkreis", "Märkischer Kreis", "Olpe", "Siegen-Wittgenstein",
+                                   "Soest", "Unna", "Darmstadt", "Offenbach am Main", "Wiesbaden", "Darmstadt-Dieburg",
+                                   "Main-Kinzig-Kreis", "Odenwaldkreis", "Offenbach", "	Rheingau-Taunus-Kreis", "Gießen", "Lahn-Dill-Kreis", "Limburg-Weilburg",
+                                   "Marburg-Biedenkopf", "Vogelsbergkreis", "Kassel", "Fulda", "Hersfeld-Rotenburg", "Schwalm-Eder-Kreis", "Waldeck-Frankenberg", "Koblenz", "Ahrweiler",
+                                   "Altenkirchen (Westerwald)", "Bad Kreuznach", "Birkenfeld", "Cochem-Zell", "Cochem-Zell", "Neuwied", "Rhein-Hunsrück-Kreis"))  
+}else if(model == "test"){
+  LK <- LK %>% filter(LK_Name %in% c("Rhein-Lahn-Kreis", "Westerwaldkreis", "Trier", "Bernkastel-Wittlich", "Eifelkreis Bitburg-Prüm",
+                                     "Vulkaneifel", "Trier-Saarburg", "Frankenthal (Pfalz)"))
+}else if(model == "problems"){
+  LK <- LK %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                     "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Duisburg", 
+                                     "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"))
+}
 
 # Mobility Data -----------------------------------------------------------
 
 mobility_data <- read_delim("https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/episim/mobilityData/landkreise/LK_mobilityData_weekly.csv") %>%
-  filter(Landkreis != "Landkreis München") %>% filter(Landkreis != "Landkreis Leipzig") %>% filter(Landkreis != "Landkreis Rostock") %>%
+  filter(Landkreis != "Landkreis München") %>% 
+  filter(Landkreis != "Landkreis Karlsruhe") %>%
+  filter(Landkreis != "Landkreis Oldenburg") %>%
+  filter(Landkreis != "Landkreis Osnabrück") %>%
+  filter(Landkreis != "Landkreis Leipzig") %>% filter(Landkreis != "Landkreis Rostock") %>%
   dplyr::rowwise() %>%
   mutate(Landkreis = str_remove(Landkreis, "Landkreis ")) %>%
-  mutate(Landkreis = str_remove(Landkreis, "Kreis "))
+  mutate(Landkreis = str_remove(Landkreis, "Kreis ")) %>%
+  mutate(Landkreis = case_when(Landkreis == "Region Hannover" ~ "Hannover", Landkreis == 	"Cottbus - Chóśebuz" ~ "Cottbus", .default = Landkreis))
 colnames(mobility_data)[2] <- "LK_Name"
 mobility_data$date <- as.character(paste0(substring(mobility_data$date, 1, 4),  "-", substring(mobility_data$date, 5, 6), "-", substring(mobility_data$date, 7, 8)))
 mobility_data$date <- as.Date(mobility_data$date)
@@ -92,19 +148,98 @@ for(date in dates){
 }
 
 mobility_data <- left_join(LK, mobility_data)
+mobility_data <- mobility_data %>% unique()
 
 # Weather -----------------------------------------------------------------
 
 WeatherStations <- read_csv("/Users/sydney/git/mobility_inference/data/weather/WeatherStations.csv")
 
-#WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln", 
-#                                                             "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen"))
+if(model == "cities"){
+WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin","Hamburg", "München", "Köln", "Frankfurt am Main", "Düsseldorf", "Stuttgart", "Leipzig", "Dortmund", "Bremen",
+                                                             "Essen", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Bielefeld", "Bonn",
+                                                             "Karlsruhe", "Münster", "Wiesbaden", "Mönchengladbach", "Aachen", "Braunschweig", "Kiel", "Chemnitz",
+                                                             "Magdeburg", "Krefeld", "Halle (Saale)", "Mainz", "Erfurt", "Lübeck", "Rostock", 
+                                                             "Hagen", "Potsdam", "Oldenburg"))
+}else if(model == "cities_MeckPomm"){
+# WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln", 
+#                                     "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim"))
 
-WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln", 
-                                   "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim"))
-
-
-WeatherStations <- WeatherStations[-5,]
+WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                   "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+                                   "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"))
+}else if(model == "large"){
+WeatherStations <- WeatherStations  %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                               "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
+                                               "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+                                               "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+                                               "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
+                                               "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde", "Schleswig-Flensburg", "Seberg", "Steinburg",
+                                               "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz", "Hameln-Piermont", "Hildesheim", "Holzminden", "Nienburg/Wesrer", "Schaumburg", "Celle", "Cuxhaven", "Haburg", "Lürchow-Dannenberg", "Lüneburg", "Osterholz",
+                                               "Rotenburg (Wümme)", "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich", "Cloppenburg", "Emsland", "Friesland",
+                                               "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld", "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid",
+                                               "Kleve", "Mettmann", "Rhein-Neuss", "Viersen", "Bonn", "Leverkusen", "Städteregion Aachen",
+                                               "Düren", "Euskirchen", "Heinsberg", "Oberbergischer Kreis", "Rhein-Sieg-Kreis", "Münster",
+                                               "Borken", "Coesfeld", "Recklinghausen", "Steinfurt", "Warendorf", "Gütersloh", "Herford", "Höxter", "Lippe", "Minden-Lübbecke", "Paderborn",
+                                               "Hagen", "Ennepe-Ruhr-Kreis", "Hochsauerlandkreis", "Märkischer Kreis", "Olpe", "Siegen-Wittgenstein",
+                                               "Soest", "Unna", "Darmstadt", "Offenbach am Main", "Wiesbaden", "Darmstadt-Dieburg",
+                                               "Main-Kinzig-Kreis", "Odenwaldkreis", "Offenbach", "	Rheingau-Taunus-Kreis", "Gießen", "Lahn-Dill-Kreis", "Limburg-Weilburg",
+                                               "Marburg-Biedenkopf", "Vogelsbergkreis", "Kassel", "Fulda", "Hersfeld-Rotenburg", "Schwalm-Eder-Kreis", "Waldeck-Frankenberg", "Koblenz", "Ahrweiler",
+                                               "Altenkirchen (Westerwald)", "Bad Kreuznach", "Birkenfeld", "Cochem-Zell", "Cochem-Zell", "Neuwied", "Rhein-Hunsrück-Kreis"))
+parkedfornow <- c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                                          "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Hannover", "Duisburg", "Wuppertal", "Karlsruhe", "Bielefeld", "Erfurt", "Kiel",
+                                                          "Rostock", "Mecklenburgische Seenplatte", "Vorpommern-Rügen", "Nordwestmecklenburg", "Vorpommern-Greifswald", "Ludwigslust-Parchim",
+                                                          "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam",
+                                                          "Altmarkkreis Salzwedel", "Anhalt-Bitterfeld", "Ravensburg", "Burgenlandkreis", "Dessau-Roßlau", "Halle (Saale)", "Harz", "Braunschweig", "Magdeburg", "Wolfsburg", "Saalekreis", "Salzlandkreis", "Stendal", "Wittenberg",
+                                                          "Flensburg", "Lübeck", "Neumünster", "Dithmarschen", "Herzogtum Lauenburg", "Nordfriesland", "Ostholstein", "Pinneberg", "Plön", "Rendsburg-Eckernförde", "Schleswig-Flensburg", "Seberg", "Steinburg",
+                                                          "Salzgitter", "Gifhorn", "Goslar", "Helmstedt", "Göttingen", "Diepholz", "Hameln-Piermont", "Hildesheim", "Holzminden", "Nienburg/Wesrer", "Schaumburg", "Celle", "Cuxhaven", "Haburg", "Lürchow-Dannenberg", "Lüneburg", "Osterholz",
+                                                          "Rotenburg (Wümme)", "Heidekreis", "Stade", "Uelzen", "Delmenhorst", "Emden", "Osnabrück", "Wilhelmshaven", "Aurich", "Cloppenburg", "Emsland", "Friesland",
+                                                          "Leer", "Oldenburg", "Wittmund", "Bremerhaven", "Krefeld", "Mönchengladbach", "Mülheim an der Ruhr", "Remscheid",
+                                                          "Kleve", "Mettmann", "Rhein-Neuss", "Viersen", "Bonn", "Leverkusen", "Städteregion Aachen",
+                                                          "Düren", "Euskirchen", "Heinsberg", "Oberbergischer Kreis", "Rhein-Sieg-Kreis", "Münster",
+                                                          "Borken", "Coesfeld", "Recklinghausen", "Steinfurt", "Warendorf", "Gütersloh", "Herford", "Höxter", "Lippe", "Minden-Lübbecke", "Paderborn",
+                                                          "Hagen", "Herne", "Ennepe-Ruhr-Kreis", "Hochsauerlandkreis", "Märkischer Kreis", "Olpe", "Siegen-Wittgenstein",
+                                                          "Soest", "Unna", "Darmstadt", "Offenbach am Main", "Wiesbaden", "Darmstadt-Dieburg",
+                                                          "Main-Kinzig-Kreis", "Main-Taunus-Kreis", "Odenwaldkreis", "Offenbach", "	Rheingau-Taunus-Kreis", "Gießen", "Lahn-Dill-Kreis", "Limburg-Weilburg",
+                                                          "Marburg-Biedenkopf", "Vogelsbergkreis", "Kassel", "Fulda", "Hersfeld-Rotenburg", "Schwalm-Eder-Kreis", "Waldeck-Frankenberg", "Koblenz", "Ahrweiler",
+                                                          "Altenkirchen (Westerwald)", "Bad Kreuznach", "Birkenfeld", "Cochem-Zell", "Neuwied", "Rhein-Hunsrück-Kreis",
+                                                          "Westerwaldkreis", "Trier", "Bernkastel-Wittlich", "Eifelkreis Bitburg-Prüm", "Trier-Saarburg", "Frankenthal (Pfalz)", "Kaiserslautern", "Landau in der Pfalz",
+                                                          "Ludwigshafen am Rhein", "Mainz", "Neustadt an der Weinstraße", "Pirmasens", "Speyer", "Worms", "Zweibrücken", "Alzey-Worms", "Bad Dürkheim", "Donnersbergkreis",
+                                                          "Kaiserslautern", "Südliche Weinstraße", "Mainz-Bingen", "Südwestpfalz", "Böblingen", "Esslingen",
+                                                          "Ludwigsburg", "Rems-Murr-Kreis", "Heilbronn", "Hohenlohekreis", "Schwäbisch Hall", "Main-Tauber-Kreis", "Heidenheim", "Ostalbkreis", "Baden-Baden", "Rastatt",
+                                                          "Heidelberg", "Mannheim", "Neckar-Odenwald-Kreis", "Rhein-Neckar-Kreis", "Pforzheim", "Calw",
+                                                          "Enzkreis", "Freudenstadt", "Freiburg im Breisgau", "Breisgau-Hochschwarzwald", "Emmendingen", "Ortenaukreis",
+                                                          "Rottweil", "Schwarzwald-Baar-Kreis", "Tuttlingen", "Konstanz", "Lörrach", "Waldshut",
+                                                          "Reutlingen", "Zollernalbkreis", "Ulm", "Alb-Donau-Kreis", "Biberach",
+                                                          "Bodenseekreis", "Ravensburg", "Sigmaringen", "Ingolstadt", "Rosenheim", "Altötting",
+                                                          "Berchtesgadener Land", "Berchtesgadener Land", "Dachau", "Ebersberg",
+                                                          "Eichstätt", "Erding", "Freising", "Fürstenfeldbruck", "Garmisch-Partenkirchen", 
+                                                          "Landsberg am Lech", "Miesbach", "Mühldorf am Inn", "Neuburg-Schrobenhausen",
+                                                          "Rosenheim", "Traunstein", "Weilheim-Schongau", "Landshut", "Passau",
+                                                          "Straubing", "Deggendorf", "Freyung-Grafenau", "Kehlheim",
+                                                          "Landshut", "Passau", "Regen", "Rottal-Inn", "Straubing-Bogen", "Dingolfing-Landau", "Amberg", "Regensburg",
+                                                          "Weiden in der Oberpfalz", "Amberg-Sulzbach", "Cham",
+                                                          "Neumarkt in der Oberpfalz", "Neustadt an der Waldnaab",
+                                                          "Schwandorf", "Tirschenreuth", "Bamberg", "Bayreuth", "Coburg", "Hof",
+                                                          "Forchheim", "Kronach", "Lichtenfels",
+                                                          "Wunsiedel im Fichtelgebirge", "Ansbach", "Erlangen",
+                                                          "Fürth", "Nürnberg", "Erlangen-Höchstadt",
+                                                          "Neustadt an der Aisch-Bad Windsheim", "Roth",
+                                                          "Weißenburg-Gunzenhausen", "Aschaffenburg", "Schweinfurt",
+                                                          "Würzburg", "Bad Kissingen", "Rhön-Grabfeld", "Haßberge", "Kitzingen")  
+}else if(model == "test"){
+WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Miltenberg", "Main-Spessart", "Schweinfurt", "Würzburg", "Augsburg",
+                                                             "Kaufbeuren", "Kempten (Allgäu)", "Memmingen",
+                                                             "Dillingen an der Donau", "Günzburg", "Neu-Ulm", "Lindau", 
+                                                             "Donau-Ries", "Oberallgäu", "Regionalverband Saarbrücken", "Merzig-Wadern",
+                                                             "Neunkirchen", "Saarlouis", "Saarlouis", "St. Wendel", "Brandenburg an der Havel",
+                                                             "Cottbus - Chóśebuz", "Frankfurt (Oder)", "Potsdam", "Dahme-Spreewald", "Elbe-Elster",
+                                                             "Oberhavel", "Oberspreewald-Lausitz", "Oder-Spree",
+                                                             "Ostprignitz-Ruppin", "Potsdam-Mittelmark", "Prignitz"))
+}else if(model == "problems"){
+WeatherStations <- WeatherStations %>% filter(LK_Name %in% c("Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",
+                                     "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden", "Nürnberg", "Duisburg", 
+                                     "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst", "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"))
+}
 
 #Reading in weather data
 #FOR NOW THIS IS NOT THE WEEKLY AVERAGE --> WORK IN PROGRESS
@@ -122,7 +257,7 @@ for (weatherId in unique(WeatherStations$Wetter_ID)) {
   }
 }
 
-weather_data_all <- weather_data_all %>% filter(Date < as.Date("2024-01-01")) %>%
+weather_data_all <- weather_data_all %>% filter(Date < as.Date("2025-01-01")) %>%
   filter(Date > as.Date("2020-01-01")) %>%
   mutate(week = isoweek(Date)) %>%
   mutate(year = year(Date)) %>%
@@ -132,9 +267,15 @@ weather_data_all <- weather_data_all %>% filter(Date < as.Date("2024-01-01")) %>
 
 weather_data_all <- weather_data_all %>% dplyr::select(Wetter_ID, Date, tmax, tavg, prcp)
 
+weather_data_all <- weather_data_all %>% group_by(Wetter_ID) %>% mutate(tmax = na.approx(tmax, rule = 2))
+
 colnames(weather_data_all)[2] <- "date"
 
 mobility_data <- left_join(mobility_data, weather_data_all)
+
+weather_data_all <- weather_data_all %>% mutate(year = year(date)) %>% filter(year %in% c(2020,2024)) 
+
+test <- weather_data_all %>% filter(is.na(tmax))
 
 # School vacations --------------------------------------------------------
 
@@ -152,7 +293,6 @@ pubHolidays <- pubHolidays %>% filter(federalState != "Deutschland")
 
 mobility_data <- left_join(mobility_data, pubHolidays)
 
-
 # Daylight ----------------------------------------------------------------
 
 daylight <- read_csv("/Users/sydney/git/mobility_inference/data/daylight/DaylightFederalStatesWeekly.csv")
@@ -169,7 +309,7 @@ colnames(cases) <- c("date", "LK_Id", "Population", "Cumulative_Cases", "New_Cas
 cases$date <- as.Date(cases$date)
 
 cases <- cases %>% mutate(weekday = wday(date)) %>%
-  filter(weekday == 1) %>% filter(date < as.Date("2024-01-01")) %>%
+  filter(weekday == 1) %>% filter(date < as.Date("2025-01-01")) %>%
   dplyr::select(date, LK_Id, Infection_Cases, Infection_Incidence) %>%
   mutate(Infection_Cases = case_when(Infection_Cases == 0 ~ 10^(-100),
                                      TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
@@ -248,7 +388,8 @@ data2020 <- data2020 %>% mutate(Infection_Incidence = case_when(Infection_Incide
 
 
 #Zscore/Normalize data
-data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm = (Infection_Cases-mean(Infection_Cases))/sd(Infection_Cases),
+data2020 <- data2020 %>% group_by(LK_Name) %>% 
+  mutate(Infection_Cases_Norm = (Infection_Cases-mean(Infection_Cases))/sd(Infection_Cases),
                                                            logInfection_Cases_Norm = (logInfection_Cases-mean(logInfection_Cases))/sd(logInfection_Cases),
                                                            Infection_Incidence_Norm = (Infection_Incidence-mean(Infection_Incidence))/sd(Infection_Incidence),
                                                            logInfection_Incidence_Norm = (logInfection_Incidence-mean(logInfection_Incidence))/sd(logInfection_Incidence),
@@ -263,7 +404,7 @@ data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm 
                                                            Reffective_Norm = (Reffective-mean(Reffective))/sd(Reffective)) %>%
   mutate(Infection_Cases_Norm = (Infection_Cases_Norm-min(Infection_Cases_Norm))/(max(Infection_Cases_Norm)-min(Infection_Cases_Norm)),
          logInfection_Cases_Norm = (logInfection_Cases_Norm-min(logInfection_Cases_Norm))/(max(logInfection_Cases_Norm)-min(logInfection_Cases_Norm)),
-         Infection_Incidence_Norm = (Infection_Incidence_Norm-min(Infection_Incidence_Norm))/(max(Infection_Incidence_Norm)-min(Infection_Incidence_Norm)),
+         Infection_Incidence_Norm = (Infection_Incidence-min(Infection_Incidence))/(max(Infection_Incidence)-min(Infection_Incidence)),
          logInfection_Incidence_Norm = (logInfection_Incidence_Norm-min(logInfection_Incidence_Norm))/(max(logInfection_Incidence_Norm)-min(logInfection_Incidence_Norm)),
          Hospital_Cases_Norm = (Hospital_Cases_Norm-min(Hospital_Cases_Norm))/(max(Hospital_Cases_Norm)-min(Hospital_Cases_Norm)),
          logHospital_Cases_Norm = (logHospital_Cases_Norm-min(logHospital_Cases_Norm))/(max(logHospital_Cases_Norm)-min(logHospital_Cases_Norm)),
@@ -275,65 +416,54 @@ data2020 <- data2020 %>% group_by(federalState) %>% mutate(Infection_Cases_Norm 
          logDeath_Incidence_Norm = (logDeath_Incidence_Norm-min(logDeath_Incidence_Norm))/(max(logDeath_Incidence_Norm)-min(logDeath_Incidence_Norm)),
          Reffective_Norm = (Reffective_Norm-min(Reffective_Norm))/(max(Reffective_Norm)-min(Reffective_Norm)))
 
-data2023 <- mobility_data %>% filter(date > "2023-01-01")
+data2023 <- mobility_data %>% filter(date > "2024-01-01")
+
+data2023 <- data2023 %>% #group_by(federalState) %>% 
+  mutate(Infection_Cases_Norm = 0,
+         logInfection_Cases_Norm = 0,
+         Infection_Incidence_Norm = 0,
+         logInfection_Incidence_Norm = 0,
+         Hospital_Cases_Norm = 0,
+         logHospital_Cases_Norm = 0,
+         Hospital_Incidence_Norm = 0,
+         logHospital_Incidence_Norm = 0,
+         Death_Cases_Norm = 0,
+         logDeath_Cases_Norm = 0,
+         Death_Incidence_Norm = 0,
+         logDeath_Incidence_Norm = 0,
+         Reffective_Norm = 0)
 
 dataFull <- rbind(data2020, data2023)
 
 # Setting disease indicator equal to 0 for 2023
-dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2022-12-31" ~ 0,
+dataFull <- dataFull %>% mutate(Hospital_Cases = case_when(date > "2023-12-31" ~ 0,
                                                            TRUE ~ as.numeric(as.character(Hospital_Cases)))) %>%
-  mutate(Hospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+  mutate(Hospital_Incidence = case_when(date > "2023-12-31" ~ 0,
                                         TRUE ~ as.numeric(as.character(Hospital_Incidence)))) %>%
-  mutate(logHospital_Cases = case_when(date > "2022-12-31" ~ 0,
+  mutate(logHospital_Cases = case_when(date > "2023-12-31" ~ 0,
                                        TRUE ~ as.numeric(as.character(logHospital_Cases)))) %>%
-  mutate(logHospital_Incidence = case_when(date > "2022-12-31" ~ 0,
+  mutate(logHospital_Incidence = case_when(date > "2023-12-31" ~ 0,
                                            TRUE ~ as.numeric(as.character(logHospital_Incidence)))) %>%
-  mutate(Infection_Cases = case_when(date > "2022-12-31" ~ 0,
+  mutate(Infection_Cases = case_when(date > "2023-12-31" ~ 0,
                                      TRUE ~ as.numeric(as.character(Infection_Cases)))) %>%
-  mutate(Infection_Incidence= case_when(date > "2022-12-31" ~ 0,
+  mutate(Infection_Incidence= case_when(date > "2023-12-31" ~ 0,
                                         TRUE ~ as.numeric(as.character(Infection_Incidence)))) %>%
-  mutate(logInfection_Cases = case_when(date > "2022-12-31" ~ 0,
+  mutate(logInfection_Cases = case_when(date > "2023-12-31" ~ 0,
                                         TRUE ~ as.numeric(as.character(logInfection_Cases)))) %>%
-  mutate(logInfection_Incidence = case_when(date > "2022-12-31" ~ 0,
+  mutate(logInfection_Incidence = case_when(date > "2023-12-31" ~ 0,
                                             TRUE ~ as.numeric(as.character(logInfection_Incidence)))) %>%
-  mutate(Death_Cases = case_when(date > "2022-12-31" ~ 0,
+  mutate(Death_Cases = case_when(date > "2023-12-31" ~ 0,
                                  TRUE ~ as.numeric(as.character(Death_Cases)))) %>%
-  mutate(Death_Incidence = case_when(date > "2022-12-31" ~ 0,
+  mutate(Death_Incidence = case_when(date > "2023-12-31" ~ 0,
                                      TRUE ~ as.numeric(as.character(Death_Incidence)))) %>%
-  mutate(logDeath_Cases = case_when(date > "2022-12-31" ~ 0,
+  mutate(logDeath_Cases = case_when(date > "2023-12-31" ~ 0,
                                     TRUE ~ as.numeric(as.character(logDeath_Cases)))) %>%
-  mutate(logDeath_Incidence = case_when(date > "2022-12-31" ~ 0,
+  mutate(logDeath_Incidence = case_when(date > "2023-12-31" ~ 0,
                                         TRUE ~ as.numeric(as.character(logDeath_Incidence)))) %>%
-  mutate(Reffective = case_when(date > "2022-12-31" ~ 0,
+  mutate(Reffective = case_when(date > "2023-12-31" ~ 0,
                                 TRUE ~ as.numeric(as.character(Reffective))))
-chosen_model <- "cities"
 
-if(chosen_model == "cities"){
-dataFull <- dataFull %>% mutate(index = case_when(LK_Name == "Berlin" ~ 0,
-                                                    LK_Name == "Bremen" ~ 1,
-                                                    LK_Name == "Hamburg" ~ 2,
-                                                    LK_Name == "München" ~ 3,
-                                                    LK_Name == "Stuttgart" ~ 4,
-                                                    LK_Name == "Köln" ~ 5,
-                                                    LK_Name == "Rostock" ~ 6,
-                                                    LK_Name == "Mecklenburgische Seenplatte" ~ 7,
-                                                    LK_Name == "Vorpommern-Rügen" ~ 8,
-                                                    LK_Name == "Nordwestmecklenburg" ~ 9,
-                                                    LK_Name == "Vorpommern-Greifswald" ~ 10,
-                                                    LK_Name == "Ludwigslust-Parchim" ~ 11))
-# dataFull <- dataFull %>% mutate(index = case_when(LK_Name == "Berlin" ~ 0,
-#                                                   LK_Name == "Bremen" ~ 1,
-#                                                   LK_Name == "Hamburg" ~ 2,
-#                                                   LK_Name == "München" ~ 3,
-#                                                   LK_Name == "Stuttgart" ~ 4,
-#                                                   LK_Name == "Köln" ~ 5,
-#                                                   LK_Name == "Frankfurt am Main" ~ 6,
-#                                                   LK_Name == "Düsseldorf" ~ 7,
-#                                                   LK_Name == "Leipzig" ~ 8,
-#                                                   LK_Name == "Essen" ~ 9))
-} else if(chosen_model == "cities_non_hierarchical"){
-  dataFull <- dataFull %>% mutate(index = 0) 
-}
+
 
 dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-02-09") ~ 0,
                                                         date == as.Date("2020-02-16") ~ 1,
@@ -394,7 +524,7 @@ dataFull <- dataFull %>% mutate(timeCounter = case_when(date == as.Date("2020-02
                                                         date > as.Date("2021-03-01") ~ 10^7))
 
 #dataFull <- dataFull %>% relocate(date)
-dataFull <- dataFull %>% filter(date > "2020-03-01") %>% filter(date < "2021-03-01")
+dataFull <- dataFull %>% filter(date > "2020-02-08")# %>% filter(date < "2021-03-01")
 
 dataFull <- dataFull %>% mutate(Reffective_Norm = case_when(is.na(Reffective_Norm) ~ 0.00001,
                                                             Reffective_Norm == 0 ~ 0.00001,
@@ -403,13 +533,22 @@ dataFull <- dataFull %>% mutate(Reffective_Norm = case_when(is.na(Reffective_Nor
                                               Infection_Incidence_Norm == 0 ~ 0.00001,
                                               .default = Infection_Incidence_Norm))
 
-
-
 dataFull <- dataFull[,c(12,2:ncol(dataFull))]
 dataFull <- dataFull[,-12]
 dataFull <- dataFull %>% ungroup()
 
 dataFull <- dataFull[order(dataFull$date),]
 
+dataFull <- dataFull %>% mutate(index = as.integer(factor(LK_Name)) - 1)
+dataFull <- dataFull[order(dataFull$index),]
+
+dataFull <- dataFull %>% 
+  mutate(tmax = case_when((date == "2020-02-09" & is.na(tmax)) ~ 0, .default=tmax)) %>%
+  mutate(tmax = case_when((LK_Name == "Ahrweiler" & is.na(tmax)) ~ 20, .default=tmax)) %>%
+  mutate(tmax = case_when((LK_Name == "Lahn-Dill-Kreis" & is.na(tmax)) ~ 20, .default=tmax)) %>%
+  mutate(tmax = case_when((date == "2024-01-07" & is.na(tmax)) ~ 0, .default=tmax)) %>% mutate(tmax = case_when((date == "2024-09-01" & LK_Name %in% c("Wolfsburg", "Gifhorn")) ~ 25, .default = tmax))
+
+dataFull <- dataFull %>% group_by(date, LK_Name) %>% slice(1) %>% ungroup()
+
 setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
-write_delim(dataFull, "inputDataBEHBHHCGNMUCSTUTTMeckpomm.csv", delim = ",")
+write_delim(dataFull, "inputDataBEHBHHCGNMUCSTUTTincl2024_long.csv", delim = ",")

@@ -25,6 +25,7 @@ write_csv(public_holidays_germany_daily, "public_holidays_germany_daily.csv")
 
 #Set up data set that contains German + federal state data
 #Weekly data
+
 public_holidays_germany_weekly <- public_holidays_germany_weekly %>% mutate(Bundesland = "Deutschland")
 public_holidays_weekly <- public_holidays %>% mutate(year = year(date)) %>%
   mutate(week = isoweek(date))
@@ -40,3 +41,15 @@ public_holidays_germany_daily <- public_holidays_germany_daily %>% mutate(Bundes
 colnames(public_holidays) <- c("date", "Bundesland", "pubHoliday")
 public_holidays <- rbind(public_holidays, public_holidays_germany_daily)
 write_csv(public_holidays_weekly, "public_holidays_germany_daily.csv")
+
+
+
+## Converting weekly federal state data to weekly german data
+public_holidays_germany_weekly <- read_csv("/Users/sydney/git/mobility_inference/data/public_holidays/public_holidays_germany_weekly.csv")
+public_holidays_germany_weekly <- public_holidays_germany_weekly %>% filter(Bundesland != "Deutschland")
+public_holidays_germany <- public_holidays_germany_weekly  %>% group_by(date) %>% summarise(pubHoliday = weighted.mean(pubHoliday)) %>% mutate(Bundesland = "Deutschland")
+
+public_holidays_germany_weekly <- rbind(public_holidays_germany_weekly , public_holidays_germany)
+#public_holidays_germany_weekly <- public_holidays_germany_weekly[-nrow(public_holidays_germany_weekly),]
+setwd("/Users/sydney/git/mobility_inference/data/public_holidays/")
+write_csv(public_holidays_germany_weekly, "public_holidays_germany_weekly.csv")

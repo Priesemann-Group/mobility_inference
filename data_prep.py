@@ -240,7 +240,7 @@ def get_disease_dates(ICU=False):
 
 # --- Get data ---
 ## Out of home duration
-def get_out_of_home_duration():
+def get_out_of_home_duration(chosen_model):
     """
     Returns:
         Xarray: Out-of-home duration data for 2020.
@@ -248,7 +248,10 @@ def get_out_of_home_duration():
         Array of np.datetime64: Considered dates of 2020.
         Array of np.datetime64: Considered dates of 2022.
     """
-    path_mobility = "/Users/sydney/git/mobility_inference/data/mobility/mobilityData_OverviewBL_weekly.csv"
+    if chosen_model == "national":
+        path_mobility = "/Users/sydney/git/mobility_inference/data/mobility/mobilityData_OverviewBL_weekly.csv"
+    if chosen_model == "cities":
+        path_mobility = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
     mobility_df = pd.read_csv(
         path_mobility, parse_dates=True, index_col=0, delimiter=";"
     )
@@ -266,7 +269,10 @@ def get_out_of_home_duration():
     mobility_df_2020 = mobility_df.filter(items=mobility_dates_2020, axis=0)
     mobility_data_2020 = mobility_df_2020["outOfHomeDuration"].to_xarray()
 
-    baseline_mobility = [1] * mobility_data_2020.size
+    if chosen_model == "national":
+        baseline_mobility = [1] * mobility_data_2020.size
+    if chosen_model == "cities":
+        baseline_mobility = [8] * 100 * 6
 
     return (
         mobility_data_2020,
@@ -276,7 +282,7 @@ def get_out_of_home_duration():
     )
 
 ## R
-def get_R_raw(dates=None):
+def get_R_raw(dates=None, chosen_model):
     """Get weekly R_eff data from the RKI Nowcasting data set.
 
     Args:
@@ -284,7 +290,10 @@ def get_R_raw(dates=None):
     Returns:
         Xarray: Weekly R data.
     """
-    path_R = "data/R/Germany/RKI_Nowcasting.csv"
+    if chosen_model == "national":
+        path_R = "data/R/Germany/RKI_Nowcasting.csv"
+    if chosen_model == "cities";
+        path_R = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
     R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
 
     if dates is None:
@@ -307,10 +316,15 @@ def get_logR_raw(R_raw, dates=None):
 
     return logR
 
-def get_R_transformed(R_raw, dates=None):
+def get_R_transformed(R_raw, dates=None, chosen_model):
 
-    R_transformed = transform_data(R_raw)
-
+    if chosen_model == "national":
+        R_transformed = transform_data(R_raw)
+    if chosen_model == "cities":
+        path_R = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_long.csv"
+        R_df = pd.read_csv(path_R, index_col=0, parse_dates=True)
+        R_transformed = R_df["Reffective"].to_xarray()
+    
     return R_transformed
 
 def get_logR_transformed(logR, dates=None):
@@ -351,7 +365,7 @@ def get_owid():
 
 
 ### Cases
-def get_C_raw(owid_in, dates_2020=None):
+def get_C_raw(owid_in, dates_2020=None, chosen_model):
     """Get weekly case data from OWID data set.
 
     Args:
@@ -360,17 +374,18 @@ def get_C_raw(owid_in, dates_2020=None):
     Returns:
        TODO Xarray: Weekly case data.
     """
-    case_data = owid_in._filter(
-        value="new_cases_smoothed_per_million",
-        country="Germany",
-    )
-    if dates_2020 is None:
-        dates_2020 = get_disease_dates()
-    case_data = weekly_formatting(case_data, dates_2020)
-    case_data = case_data.to_xarray()
+    if chosen_model == "national":
+        case_data = owid_in._filter(
+            value="new_cases_smoothed_per_million",
+            country="Germany",
+        )
+        if dates_2020 is None:
+            dates_2020 = get_disease_dates()
+        case_data = weekly_formatting(case_data, dates_2020)
+        case_data = case_data.to_xarray()
 
-    for i in range(37, case_data.size):
-        case_data[i] = 0
+        for i in range(37, case_data.size):
+            case_data[i] = 0
         
     return case_data
 
