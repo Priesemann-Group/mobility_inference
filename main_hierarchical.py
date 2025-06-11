@@ -33,7 +33,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-06-02_1000halfnormal"  # Name of the experiment
+name = "2025-06-11_1000halfnormal_a"  # Name of the experiment
 test = False# Whether to run a test with fewer samples
 single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
@@ -315,7 +315,7 @@ for indicators in all_combinations:
                 # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
                 # trace = approx.sample(draws=draws)
                 trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", target_accept = 0.9,
+                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", # target_accept = 0.9,
                     idata_kwargs={"include_transformed": False}
                     #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
                 )

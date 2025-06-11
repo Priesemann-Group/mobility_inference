@@ -22,10 +22,11 @@ def duration_base(d_base_input, fedState_idx, time_counter_in):
     
     time_counter = pm.MutableData(f"counter", time_counter_in["time counter"], dims = ("obs_id"))
 
-    mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=0, sigma=0.1)
-    sigma_dbase = pm.Exponential("sigma_dbase_hyperprior", 10)
+    mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=0, sigma=0.05)
+    #sigma_dbase = pm.Exponential("sigma_dbase_hyperprior", 10)
+    sigma_dbase = pm.HalfNormal("sigma_dbase_hyperprior", sigma = 0.1) #Edition 6/9
     #d_factor = pm.Normal("d_factor", mu = mu_dbase, sigma = sigma_dbase , dims = ("fedState"))
-    d_factor_tilde_2020 = pm.Normal("d_factor_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    d_factor_tilde_2020 = pm.Normal("d_factor_tilde", mu = 0, sigma = 0.5, dims=("fedState"))
     d_factor_2020 = pm.Deterministic("d_factor", at.exp(mu_dbase + sigma_dbase*d_factor_tilde_2020), dims=("fedState"))
 
     # mu_dbase2024 = pm.Normal("mu_dbase_hyperprior2024", mu=0, sigma=0.1)
@@ -95,7 +96,8 @@ def holiday_factor(holiday_data_in, fedState_idx):
 
     mu_hol = pm.Uniform("mu_hol", lower=0.9, upper=1.0)
     #theta = pm.Normal("theta_h", mu = mu_hol, sigma = sigma_hol, dims = "fedState")
-    sigma_hol = pm.Exponential("sigma_hol", 10)
+    #sigma_hol = pm.Exponential("sigma_hol", 10)
+    sigma_hol = pm.HalfNormal("sigma_hol", 0.25)
     theta_tilde = pm.Normal("theta_h_tilde", mu = 0, sigma = 1, dims=("fedState"))
     theta = pm.Deterministic("theta_h", mu_hol + sigma_hol*theta_tilde, dims=("fedState"))
 
@@ -303,18 +305,17 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     # #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
     # #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)    
     #sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 10)
-    #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 0.3)
-    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}", sigma = 0.1)
-    
+    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}", sigma = 0.05)
+        
     #Status 05/06/25
-    #mu_disease_tilde_noncentral = pm.Normal(f"mu_{indicator}_tilde_noncentral", mu = 0, sigma = 1, dims = "fedState")
-    #mu_disease_tilde = pm.Deterministic(f"mu_{indicator}_tilde", mu_gamma_disease + mu_disease_tilde_noncentral*sigma_gamma_disease, dims = "fedState")
-    #mu_disease = pm.Deterministic(f"mu_{indicator}", at.softplus(mu_disease_tilde), dims = "fedState")
-    
-    mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = mu_gamma_disease, sigma = sigma_gamma_disease, dims = "fedState")
+    mu_disease_tilde_noncentral = pm.Normal(f"mu_{indicator}_tilde_noncentral", mu = 0, sigma = 1, dims = "fedState")
+    mu_disease_tilde = pm.Deterministic(f"mu_{indicator}_tilde", mu_gamma_disease + mu_disease_tilde_noncentral*sigma_gamma_disease, dims = "fedState")
     mu_disease = pm.Deterministic(f"mu_{indicator}", at.softplus(mu_disease_tilde), dims = "fedState")
     
-    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.2) 
+    #mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde", mu = mu_gamma_disease, sigma = sigma_gamma_disease, dims = "fedState")
+    #mu_disease = pm.Deterministic(f"mu_{indicator}", at.softplus(mu_disease_tilde), dims = "fedState")
+    
+    alpha_disease = pm.LogNormal(f"alpha_{indicator}", mu=np.log(3), sigma=0.1) 
     sigma_disease = pm.Deterministic( #Variance of Gamma Distribution
         f"sigma_{indicator}", mu_disease / at.sqrt(alpha_disease+0.05), dims = "fedState"
     )
@@ -446,7 +447,7 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
         short = 52
    
     if mix_of_incidences:
-        mu_weight = pm.Normal("mu_incidence_weight_param", mu = 0, sigma = 1)
+        mu_weight = pm.Normal("mu_incidence_weight_param", mu = 0, sigma = 0.5)
         mu_weight_sigmafct = pm.Deterministic("mu_incidence_weight_param_sigma", 1/(1 + np.exp(-mu_weight)))
         weigh_param = pm.Normal("incidence_weight_param", mu = mu_weight, sigma = 1, shape=(1,dimension))
         weight = pm.Deterministic("incidence_weight", 1/(1 + np.exp(-weigh_param)))
@@ -472,16 +473,16 @@ def disease_factor(indicator, disease_data_in, time_counter_in, len_data, fedSta
     
     risk = pm.Deterministic(f"risk_{indicator}", risk.T.flatten(), dims = ("obs_id"))
 
-    mu_slope_disease = pm.Normal(f"mu_slope_log_{indicator}", mu = 15, sigma = 2)
+    mu_slope_disease = pm.Normal(f"mu_slope_log_{indicator}", mu = 30, sigma = 1)
     mu_slope_exp_dis = pm.Deterministic(f"mu_slope_{indicator}", at.softplus(mu_slope_disease))
     #sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
     #sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
     #sigma_slope_disease = pm.Exponential(f"sigma_slope_{indicator}", 10)
-    sigma_slope_disease = pm.HalfNormal(f"sigma_slope_{indicator}", sigma = 2)
+    sigma_slope_disease = pm.HalfNormal(f"sigma_slope_{indicator}", sigma = 0.1)
     slope_disease_tilde = pm.Normal(f"slope_{indicator}_tilde", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
     slope_disease = pm.Deterministic(f"slope_{indicator}", at.softplus(slope_disease_tilde), dims=("fedState"))
     
-    mu_multiplicator_disease = pm.Normal(f"mu_multiplicator_log_{indicator}", mu = np.log(1.5), sigma = 0.5)
+    mu_multiplicator_disease = pm.Normal(f"mu_multiplicator_log_{indicator}", mu = np.log(1.5), sigma = 0.25)
     mu_multiplicator_disease = pm.Deterministic(f"mu_multiplicator_{indicator}", at.exp(mu_multiplicator_disease))
     sigma_multiplicator_disease = pm.Exponential(f"sigma_multiplicator_{indicator}", 10)
     multiplicator_disease_tilde = pm.Normal(f"multiplicator_{indicator}_tilde", mu = 0, sigma = 1, dims=("fedState"))
@@ -524,7 +525,7 @@ def disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fe
     # #sigma_gamma_disease = pm.HalfCauchy(f"sigma_gamma_{indicator}", beta = 5)
     # #sigma_gamma_disease = pm.Gamma(f"sigma_gamma_{indicator}", alpha = 2, beta = 1)    
     #sigma_gamma_disease = pm.Exponential(f"sigma_gamma_{indicator}", 10)
-    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}_nat", sigma = 0.5)
+    sigma_gamma_disease = pm.HalfNormal(f"sigma_gamma_{indicator}_nat", sigma = 0.25)
     mu_disease_tilde = pm.Normal(f"mu_{indicator}_tilde_nat", mu = mu_gamma_disease, sigma = sigma_gamma_disease, dims = "fedState")
     mu_disease = pm.Deterministic(f"mu_{indicator}_nat", at.softplus(mu_disease_tilde), dims = "fedState")
     
@@ -611,7 +612,7 @@ def disease_factor_nat(indicator, disease_data_in, time_counter_in, len_data, fe
     #sigma_slope_disease = pm.HalfCauchy(f"sigma_slope_{indicator}", beta = 10)
     #sigma_slope_disease = pm.Gamma(f"sigma_slope_{indicator}", alpha = 2, beta = 1)
     #sigma_slope_disease = pm.Exponential(f"sigma_slope_{indicator}", 10)
-    sigma_slope_disease = pm.HalfNormal(f"sigma_slope_{indicator}_nat", sigma = 2)
+    sigma_slope_disease = pm.HalfNormal(f"sigma_slope_{indicator}_nat", sigma = 0.25)
     slope_disease_tilde = pm.Normal(f"slope_{indicator}_tilde_nat", mu = mu_slope_disease, sigma = sigma_slope_disease, dims=("fedState"))
     slope_disease = pm.Deterministic(f"slope_{indicator}_nat", at.softplus(slope_disease_tilde), dims=("fedState"))
     

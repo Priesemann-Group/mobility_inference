@@ -3551,14 +3551,14 @@ def analysis_figures(
     model_in, trace_in, tag_in, dates_in, dates_in_long, indicators_in, school_in, holiday_in, temperature_in, precipitation_in, daylight_in, pop_density_in, disease_data_in, disease_data_raw_in, fedState_in, chosen_model, incl2024, plus_nat_incidence, mix_incidence
 ):
     utils.make_dir(tag_in)
-    if indicators_in:
+    #if indicators_in:
        #convolution_figure(indicators_in, trace_in, dates_in, tag_in)
-        plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
+    #    plot_gamma_kernel(trace_in, tag_in, indicators_in, chosen_model)
         #plot_gamma_parameters(trace_in, indicators_in, tag_in)
-        plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model, mix_incidence)
+    #    plot_disease_timeseries(dates_in_long, trace_in, tag_in, indicators_in, disease_data_in, disease_data_raw_in, chosen_model, mix_incidence)
        #plot_distributions(model_in, trace_in, tag_in, indicators_in, temperature_in, daylight_in, school_in, holiday_in, indicators_in, chosen_model, fedState_in)
-    if temperature_in:
-      plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
+    #if temperature_in:
+    #  plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #if daylight_in:
     #    plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
