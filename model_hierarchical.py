@@ -24,7 +24,7 @@ def duration_base(d_base_input, fedState_idx, time_counter_in):
 
     mu_dbase = pm.Normal("mu_dbase_hyperprior", mu=0, sigma=0.05)
     #sigma_dbase = pm.Exponential("sigma_dbase_hyperprior", 10)
-    sigma_dbase = pm.HalfNormal("sigma_dbase_hyperprior", sigma = 0.1) #Edition 6/9
+    sigma_dbase = pm.HalfNormal("sigma_dbase_hyperprior", sigma = 0.05) #Edition 6/9
     #d_factor = pm.Normal("d_factor", mu = mu_dbase, sigma = sigma_dbase , dims = ("fedState"))
     d_factor_tilde_2020 = pm.Normal("d_factor_tilde", mu = 0, sigma = 0.5, dims=("fedState"))
     d_factor_2020 = pm.Deterministic("d_factor", at.exp(mu_dbase + sigma_dbase*d_factor_tilde_2020), dims=("fedState"))
