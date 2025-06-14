@@ -54,10 +54,10 @@ colors = {
     "f": colormap(0.6),
     "sigmoid": colormap(0.75),
     # out-of-home duration
-    "d": colormap(0.8),
-    "d_obs": colormap(0.85),
+    "d": colormap(0.85),
+    "d_obs": colormap(0.8),
     "d_*": colormap(0.9),
-    "d_base": colormap(0.95),
+    "d_base": colormap(0.8),
 }
 
 
@@ -94,8 +94,9 @@ def format_x_axis(ax_in, x_in, last=False, n_xticks=8, year=2020):
     ax_in.tick_params(axis="x", length=10)
     if last:
         # set x tick labels
-        ax_in.set_xticklabels(xticklabels)
-        ax_in.set_xlabel(f"Year {year}")
+        #ax_in.set_xticklabels(xticklabels)
+        ax_in.xaxis.set_major_formatter(DateFormatter("%m/%d"))
+        #ax_in.set_xlabel(f"Year {year}")
     else:
         # set x tick labels
         ax_in.set_xticklabels([])
@@ -945,7 +946,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
             )
             format_x_axis(ax, dates)
             ## set y label
-            ax.set_ylabel("temperature [°C]")
+            ax.set_ylabel("Temperature (°C)")
             ## create custom legend
             ### for median line and 94% CI
             median_line = lines.Line2D([], [], color="black", linewidth=3, label="median")
@@ -982,7 +983,7 @@ def plot_temperature_timeseries(dates_in, trace_in, tag_in, indicators, chosen_m
             date_form = DateFormatter("%m/%d")
             ax.xaxis.set_major_formatter(date_form)
             # set y label
-            ax.set_ylabel("temperature_factor")
+            ax.set_ylabel("Temperature_factor")
 
             plt.subplots_adjust(hspace=0.1)
             
@@ -1650,9 +1651,8 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
           
     labels = {
             "C": "new cases $d_C$",
-            "Cnat": "new national cases",
+            "Cnat": "Cases",
             "logC": "log(new cases $d_C$)",
-            "Cnat": "new national cases",
             "ICU": "ICU patients $d_{ICU}$",
             "logICU": "log(ICU patients $d_{ICU}$)",
             "H": "hospitalisations $d_H$",
@@ -1721,6 +1721,495 @@ def plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_
             fig.savefig(plotnamepng, bbox_inches="tight")
             fig.savefig(plotnamepdf, bbox_inches="tight")
 
+def plot_timeseriesPaper(
+    chosen_model,
+    dates_in,
+    trace_in,
+    tag_in,
+    indicators_in,
+    incl2024,
+    plus_nat_incidence,
+    school_in=None,
+    holiday_in=None,
+    temperature_in=None,
+    precipitation_in=None,
+    daylight_in=None,
+    pop_density_in=None,
+    log=False,
+):
+    if chosen_model == "BEHHHB":
+        federalStates = ("Berlin", "Bremen", "Hamburg")
+    if chosen_model == "fedStates":
+        federalStates = (
+       "Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen",
+       "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen",
+       "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen",
+       "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen")
+    if chosen_model == "fedStates_nat":
+        federalStates = [
+       "Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen",
+       "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen",
+       "Nordrhein-Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen",
+       "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"]
+    if chosen_model == "cities":  
+        federalStates = [
+        "Berlin","Bielefeld","Bonn","Braunschweig","Bremen","Chemnitz",         
+        "Dortmund","Dresden","Duisburg","Düsseldorf","Erfurt","Essen",            
+        "Frankfurt am Main" "Halle (Saale)","Hamburg","Hannover","Karlsruhe","Kiel",             
+        "Krefeld","Köln","Leipzig","Lübeck","Magdeburg","Mönchengladbach",  
+        "München","Münster","Nürnberg","Oldenburg","Potsdam","Rostock",          
+        "Stuttgart","Wiesbaden","Wuppertal"]
+    if chosen_model == "cities_MeckPomm":  
+        federalStates = [
+       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin", "Vorpommern-Greifswald", "Ludwigslust-Parchim", "Nordwestmecklenburg", "Mecklenburgische Seenplatte", "Rostock", "Vorpommern-Rügen",
+       "Nordsachsen", "Meißen", "Bautzen", "Görlitz", "Mittelsachsen", "Chemnitz", "Zwickau", "Vogtlandkreis", "Erzgebirgskreis", "Potsdam", "Frankfurt am Main"]
+    if chosen_model == "firsthundred":
+        federalStates = ["Aurich","Bielefeld","Bonn","Borken","Braunschweig","Bremen","Bremerhaven",          
+        "Celle","Cloppenburg", "Coesfeld", "Cuxhaven", "Delmenhorst", "Diepholz", "Dithmarschen",         
+        "Duisburg","Düren", "Düsseldorf", "Emden", "Emsland", "Essen","Euskirchen",           
+        "Flensburg","Friesland", "Gifhorn", "Goslar", "Göttingen", "Gütersloh", "Hamburg",              
+        "Hameln-Pyrmont","Hannover", "Harburg", "Heidekreis", "Heinsberg", "Helmstedt", "Herford",              
+        "Herzogtum Lauenburg","Hildesheim", "Holzminden", "Kiel", "Kleve", "Krefeld", "Köln",                 
+        "Landkreis Oldenburg","Landkreis Osnabrück","Leer",  "Leverkusen", "Lübeck", "Lüchow-Dannenberg", "Lüneburg",             
+        "Mettmann","Mönchengladbach","Mülheim an der Ruhr", "Münster", "Neumünster", "NienburgWeser", "Nordfriesland",        
+        "Oberbergischer Kreis","Oldenburg" , "Osnabrück", "Osterholz", "Ostholstein", "Pinneberg", "Plön",                 
+        "Recklinghausen", "Remscheid","Rendsburg-Eckernförde", "Rhein-Neuss", "Rhein-Sieg-Kreis", "Rotenburg (Wümme)", "Salzgitter",           
+        "Schaumburg", "Schleswig-Flensburg","Segeberg", "Stade", "Steinburg", "Steinfurt", "Städteregion Aachen",  
+        "Uelzen", "Viersen", "Warendorf", "Wilhelmshaven", "Wittmund", "Wolfsburg", "Wuppertal"]
+    if chosen_model == "secondhundred":
+        federalStates = ["Ahrweiler",   "Altenkirchen",  "Alzey-Worms",  "Bad Dürkheim" , "Bad Kreuznach" , "Baden-Baden",
+                         "Bernkastel-Wittlich", "Birkenfeld",  "Böblingen", "Cochem-Zell", "Darmstadt-Dieburg", "Donnersbergkreis", "Dortmund",  "Eifelkreis Bitburg-Prüm",  "Ennepe-Ruhr-Kreis", "Esslingen",  
+                         "Frankenthal (Pfalz)",  "Frankfurt am Main", "Fulda",  "Gießen", "Groß-Gerau", "Heidenheim",  "Heilbronn", 
+                         "Hersfeld-Rotenburg", "Hochsauerlandkreis", "Hochtaunuskreis",   "Hohenlohekreis", "Höxter", "Kaiserslautern", "Karlsruhe", "Kassel", "Koblenz",   "Lahn-Dill-Kreis", "Landau in der Pfalz",  "Landkreis Heilbronn", "Landkreis Karlsruhe",
+                         "Limburg-Weilburg",  "Lippe",  "Ludwigsburg" ,  "Main-Kinzig-Kreis", "Main-Tauber-Kreis", "Mainz",   "Mainz-Bingen",  "Mannheim",  "Marburg-Biedenkopf", "Mayen-Koblenz", "Minden-Lübbecke", "Märkischer Kreis",
+                         "Neckar-Odenwald-Kreis", "Neustadt an der Weinstraße",  "Neuwied", "Odenwaldkreis", "Offenbach",                  "Offenbach am Main",  "Olpe", "Ostalbkreis", "Paderborn", "Pforzheim", "Pirmasens",  "Rastatt", "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rheingau-Taunus-Kreis", "Schwalm-Eder-Kreis",
+                         "Schwäbisch Hall", "Siegen-Wittgenstein", "Soest" , "Speyer" ,  "Stuttgart", "Südliche Weinstraße", "Südwestpfalz",              "Trier",   "Trier-Saarburg",  "Unna",  "Vogelsbergkreis", "Waldeck-Frankenberg", "Werra-Meißner-Kreis",  "Westerwaldkreis", "Wiesbaden",  "Worms", "Zweibrücken"]
+    if chosen_model == "thirdhundred":
+        federalStates = ["Alb-Donau-Kreis",  "Altötting", "Amberg", "Amberg-Sulzbach",  "Ansbach", "Aschaffenburg", "Bad Kissingen", "Bamberg",  "Bayreuth", "Berchtesgadener Land", "Biberach", "Bodenseekreis", "Breisgau-Hochschwarzwald", "Calw", "Cham",                               
+        "Coburg", "Dachau", "Deggendorf", "Dingolfing-Landau",  "Ebersberg", "Eichstätt", "Emmendingen",  "Enzkreis", "Erding", "Erlangen",  "Erlangen-Höchstadt", "Forchheim", "Freiburg im Breisgau", "Freising", "Freudenstadt", "Freyung-Grafenau", "Fürstenfeldbruck", "Fürth", "Garmisch-Partenkirchen", "Haßberge", "Hof", "Ingolstadt", "Kelheim", "Kitzingen", "Konstanz",  "Kronach", "Landkreis Ansbach", "Landkreis Aschaffenburg", "Landkreis Bamberg",  "Landkreis Bayreuth", "Landkreis Coburg", "Landkreis Fürth", "Landkreis Hof", "Landkreis Landshut", "Landkreis München", "Landkreis Passau", "Landkreis Regensburg", "Landsberg am Lech",  "Landshut",                           
+        "Lörrach", "Miesbach", "Mühldorf am Inn", "München",  "Neuburg-Schrobenhausen", "Neumarkt in der Oberpfalz", "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab",  "Nürnberg",  "Nürnberger Land",  "Ortenaukreis",  "Passau",                             
+        "Ravensburg", "Regen",  "Regensburg", "Reutlingen",  "Rhön-Grabfeld", "Rosenheim", "Roth",  "Rottal-Inn", "Rottweil",
+        "Schwabach", "Schwandorf",  "Schwarzwald-Baar-Kreis", "Schweinfurt",  "Sigmaringen", "Straubing", "Straubing-Bogen",  "Tirschenreuth", "Traunstein",                         
+        "Tuttlingen",  "Ulm",  "Waldshut ", 
+        "Weiden in der Oberpfalz", "Weilheim-Schongau",  "Weißenburg-Gunzenhausen",            
+        "Wunsiedel im Fichtelgebirge", "Würzburg", "Zollernalbkreis"]    
+    if chosen_model == "fourthhundred":
+        federalStates = ["Altenburger Land",   "Altmarkkreis Salzwedel",   "Anhalt-Bitterfeld",  "Augsburg",                        
+        "Bautzen",  "Berlin",   "Börde", "Brandenburg an der Havel",        
+        "Burgenlandkreis",  "Chemnitz",  "Dahme-Spreewald", "Dessau-Roßlau",                   
+        "Dillingen an der Donau", "Donau-Ries",  "Dresden", "Eichsfeld",                       
+        "Elbe-Elster",  "Erfurt", "Erzgebirgskreis",  "Frankfurt (Oder)",                
+        "Gera",  "Görlitz", "Gotha",  "Greiz",                           
+        "Günzburg",    "Halle (Saale)",  "Harz",  "Hildburghausen",                  
+        "Ilm-Kreis", "Jena",  "Jerichower Land", "Kaufbeuren",                      
+        "Kempten (Allgäu)",  "Landkreis Augsburg",  "Landkreis Leipzig",   "Landkreis Rostock",               
+        "Landkreis Schweinfurt" , "Landkreis Würzburg" , "Leipzig",  "Ludwigslust-Parchim",             
+        "Magdeburg",  "Main-Spessart",  "Märkisch-Oderland",  "Mecklenburgische Seenplatte",     
+        "Meißen",   "Memmingen",     "Merzig-Wadern", "Miltenberg",                      
+        "Mittelsachsen",  "Neu-Ulm", "Neunkirchen",  "Nordsachsen",                     
+        "Nordwestmecklenburg",  "Oberallgäu",   "Oberhavel",   "Oberspreewald-Lausitz",           
+        "Oder-Spree",   "Ostprignitz-Ruppin", "Potsdam",  "Potsdam-Mittelmark",              
+        "Prignitz",  "Regionalverband Saarbrücken", "Rostock",  "Saale-Orla-Kreis",                
+        "Saalekreis",  "Saalfeld-Rudolstadt" , "Saarlouis" ,  "Sächsische Schweiz-Osterzgebirge",
+        "Salzlandkreis",   "Schmalkalden-Meiningen",  "Schwerin",  "Sömmerda",                        
+        "Sonneberg",  "Spree-Neiße",  "Stendal",  "Suhl",                            
+        "Teltow-Fläming",  "Uckermark",  "Unstrut-Hainich-Kreis",  "Vogtlandkreis",                   
+        "Vorpommern-Greifswald", "Vorpommern-Rügen",  "Wartburgkreis",  "Weimar",                          
+        "Weimarer Land",   "Wittenberg",  "Zwickau"]
+    if chosen_model == "firstsecondhundred":
+        federalStates = ["Aurich","Bielefeld","Bonn","Borken","Braunschweig","Bremen","Bremerhaven",          
+        "Celle","Cloppenburg", "Coesfeld", "Cuxhaven", "Delmenhorst", "Diepholz", "Dithmarschen",         
+        "Duisburg","Düren", "Düsseldorf", "Emden", "Emsland", "Essen","Euskirchen",           
+        "Flensburg","Friesland", "Gifhorn", "Goslar", "Göttingen", "Gütersloh", "Hamburg",              
+        "Hameln-Pyrmont","Hannover", "Harburg", "Heidekreis", "Heinsberg", "Helmstedt", "Herford",              
+        "Herzogtum Lauenburg","Hildesheim", "Holzminden", "Kiel", "Kleve", "Krefeld", "Köln",                 
+        "Landkreis Oldenburg","Landkreis Osnabrück","Leer",  "Leverkusen", "Lübeck", "Lüchow-Dannenberg", "Lüneburg",             
+        "Mettmann","Mönchengladbach","Mülheim an der Ruhr", "Münster", "Neumünster", "NienburgWeser", "Nordfriesland",        
+        "Oberbergischer Kreis","Oldenburg" , "Osnabrück", "Osterholz", "Ostholstein", "Pinneberg", "Plön",                 
+        "Recklinghausen", "Remscheid","Rendsburg-Eckernförde", "Rhein-Neuss", "Rhein-Sieg-Kreis", "Rotenburg (Wümme)", "Salzgitter",           
+        "Schaumburg", "Schleswig-Flensburg","Segeberg", "Stade", "Steinburg", "Steinfurt", "Städteregion Aachen",  
+        "Uelzen", "Viersen", "Warendorf", "Wilhelmshaven", "Wittmund", "Wolfsburg", "Wuppertal",
+        "Ahrweiler",   "Altenkirchen",  "Alzey-Worms",  "Bad Dürkheim" , "Bad Kreuznach" , "Baden-Baden",
+        "Bernkastel-Wittlich", "Birkenfeld",  "Böblingen", "Cochem-Zell", "Darmstadt-Dieburg", "Donnersbergkreis", "Dortmund",  "Eifelkreis Bitburg-Prüm",  "Ennepe-Ruhr-Kreis", "Esslingen",  
+        "Frankenthal (Pfalz)",  "Frankfurt am Main", "Fulda",  "Gießen", "Groß-Gerau", "Heidenheim",  "Heilbronn", 
+        "Hersfeld-Rotenburg", "Hochsauerlandkreis", "Hochtaunuskreis",   "Hohenlohekreis", "Höxter", "Kaiserslautern", "Karlsruhe", "Kassel", "Koblenz",   "Lahn-Dill-Kreis", "Landau in der Pfalz",  "Landkreis Heilbronn", "Landkreis Karlsruhe",
+        "Limburg-Weilburg",  "Lippe",  "Ludwigsburg" ,  "Main-Kinzig-Kreis", "Main-Tauber-Kreis", "Mainz",   "Mainz-Bingen",  "Mannheim",  "Marburg-Biedenkopf", "Mayen-Koblenz", "Minden-Lübbecke", "Märkischer Kreis",
+        "Neckar-Odenwald-Kreis", "Neustadt an der Weinstraße",  "Neuwied", "Odenwaldkreis", "Offenbach", "Offenbach am Main",  "Olpe", "Ostalbkreis", "Paderborn", "Pforzheim", "Pirmasens",  "Rastatt", "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rheingau-Taunus-Kreis", "Schwalm-Eder-Kreis",
+        "Schwäbisch Hall", "Siegen-Wittgenstein", "Soest" , "Speyer" ,  "Stuttgart", "Südliche Weinstraße", "Südwestpfalz", "Trier",   "Trier-Saarburg",  "Unna",  "Vogelsbergkreis", "Waldeck-Frankenberg", "Werra-Meißner-Kreis",  "Westerwaldkreis", "Wiesbaden",  "Worms", "Zweibrücken"
+        ]
+    if chosen_model == "thirdfourthhundred":
+        federalStates = ["Alb-Donau-Kreis",  "Altötting", "Amberg", "Amberg-Sulzbach",  "Ansbach", "Aschaffenburg", "Bad Kissingen", "Bamberg",  "Bayreuth", "Berchtesgadener Land", "Biberach", "Bodenseekreis", "Breisgau-Hochschwarzwald", "Calw", "Cham",                               
+        "Coburg", "Dachau", "Deggendorf", "Dingolfing-Landau",  "Ebersberg", "Eichstätt", "Emmendingen",  "Enzkreis", "Erding", "Erlangen",  "Erlangen-Höchstadt", "Forchheim", "Freiburg im Breisgau", "Freising", "Freudenstadt", "Freyung-Grafenau", "Fürstenfeldbruck", "Fürth", "Garmisch-Partenkirchen", "Haßberge", "Hof", "Ingolstadt", "Kelheim", "Kitzingen", "Konstanz",  "Kronach", "Landkreis Ansbach", "Landkreis Aschaffenburg", "Landkreis Bamberg",  "Landkreis Bayreuth", "Landkreis Coburg", "Landkreis Fürth", "Landkreis Hof", "Landkreis Landshut", "Landkreis München", "Landkreis Passau", "Landkreis Regensburg", "Landsberg am Lech",  "Landshut",                           
+        "Lörrach", "Miesbach", "Mühldorf am Inn", "München",  "Neuburg-Schrobenhausen", "Neumarkt in der Oberpfalz", "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab",  "Nürnberg",  "Nürnberger Land",  "Ortenaukreis",  "Passau",                             
+        "Ravensburg", "Regen",  "Regensburg", "Reutlingen",  "Rhön-Grabfeld", "Rosenheim", "Roth",  "Rottal-Inn", "Rottweil",
+        "Schwabach", "Schwandorf",  "Schwarzwald-Baar-Kreis", "Schweinfurt",  "Sigmaringen", "Straubing", "Straubing-Bogen",  "Tirschenreuth", "Traunstein",                         
+        "Tuttlingen",  "Ulm",  "Waldshut ", 
+        "Weiden in der Oberpfalz", "Weilheim-Schongau",  "Weißenburg-Gunzenhausen",            
+        "Wunsiedel im Fichtelgebirge", "Würzburg", "Zollernalbkreis",
+        "Altenburger Land",   "Altmarkkreis Salzwedel",   "Anhalt-Bitterfeld",  "Augsburg",                        
+        "Bautzen",  "Berlin",   "Börde", "Brandenburg an der Havel",        
+        "Burgenlandkreis",  "Chemnitz",  "Dahme-Spreewald", "Dessau-Roßlau",                   
+        "Dillingen an der Donau", "Donau-Ries",  "Dresden", "Eichsfeld",                       
+        "Elbe-Elster",  "Erfurt", "Erzgebirgskreis",  "Frankfurt (Oder)",                
+        "Gera",  "Görlitz", "Gotha",  "Greiz",                           
+        "Günzburg",    "Halle (Saale)",  "Harz",  "Hildburghausen",                  
+        "Ilm-Kreis", "Jena",  "Jerichower Land", "Kaufbeuren",                      
+        "Kempten (Allgäu)",  "Landkreis Augsburg",  "Landkreis Leipzig",   "Landkreis Rostock",               
+        "Landkreis Schweinfurt" , "Landkreis Würzburg" , "Leipzig",  "Ludwigslust-Parchim",             
+        "Magdeburg",  "Main-Spessart",  "Märkisch-Oderland",  "Mecklenburgische Seenplatte",     
+        "Meißen",   "Memmingen",     "Merzig-Wadern", "Miltenberg",                      
+        "Mittelsachsen",  "Neu-Ulm", "Neunkirchen",  "Nordsachsen",                     
+        "Nordwestmecklenburg",  "Oberallgäu",   "Oberhavel",   "Oberspreewald-Lausitz",           
+        "Oder-Spree",   "Ostprignitz-Ruppin", "Potsdam",  "Potsdam-Mittelmark",              
+        "Prignitz",  "Regionalverband Saarbrücken", "Rostock",  "Saale-Orla-Kreis",                
+        "Saalekreis",  "Saalfeld-Rudolstadt" , "Saarlouis" ,  "Sächsische Schweiz-Osterzgebirge",
+        "Salzlandkreis",   "Schmalkalden-Meiningen",  "Schwerin",  "Sömmerda",                        
+        "Sonneberg",  "Spree-Neiße",  "Stendal",  "Suhl",                            
+        "Teltow-Fläming",  "Uckermark",  "Unstrut-Hainich-Kreis",  "Vogtlandkreis",                   
+        "Vorpommern-Greifswald", "Vorpommern-Rügen",  "Wartburgkreis",  "Weimar",                          
+        "Weimarer Land",   "Wittenberg",  "Zwickau"] 
+    if chosen_model == "fourhundred":
+        federalStates = ["Aurich","Bielefeld","Bonn","Borken","Braunschweig","Bremen","Bremerhaven",          
+        "Celle","Cloppenburg", "Coesfeld", "Cuxhaven", "Delmenhorst", "Diepholz", "Dithmarschen",         
+        "Duisburg","Düren", "Düsseldorf", "Emden", "Emsland", "Essen","Euskirchen",           
+        "Flensburg","Friesland", "Gifhorn", "Goslar", "Göttingen", "Gütersloh", "Hamburg",              
+        "Hameln-Pyrmont","Hannover", "Harburg", "Heidekreis", "Heinsberg", "Helmstedt", "Herford",              
+        "Herzogtum Lauenburg","Hildesheim", "Holzminden", "Kiel", "Kleve", "Krefeld", "Köln",                 
+        "Landkreis Oldenburg","Landkreis Osnabrück","Leer",  "Leverkusen", "Lübeck", "Lüchow-Dannenberg", "Lüneburg",             
+        "Mettmann","Mönchengladbach","Mülheim an der Ruhr", "Münster", "Neumünster", "NienburgWeser", "Nordfriesland",        
+        "Oberbergischer Kreis","Oldenburg" , "Osnabrück", "Osterholz", "Ostholstein", "Pinneberg", "Plön",                 
+        "Recklinghausen", "Remscheid","Rendsburg-Eckernförde", "Rhein-Neuss", "Rhein-Sieg-Kreis", "Rotenburg (Wümme)", "Salzgitter",           
+        "Schaumburg", "Schleswig-Flensburg","Segeberg", "Stade", "Steinburg", "Steinfurt", "Städteregion Aachen",  
+        "Uelzen", "Viersen", "Warendorf", "Wilhelmshaven", "Wittmund", "Wolfsburg", "Wuppertal",
+        "Ahrweiler",   "Altenkirchen",  "Alzey-Worms",  "Bad Dürkheim" , "Bad Kreuznach" , "Baden-Baden",
+        "Bernkastel-Wittlich", "Birkenfeld",  "Böblingen", "Cochem-Zell", "Darmstadt-Dieburg", "Donnersbergkreis", "Dortmund",  "Eifelkreis Bitburg-Prüm",  "Ennepe-Ruhr-Kreis", "Esslingen",  
+        "Frankenthal (Pfalz)",  "Frankfurt am Main", "Fulda",  "Gießen", "Groß-Gerau", "Heidenheim",  "Heilbronn", 
+        "Hersfeld-Rotenburg", "Hochsauerlandkreis", "Hochtaunuskreis",   "Hohenlohekreis", "Höxter", "Kaiserslautern", "Karlsruhe", "Kassel", "Koblenz",   "Lahn-Dill-Kreis", "Landau in der Pfalz",  "Landkreis Heilbronn", "Landkreis Karlsruhe",
+        "Limburg-Weilburg",  "Lippe",  "Ludwigsburg" ,  "Main-Kinzig-Kreis", "Main-Tauber-Kreis", "Mainz",   "Mainz-Bingen",  "Mannheim",  "Marburg-Biedenkopf", "Mayen-Koblenz", "Minden-Lübbecke", "Märkischer Kreis",
+        "Neckar-Odenwald-Kreis", "Neustadt an der Weinstraße",  "Neuwied", "Odenwaldkreis", "Offenbach", "Offenbach am Main",  "Olpe", "Ostalbkreis", "Paderborn", "Pforzheim", "Pirmasens",  "Rastatt", "Rhein-Hunsrück-Kreis", "Rhein-Neckar-Kreis", "Rheingau-Taunus-Kreis", "Schwalm-Eder-Kreis",
+        "Schwäbisch Hall", "Siegen-Wittgenstein", "Soest" , "Speyer" ,  "Stuttgart", "Südliche Weinstraße", "Südwestpfalz", "Trier",   "Trier-Saarburg",  "Unna",  "Vogelsbergkreis", "Waldeck-Frankenberg", "Werra-Meißner-Kreis",  "Westerwaldkreis", "Wiesbaden",  "Worms", "Zweibrücken",
+        "Alb-Donau-Kreis",  "Altötting", "Amberg", "Amberg-Sulzbach",  "Ansbach", "Aschaffenburg", "Bad Kissingen", "Bamberg",  "Bayreuth", "Berchtesgadener Land", "Biberach", "Bodenseekreis", "Breisgau-Hochschwarzwald", "Calw", "Cham",                               
+        "Coburg", "Dachau", "Deggendorf", "Dingolfing-Landau",  "Ebersberg", "Eichstätt", "Emmendingen",  "Enzkreis", "Erding", "Erlangen",  "Erlangen-Höchstadt", "Forchheim", "Freiburg im Breisgau", "Freising", "Freudenstadt", "Freyung-Grafenau", "Fürstenfeldbruck", "Fürth", "Garmisch-Partenkirchen", "Haßberge", "Hof", "Ingolstadt", "Kelheim", "Kitzingen", "Konstanz",  "Kronach", "Landkreis Ansbach", "Landkreis Aschaffenburg", "Landkreis Bamberg",  "Landkreis Bayreuth", "Landkreis Coburg", "Landkreis Fürth", "Landkreis Hof", "Landkreis Landshut", "Landkreis München", "Landkreis Passau", "Landkreis Regensburg", "Landsberg am Lech",  "Landshut",                           
+        "Lörrach", "Miesbach", "Mühldorf am Inn", "München",  "Neuburg-Schrobenhausen", "Neumarkt in der Oberpfalz", "Neustadt an der Aisch-Bad Windsheim", "Neustadt an der Waldnaab",  "Nürnberg",  "Nürnberger Land",  "Ortenaukreis",  "Passau",                             
+        "Ravensburg", "Regen",  "Regensburg", "Reutlingen",  "Rhön-Grabfeld", "Rosenheim", "Roth",  "Rottal-Inn", "Rottweil",
+        "Schwabach", "Schwandorf",  "Schwarzwald-Baar-Kreis", "Schweinfurt",  "Sigmaringen", "Straubing", "Straubing-Bogen",  "Tirschenreuth", "Traunstein",                         
+        "Tuttlingen",  "Ulm",  "Waldshut ", 
+        "Weiden in der Oberpfalz", "Weilheim-Schongau",  "Weißenburg-Gunzenhausen",            
+        "Wunsiedel im Fichtelgebirge", "Würzburg", "Zollernalbkreis",
+        "Altenburger Land",   "Altmarkkreis Salzwedel",   "Anhalt-Bitterfeld",  "Augsburg",                        
+        "Bautzen",  "Berlin",   "Börde", "Brandenburg an der Havel",        
+        "Burgenlandkreis",  "Chemnitz",  "Dahme-Spreewald", "Dessau-Roßlau",                   
+        "Dillingen an der Donau", "Donau-Ries",  "Dresden", "Eichsfeld",                       
+        "Elbe-Elster",  "Erfurt", "Erzgebirgskreis",  "Frankfurt (Oder)",                
+        "Gera",  "Görlitz", "Gotha",  "Greiz",                           
+        "Günzburg",    "Halle (Saale)",  "Harz",  "Hildburghausen",                  
+        "Ilm-Kreis", "Jena",  "Jerichower Land", "Kaufbeuren",                      
+        "Kempten (Allgäu)",  "Landkreis Augsburg",  "Landkreis Leipzig",   "Landkreis Rostock",               
+        "Landkreis Schweinfurt" , "Landkreis Würzburg" , "Leipzig",  "Ludwigslust-Parchim",             
+        "Magdeburg",  "Main-Spessart",  "Märkisch-Oderland",  "Mecklenburgische Seenplatte",     
+        "Meißen",   "Memmingen",     "Merzig-Wadern", "Miltenberg",                      
+        "Mittelsachsen",  "Neu-Ulm", "Neunkirchen",  "Nordsachsen",                     
+        "Nordwestmecklenburg",  "Oberallgäu",   "Oberhavel",   "Oberspreewald-Lausitz",           
+        "Oder-Spree",   "Ostprignitz-Ruppin", "Potsdam",  "Potsdam-Mittelmark",              
+        "Prignitz",  "Regionalverband Saarbrücken", "Rostock",  "Saale-Orla-Kreis",                
+        "Saalekreis",  "Saalfeld-Rudolstadt" , "Saarlouis" ,  "Sächsische Schweiz-Osterzgebirge",
+        "Salzlandkreis",   "Schmalkalden-Meiningen",  "Schwerin",  "Sömmerda",                        
+        "Sonneberg",  "Spree-Neiße",  "Stendal",  "Suhl",                            
+        "Teltow-Fläming",  "Uckermark",  "Unstrut-Hainich-Kreis",  "Vogtlandkreis",                   
+        "Vorpommern-Greifswald", "Vorpommern-Rügen",  "Wartburgkreis",  "Weimar",                          
+        "Weimarer Land",   "Wittenberg",  "Zwickau"
+        ]
+    if chosen_model == "cities_non_hierarchical":  
+        federalStates = [
+       "Hamburg", "Bremen", "Köln", "Stuttgart", "München", "Berlin"]
+    if chosen_model == "countieswithproblems":
+        federalStates = [
+            "Berlin", "Bremen", "Hamburg", "Stuttgart", "München", "Köln",              
+            "Frankfurt am Main", "Düsseldorf", "Leipzig", "Essen", "Dortmund", "Dresden",          
+            "Nürnberg", "Duisburg", "Helmstedt", "Holzminden", "Schaumburg", "Delmenhorst",      
+            "Wilhelmshaven", "Emsland", "Leer", "Oldenburg", "Bremerhaven"
+        ]
+                
+    for i, c in enumerate(federalStates):
+        # upper plot
+        fig, axs = plt.subplots(1, 2, figsize=(36, 6), sharex=True)
+        axs = axs.ravel()
+
+        if incl2024 == True:
+             years = (2020, 2023)
+        else:
+            years = [2020]
+            
+        for year in years:
+            if year == 2020:
+                dates_filtered = dates_in[dates_in < np.datetime64("2021-03-01")]
+                dates = np.unique(dates_filtered)
+            if year == 2023:
+                dates_filtered = dates_in[dates_in > np.datetime64("2022-12-31")]
+                dates = np.unique(dates_filtered)
+
+            # Left plot
+            ax = axs[0]
+            
+            labels = {
+                "C": "new cases $d_C$",
+                "Cnat": "Cases",
+                "logC": "log(new cases $d_C$)",
+                "ICU": "ICU patients $d_{ICU}$",
+                "logICU": "log(ICU patients $d_{ICU}$)",
+                "H": "hospitalisations $d_H$",
+                "logH": "log(hospitalisations $d_H$)",
+                "R": "Reproduction Number $d_R$",
+                "logR": "log(Reproduction Number $d_R$)",
+                "D": "deaths $d_D$",
+                "logD": "log(deaths $d_D$)",
+                "G": "Growh Multiplier $d_G$",
+            }
+            for indicator in indicators_in:  
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.observed_data.d.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                ax.plot(
+                    dates,
+                    y,
+                    label="Observed out-of-home duration",
+                    color=colors["d_obs"],
+                    marker="o",
+                    linestyle='None',
+                )
+
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.m.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(ax, dates, y, "Inferred out-of-home duration", colors["d"])
+                ax.legend(
+                     loc='lower right',
+                     ncol=1,
+                #     # bbox_to_anchor=(1.1, -0.4)
+                )
+                date_form = DateFormatter("%m/%d")
+                ax.xaxis.set_major_formatter(date_form)
+                # set y label
+                ax.set_ylabel("Out-of-home duration (h)")
+                
+            ax = axs[1]
+
+            ## plot disease indicators
+            for indicator in indicators_in:
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.d_C.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==1))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.d_R.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.d_H.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["Cnat"],
+                    label_in=labels["Cnat"],
+                    alpha=0.2,
+                )
+                
+            if plus_nat_incidence == True: 
+                for indicator in indicators_in:
+                    if year == 2020:
+                        if indicator == "C":
+                            y_first = trace_in.posterior.d_C_nat.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "R":
+                            y_first = trace_in.posterior.d_R_nat.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "H":
+                            y_first = trace_in.posterior.d_H_nat.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                    if year == 2023:
+                        if indicator == "C":
+                            y_first = trace_in.posterior.d_C_nat.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==1))
+                        if indicator == "R":
+                            y_first = trace_in.posterior.d_R_nat.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                        if indicator == "H":
+                            y_first = trace_in.posterior.d_H_nat.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                    y = y_first.dropna(dim="obs_id", how = "all")
+                    plot_timeseries(
+                        ax,
+                        dates,
+                        y,
+                        color_in=colors[indicator],
+                        label_in=labels[indicator],
+                        alpha=0.2,
+                    )
+                # daylight
+            if daylight_in is not None:
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.daylight_factor.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["L"],
+                    label_in="daylight",
+                    alpha=0.2,
+                )
+            # school vacation
+            if school_in is not None:
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.vacation_factor.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["v"],
+                    label_in="School vacation",
+                    alpha=0.2,
+                )
+            # public holidays
+            if holiday_in is not None:
+                if year == 2020:
+                    #trace_filtered = trace_in.sel(fedState = i)
+                    if indicator == "C":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.holiday_factor.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["h"],
+                    label_in="Public holidays",
+                    alpha=0.2,
+                )
+            # temperature
+            if temperature_in is not None:
+                if year == 2020:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R<61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H<61)&(trace_in.constant_data.fedState_idx==i))
+                if year == 2023:
+                    if indicator == "C":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_C>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "R":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_R>=61)&(trace_in.constant_data.fedState_idx==i))
+                    if indicator == "H":
+                        y_first = trace_in.posterior.temperature_factor.where((trace_in.constant_data.counter_H>=61)&(trace_in.constant_data.fedState_idx==i))
+                y = y_first.dropna(dim="obs_id", how = "all")
+                plot_timeseries(
+                    ax,
+                    dates,
+                    y,
+                    color_in=colors["T"],
+                    label_in="Temperature",
+                    alpha=0.2,
+                )
+            ## precipitation
+            # if precipitation_in is not None:
+            #     plot_timeseries(
+            #         ax,
+            #         dates_in,
+            #         trace_in.posterior["precipitation_factor"],
+            #         color_in=colors["p"],
+            #         label_in="precipitation $p$",
+            #         alpha=0.2,
+            #     )
+            ax.hlines(
+                1,
+                xmin=dates[0],
+                xmax=dates[-1],
+                color="grey",
+                linestyle="--",
+                linewidth=1,
+            )
+            date_form = DateFormatter("%m/%d")
+            ax.xaxis.set_major_formatter(date_form)
+            ax.autoscale_view(tight=True)
+            ax.margins(x=0)
+            ax.set_xlim(min(dates), max(dates))
+            
+            ## set y label
+            ax.set_ylabel("Multiplicative impact on\nout-of-home duration")
+            ax.legend(
+             ncol=2,
+             loc='lower right',
+            # # bbox_to_anchor=(0.7, 2)
+             )
+            ax.margins(x=0)
+            #format_x_axis(ax, dates, last = True)
+            #ax.set_title(c)
+
+            # save figure
+            plotnamepng= f"{tag_in}/" + c + str(year) + "-timeseriesPaper.png"
+            plotnamepdf = f"{tag_in}/" + c + str(year) + "-timeseriesPaper.pdf"
+            fig.savefig(plotnamepng, bbox_inches="tight")
+            fig.savefig(plotnamepdf, bbox_inches="tight")
 
 def plot_all_timeseries(
     chosen_model,
@@ -2045,7 +2534,7 @@ def plot_all_timeseries(
                         dates,
                         y,
                         color_in=colors["v"],
-                        label_in="school vacation",
+                        label_in="School vacation",
                         alpha=0.2
                 )
                 # public holidays
@@ -2086,7 +2575,7 @@ def plot_all_timeseries(
                         dates,
                         y,
                         color_in=colors["h"],
-                        label_in="public holidays",
+                        label_in="Public holidays",
                         alpha=0.2
                 )
                 # temperature
@@ -2127,7 +2616,7 @@ def plot_all_timeseries(
                         dates,
                         y,
                         color_in=colors["T"],
-                        label_in="temperature",
+                        label_in="Temperature",
                         alpha=0.2
                 )
                 ## precipitation
@@ -2347,7 +2836,7 @@ def plot_all_timeseries(
                     dates,
                     y,
                     color_in=colors["v"],
-                    label_in="school vacation",
+                    label_in="School vacation",
                     alpha=0.2,
                 )
             # public holidays
@@ -2373,7 +2862,7 @@ def plot_all_timeseries(
                     dates,
                     y,
                     color_in=colors["h"],
-                    label_in="public holidays",
+                    label_in="Public holidays",
                     alpha=0.2,
                 )
             # temperature
@@ -2398,7 +2887,7 @@ def plot_all_timeseries(
                     dates,
                     y,
                     color_in=colors["T"],
-                    label_in="temperature",
+                    label_in="Temperature",
                     alpha=0.2,
                 )
             ## precipitation
@@ -2449,7 +2938,7 @@ def plot_all_timeseries(
             ax.plot(
                 dates,
                 y,
-                label="input $d_{obs}$",
+                label="Observed out-of-home duration",
                 color=colors["d_obs"],
                 marker="o",
             )
@@ -3562,7 +4051,7 @@ def analysis_figures(
     #if daylight_in:
     #    plot_daylight_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model, incl2024)
     #plot_indicator_timeseries(dates_in, trace_in, tag_in, indicators_in, chosen_model)
-    plot_all_timeseries(
+    plot_timeseriesPaper(
         chosen_model,
         dates_in,
         trace_in,
@@ -3577,4 +4066,19 @@ def analysis_figures(
         daylight_in,
         pop_density_in
     )
+    # plot_all_timeseries(
+    #    chosen_model,
+    #    dates_in,
+    #    trace_in,
+    #    tag_in,
+    #    indicators_in, 
+    #    incl2024,
+    #    plus_nat_incidence,
+    #    school_in,
+    #    holiday_in,
+    #    temperature_in,
+    #    precipitation_in,
+    #    daylight_in,
+    #    pop_density_in
+    #)
     # plot_chains(trace_in, tag_in)
