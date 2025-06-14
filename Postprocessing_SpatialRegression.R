@@ -1,3 +1,5 @@
+library(corrplot)
+
 # Regression Analysis -----------------------------------------------------
 
 #Data Preprocessing -------------------------------------------------------
@@ -259,10 +261,12 @@ valuetoplot <- left_join(valuetoplot, AfdAgeEmployment)
 
 #Correlation matrix
 valuetoplotRed <- valuetoplot %>% select(c(value, Inhabitantsperkm2, voterTurnout, IncomePerson2022, unemploymentQuota, peopleover65, childrenbelow3inprimarycare, `Voted Right Wing (%)`, `Average Age`, `Employment Rate`))
-#colnames(valuetoplotRed) <- c("Integral of Exponential", "Inhabitants per km2", "Voter Turnout", "Income per Capita", "Unemployment Rate", "Share 65+ year olds", "Share <3 year olds in Chidcare", "Share Right Wing Voters", "Average Age", "Employment Rate")
+colnames(valuetoplotRed) <- c("Integral of Exponential", "Inhabitants per km2", "Voter Turnout", "Income per Capita", "Unemployment Rate", "Share 65+ year olds", "Share < 3 year olds in Childcare", "Share Extreme Right Voters", "Average Age", "Employment Rate")
+
+valuetoplotRed <- valuetoplotRed %>% select(c("Integral of Exponential", "Inhabitants per km2", "Voter Turnout", "Income per Capita"))
 corrmat <- cor(valuetoplotRed)
-pdf(height = 9, width = 12, "CorrelationPlot.pdf")
-corrplot(corrmat, method = "color", tl.col="black", tl.srt=45, tl.cex = 1.8, cl.pos = "b", cl.cex=1.5)
+pdf(height = 6.5, width = 14, "CorrelationPlotReduced.pdf")
+corrplot(corrmat, method = "color", tl.col="black", tl.srt=45, tl.cex = 1.8, cl.pos = "r", cl.ratio = 0.25, cl.cex=1.25, mar = c(0,0,1.5,1))
 dev.off()
 
 # Regression Analysis
