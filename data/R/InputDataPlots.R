@@ -44,53 +44,35 @@ outOfHomeDuration <- outOfHomeDuration %>% mutate(group = case_when(LK_Name %in%
 
 #hexcodes from here https://martin-ueding.de/posts/matplotlib-colors-scales-as-hex-codes/#tab20b
 
-outOfHomeDuration <- outOfHomeDuration %>% group_by(date, group_eng) %>% summarise(lowerperc = quantile(outOfHomeDuration, 0.025), upperperc = quantile(outOfHomeDuration, 0.975), outOfHomeDuration = mean(outOfHomeDuration))
-
-outOfHomeDuration$group_eng <- factor(outOfHomeDuration$group_eng, levels = c("Rural","Medium Rural", "Suburban/Independent Town", "Small City", "Large City", "City State"))
-
-outOfHomeDuration <- outOfHomeDuration %>% mutate(group_reduced = case_when(group_eng == "Large City" ~ "City",
-                                                                            group_eng == "Small City" ~ "City",
-                                                                            .default = group_eng))
-
-outOfHomeDuration$group_reduced <- factor(outOfHomeDuration$group_reduced, levels = c("Rural","Medium Rural", "Suburban/Independent Town", "City", "City State"))
+outOfHomeDuration <- outOfHomeDuration %>% group_by(date) %>% summarise(lowerperc = quantile(outOfHomeDuration, 0.025), upperperc = quantile(outOfHomeDuration, 0.975), outOfHomeDuration = mean(outOfHomeDuration))
+# 
+# outOfHomeDuration$group_eng <- factor(outOfHomeDuration$group_eng, levels = c("Rural","Medium Rural", "Suburban/Independent Town", "Small City", "Large City", "City State"))
+# 
+# outOfHomeDuration <- outOfHomeDuration %>% mutate(group_reduced = case_when(group_eng == "Large City" ~ "City",
+#                                                                             group_eng == "Small City" ~ "City",
+#                                                                             .default = group_eng))
+# 
+# outOfHomeDuration$group_reduced <- factor(outOfHomeDuration$group_reduced, levels = c("Rural","Medium Rural", "Suburban/Independent Town", "City", "City State"))
 
 mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=outOfHomeDuration)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc, fill = group_reduced), alpha = 0.3) + 
-  geom_line(aes(colour=group_reduced), size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc),fill = "#7b4173", alpha = 0.3) + 
+  geom_line(colour="#7b4173", size = 2) +
   theme_minimal() +
-  theme(text = element_text(size = 45)) +
+  theme(text = element_text(size = 55)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
-  scale_color_brewer(palette = "RdBu") +
-  scale_fill_brewer(palette = "RdBu") +
+        axis.ticks.length = unit(10, "pt"),
+        plot.margin = margin(l=0.2,r=0.5, unit ="cm")) +
   xlab("Date") +
   ylab("Out-Of-Home\nDuration (hours)") +
-  guides(color=guide_legend(nrow=2,byrow=TRUE)) +
-  ylim(4,9) +
+  #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
+  ylim(3,9.5) +
   scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "2 month"), date_labels = "%m/%y")
-
-mobilityB <- ggplot(outOfHomeDuration %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=outOfHomeDuration)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc, fill = group_reduced), alpha = 0.3) + 
-  geom_line(aes(colour=group_reduced), size = 2) +
-  theme_minimal() +
-  theme(text = element_text(size = 45)) +
-  theme(legend.position = "bottom", legend.title = element_blank()) +
-  theme(axis.ticks.x = element_line(),
-        axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
-  scale_color_brewer(palette = "RdBu") +
-  scale_fill_brewer(palette = "RdBu") +
-  xlab("Date") +
-  ylim(4,9) +
-  ylab("Out-Of-Home\nDuration (hours)") +
-  guides(color=guide_legend(nrow=2,byrow=TRUE)) +
-  scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "2 month"), date_labels = "%m/%y")
 
 ggarrange(mobilityA, mobilityB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", widths = c(1,1), common.legend = TRUE)
 
-ggsave("MobilityInput.pdf", dpi = 500, w = 24, h = 9)
+ggsave("MobilityInput.png", mobilityA, dpi = 500, w = 16.5, bg = "white", h = 8)
 
 # Temperature -------------------------------------------------------------
 
@@ -99,22 +81,24 @@ temperature <- read_csv("inputDataincl2024_fourthhundred.csv")
 temperature <- temperature %>% group_by(date) %>% summarise(lowerperc = quantile(tmax, 0.025), upperperc = quantile(tmax, 0.975), tmax = mean(tmax))
 
 tempA <- ggplot(temperature %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01") , aes(x=date, y=tmax)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#e7cb94", alpha = 0.3) + 
-  geom_line(colour="#8c6d31", size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) + 
+  geom_line(colour="#8c6d31", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 45)) +
+  theme(text = element_text(size = 60)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
-  ylim(-10,30)+
+        axis.ticks.length = unit(10, "pt"),
+        plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm"),
+        axis.line = element_line()) +
+  ylim(-10,32)+
   xlab("Date") +
   ylab("Tmax (C°)") +
-  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "2 month"), date_labels = "%m/%y")
+  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "3 month"), date_labels = "%m/%y")
 
 tempB <- ggplot(temperature %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31") , aes(x=date, y=tmax)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#e7cb94", alpha = 0.3) + 
-  geom_line(colour="#8c6d31", size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) + 
+  geom_line(colour="#8c6d31", size = 3) +
   theme_minimal() +
   theme(text = element_text(size = 45)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
@@ -122,13 +106,14 @@ tempB <- ggplot(temperature %>% filter(date < "2025-01-01") %>% filter(date > "2
         axis.ticks.y = element_line(),
         axis.ticks.length = unit(10, "pt")) +
   xlab("Date") +
-  ylim(-10,30)+
+  ylim(-10,35)+
   ylab("Tmax (C°)") +
-  scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "2 month"), date_labels = "%m/%y")
+  scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "3 month"), date_labels = "%m/%y")
 
 ggarrange(tempA, tempB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", heights = c(1.5,0.08,1))
 
-ggsave("InputTemperature.pdf", dpi = 500, w = 24, h = 6)
+ggsave("InputTemperature.pdf", tempA, dpi = 500, w = 13, h = 8)
+ggsave("InputTemperature.png", tempA, dpi = 500, w = 13, h = 8)
 
 # School Holidays ---------------------------------------------------------
 
@@ -137,17 +122,19 @@ school <- read_csv("inputDataincl2024_fourthhundred.csv")
 school <- school %>% group_by(date) %>% summarise(lowerperc = quantile(schoolVacation, 0.025), upperperc = quantile(schoolVacation, 0.975), schoolVacation = mean(schoolVacation))
 
 schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=schoolVacation)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#b5cf6b", alpha = 0.3) + 
-  geom_line(colour="#637939", size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#637939", alpha = 0.3) + 
+  geom_line(colour="#637939", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 45)) +
+  theme(text = element_text(size = 60)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
+        axis.ticks.length = unit(10, "pt"),
+        plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm"),
+        axis.line = element_line()) +
   xlab("Date") +
-  ylab("School Vacation\nDays") +
-  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "2 month"), date_labels = "%m/%y")
+  ylab("Vacation\nDays") +
+  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "3 month"), date_labels = "%m/%y")
 
 schoolB <- ggplot(school %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=schoolVacation)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#b5cf6b", alpha = 0.3) + 
@@ -159,13 +146,13 @@ schoolB <- ggplot(school %>% filter(date < "2025-01-01") %>% filter(date > "2023
         axis.ticks.y = element_line(),
         axis.ticks.length = unit(10, "pt")) +
   xlab("Date") +
-  ylab("School Vacation\nDays") +
+  ylab("Vacation\nDays") +
   scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "2 month"), date_labels = "%m/%y")
 
 ggarrange(schoolA, schoolB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", heights = c(1.5,0.08,1))
 
-ggsave("InputSchools.pdf", dpi = 500, w = 24, h = 7)
-
+ggsave("InputSchools.pdf", schoolA, dpi = 500, w = 13, h = 8)
+ggsave("InputSchools.png", schoolA, dpi = 500, w = 13, h = 8)
 
 # Public Holidays ---------------------------------------------------------
 
@@ -174,17 +161,18 @@ pubhol <- read_csv("inputDataincl2024_fourthhundred.csv")
 pubhol <- pubhol %>% group_by(date) %>% summarise(lowerperc = quantile(pubHoliday, 0.025), upperperc = quantile(pubHoliday, 0.975), pubHoliday = mean(pubHoliday))
 
 pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=pubHoliday)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#cedb9c", alpha = 0.3) + 
-  geom_line(colour="#b5cf6b", size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8ca252", alpha = 0.3) + 
+  geom_line(colour="#8ca252", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 45)) +
+  theme(text = element_text(size = 70)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
+        axis.ticks.length = unit(10, "pt"),
+        plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm")) +
   xlab("Date") +
   ylab("Public\nHolidays") +
-  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "2 month"), date_labels = "%m/%y")
+  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "3 month"), date_labels = "%m/%y")
 
 pubholB <- ggplot(pubhol %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=pubHoliday)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#cedb9c", alpha = 0.3) + 
@@ -201,7 +189,7 @@ pubholB <- ggplot(pubhol %>% filter(date < "2025-01-01") %>% filter(date > "2023
 
 ggarrange(pubholA, pubholB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", heights = c(1.5,0.08,1))
 
-ggsave("InputPubHol.pdf", dpi = 500, w = 24, h = 7)
+ggsave("InputPubHol.png", pubholA, dpi = 500, w = 13, h = 8, bg = "white")
 
 
 # Cases -------------------------------------------------------------------
@@ -211,17 +199,18 @@ cases <- read_csv("inputDataincl2024_fourthhundred.csv")
 cases <- cases %>% group_by(date) %>% summarise(lowerperc = quantile(Infection_Incidence, 0.025), upperperc = quantile(Infection_Incidence, 0.975), Infection_Incidence = mean(Infection_Incidence))
 
 casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=Infection_Incidence)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#9c9ede", alpha = 0.3) + 
-  geom_line(colour="#5254a3", size = 2) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#5254a3", alpha = 0.3) + 
+  geom_line(colour="#5254a3", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 45)) +
+  theme(text = element_text(size = 70)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
+        axis.ticks.length = unit(10, "pt"),
+        plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm")) +
   xlab("Date") +
-  ylab("7-Day-Incidence\nper 100,000") +
-  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "2 month"), date_labels = "%m/%y")
+  ylab("7-Day-Incid.\nper 100,000") +
+  scale_x_date(breaks = seq(as.Date("2020-03-01"), as.Date("2021-03-01"), by = "3 month"), date_labels = "%m/%y")
 
 casesB <- ggplot(cases %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=Infection_Incidence)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#9c9ede", alpha = 0.3) + 
@@ -233,9 +222,9 @@ casesB <- ggplot(cases %>% filter(date < "2025-01-01") %>% filter(date > "2023-1
         axis.ticks.y = element_line(),
         axis.ticks.length = unit(10, "pt")) +
   xlab("Date") +
-  ylab("7-Day-Incidence\nper 100,000") +
+  ylab("7-Day-Incid.\nper 100,000") +
   scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "2 month"), date_labels = "%m/%y")
 
 ggarrange(casesA, casesB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", heights = c(1.5,0.08,1))
 
-ggsave("InputCases2020.pdf", casesA, dpi = 500, w = 12, h = 7)
+ggsave("InputCases2020.png", casesA, dpi = 500, w = 13, h = 8, bg = "white")
