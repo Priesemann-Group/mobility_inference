@@ -39,7 +39,7 @@ boxplot <- ggplot(disFac_post %>% filter(!is.na(group_eng)), aes(x= group_eng, y
   theme_minimal() +
   guides(color=guide_legend(nrow=5,byrow=TRUE)) +
   theme(legend.position = "bottom") +
-  ylab("Initial Reduction Strength") +
+  ylab("Slope") +
   scale_color_manual(values= manual_scale) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
@@ -118,7 +118,7 @@ disFac_post <- left_join(disFac_post, popDensity)
 #https://www.statistikportal.de/de/vgrdl/ergebnisse-kreisebene/einkommen-kreise
 
 incomeDf <- read_xlsx("/Users/sydney/Downloads/vgrdl_r2b3_bs2023.xlsx", sheet=13, skip = 4)
-incomeDf <- incomeDf %>% select(Land, Gebietseinheit, `2022`)
+incomeDf <- incomeDf %>% dplyr::select(Land, Gebietseinheit, `2022`)
 colnames(incomeDf) <- c("fedStateshort", "LK_Name", "IncomePerson2022")
 incomeDf <- incomeDf %>% filter(LK_Name != "Bremen")
 incomeDf <- incomeDf %>% mutate(LK_Name = case_when(
@@ -234,7 +234,7 @@ voterturnout <- voterturnout %>% mutate(Kreisname = case_when(
   Kreisname == "Solingen, Klingenstadt" ~ "Solingen",
   .default = Kreisname
 ))
-voterturnout <- voterturnout %>% select(c(Kreisname, wahl_beteil, alq, bev_ue65, kbetr_u3))
+voterturnout <- voterturnout %>% dplyr::select(c(Kreisname, wahl_beteil, alq, bev_ue65, kbetr_u3))
 colnames(voterturnout) <- c("LK_Name", "voterTurnout", "unemploymentQuota", "peopleover65", "childrenbelow3inprimarycare")
 # voterturnout <- voterturnout %>% mutate(voterTurnoutDiscrete = case_when(voterTurnout < 65 ~ "[0%,65%)",
 #                                                                          voterTurnout < 70 ~ "[65%,70%)",
@@ -353,10 +353,23 @@ colnames(AfdAgeEmployment)[2] <- "LK_Name"
 
 disFac_post <- left_join(disFac_post, AfdAgeEmployment)
 
-valuetoplotRed <- disFac_post %>% select(c(value, Inhabitantsperkm2, IncomePerson2022, unemploymentQuota, `Employment Rate`, `Average Age`, peopleover65, childrenbelow3inprimarycare, voterTurnout, `Voted for Parting Government`, `Voted for Incoming Government`))
+#Correlation matrix
+valuetoplotRed <- disFac_post %>% dplyr::select(c(value, Inhabitantsperkm2, IncomePerson2022, unemploymentQuota, `Employment Rate`, `Average Age`, peopleover65, childrenbelow3inprimarycare, voterTurnout, `Voted for Parting Government`, `Voted for Incoming Government`))
+#colnames(valuetoplotRed) <- c("Fatigue", "Inhabitants per km2", "Income", "Unemployment Rate", "Employment Rate", "Average Age", "65+ year olds", "Small Children (< 3) in Childcare",  "Voter Turnout", "Voted for Parting Government", "Voted for Incoming Government")
 
-# Regression Analysis
-# Scaling of Variables
+#valuetoplotRed <- valuetoplotRed %>% select(c("Reaction Strength", "Inhabitants per km2", "Unemployment Rate", "Voter Turnout", "Income per Capita", "Small Children (< 3) in Childcare" ))
+corrmat <- cor(valuetoplotRed) 
+pdf(height = 10, width = 13, "CorrelationPlotFatigue.pdf")
+#pdf(height = 8, width = 13, "CorrelationPlotReduced.pdf")
+corrplot(corrmat, method = "color", tl.col="black", type = "upper", tl.srt = 90, tl.cex = 1.6, cl.pos = "b", diag = FALSE, cl.ratio = 0.25, cl.cex=1.25, mar = c(0,0,1.5,1))
+dev.off()
+
+
+# Regression Analysis -----------------------------------------------------
+
+
+# Scaling of Variables ----------------------------------------------------
+
 valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitantsperkm2)) %>%
   mutate(voterTurnout = scale(voterTurnout)) %>%
   mutate(IncomePerson2022 = scale(IncomePerson2022)) %>%
@@ -369,7 +382,55 @@ valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitant
   mutate(`Employment Rate` = scale(`Employment Rate`))
 
 
-#Forward Selection
+# Exhaustive Search -------------------------------------------------------
+
+#https://www.rdocumentation.org/packages/leaps/versions/3.2/topics/regsubsets
+exhaustivesearch <- regsubsets(value ~ ., data=valuetoplotRed) # %>% dplyr::select(-predicted))
+mod.summary <- summary(exhaustivesearch)
+which.min(mod.summary$bic) # --> Uses SBC
+which.max(mod.summary$adjr2)
+
+# Exhaustive Search - Method 2 -------------------------------------------------------
+bestsubset <- olsrr::ols_step_best_subset(lm(value ~ ., data=valuetoplotRed), metric = "adjr") #default metric = r2
+subset_summary <- cbind(bestsubset$metrics[4], bestsubset$metrics[5], bestsubset$metrics[6], bestsubset$metrics[7], bestsubset$metrics[8], bestsubset$metrics[9], bestsubset$metrics[10], bestsubset$metrics[11],
+                        bestsubset$metrics[12], bestsubset$metrics[13])
+subset_summary <- round(subset_summary, 2)
+write_csv(subset_summary, "metricsFatigue.csv")
+plot(bestsubset)
+
+subset_summary <- subset_summary %>% mutate(nrow = row_number()) %>% pivot_longer(cols=c(rsquare, adjr, predrsq, cp, aic, sbic, sbc, msep, fpe, apc))
+
+FinalModel <- lm(value ~ Inhabitantsperkm2 + `Average Age` + peopleover65 + childrenbelow3inprimarycare + voterTurnout, data = valuetoplotRed)
+summary(FinalModel)
+
+subset_summary$name <- factor(subset_summary$name, levels = c("rsquare", "adjr", "predrsq", "cp", "aic", "sbic", "sbc", "msep", "fpe", "apc"))
+
+ggplot(subset_summary, aes(x=nrow, y = value)) +
+  geom_point(color = "blue4", size = 3, shape = 1) +
+  geom_line(color = "blue4") +
+  scale_x_continuous(breaks = 1:10) +
+  facet_wrap(~name, nrow = 2, scale = "free") + 
+  theme_bw() + 
+  ylab("") +
+  xlab("") +
+  theme(
+    text = element_text(size = 22),  # Affects most text elements
+    axis.text = element_text(size = 20),  # Axis labels
+    axis.title = element_text(size = 24),  # Axis titles
+    plot.title = element_text(size = 28),  # Plot title
+    legend.text = element_text(size = 20),  # Legend text
+    legend.title = element_text(size = 22)  # Legend title
+  )
+
+ggsave("MetricsFatigue.pdf", w = 18, h = 6)
+
+#Variance of inflation factor
+library(car)
+vif(FinalModel) #All between 1 and 5 --> Some sort of correlation, not large enough to wrrant adaptations
+
+
+# Forward Selection -------------------------------------------------------
+
 #One Variable Models
 RegressionPopDens <- lm(value ~ Inhabitantsperkm2, data = valuetoplotRed)
 summary(RegressionPopDens)
