@@ -3,6 +3,9 @@ library(ggpubr)
 library(tidyverse)
 library(here)
 library(ggpattern)
+library(giscoR)
+library(ggiraph)
+library(readxl)
 
 setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
 
@@ -10,6 +13,13 @@ setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
 # Out Of Home Duration ----------------------------------------------------
 
 outOfHomeDuration <- read_csv("inputDataincl2024_fourhundred.csv")
+
+outOfHomeDuration <- outOfHomeDuration %>% filter(LK_Name == "Berlin")
+
+ggplot(outOfHomeDuration %>% filter(date < "2021-04-01"), aes(x=date, y = outOfHomeDuration)) +
+  geom_line()
+
+ggsave("test2.pdf")
 
 #Groups from https://www.bbsr.bund.de/BBSR/DE/forschung/raumbeobachtung/Raumabgrenzungen/deutschland/kreise/siedlungsstrukturelle-kreistypen/kreistypen.html
 LKType <- read_xlsx("/Users/sydney/Downloads/raumgliederungen-referenzen-2023.xlsx", sheet = 4)
@@ -74,7 +84,9 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
     panel.grid = element_blank(),
     
     # Add a box around the plot
-    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
     panel.background = element_blank(),
@@ -121,7 +133,9 @@ tempA <- ggplot(temperature %>% filter(date < "2021-03-01") %>% filter(date > "2
     panel.grid = element_blank(),
     
     # Add a box around the plot
-    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
     panel.background = element_blank(),
@@ -166,8 +180,8 @@ school <- read_csv("inputDataincl2024_fourhundred.csv")
 school <- school %>% group_by(date) %>% summarise(lowerperc = quantile(schoolVacation, 0.025), upperperc = quantile(schoolVacation, 0.975), schoolVacation = mean(schoolVacation))
 
 schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=schoolVacation)) +
-  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) + 
   geom_line(colour="#8c6d31", size = 3) +
+  geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) +
   theme_minimal() +
   theme(text = element_text(size = 43)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
@@ -181,7 +195,9 @@ schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020
     panel.grid = element_blank(),
     
     # Add a box around the plot
-    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
     panel.background = element_blank(),
@@ -239,7 +255,9 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
     panel.grid = element_blank(),
     
     # Add a box around the plot
-    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
     panel.background = element_blank(),
@@ -278,7 +296,7 @@ ggsave("InputPubHol.pdf", pubholA, dpi = 500, w = 18, h = 8, bg = "white")
 
 cases <- read_csv("inputData_fourhundred.csv")
 
-cases_firstWave <- cases %>% filter(date < as.Date("2020-06-01")) %>% group_by(LK_Name) %>% summarise(wave_height = max(Infection_Incidence), corresponding_value = date[which.max(Infection_Incidence)])   
+cases_firstWave <- cases %>% filter(date < as.Date("2020-06-01")) %>% group_by(LK_Name) %>% summarise(wave90percentile = quantile(Infection_Incidence, 0.9), wave_height = max(Infection_Incidence), corresponding_value = date[which.max(Infection_Incidence)])   
 quantile(cases_firstWave$wave_height)
 mean(cases_firstWave$wave_height)
 
@@ -333,9 +351,9 @@ germany_districts <- gisco_get_nuts(
   left_join(cases_firstWave, by = join_by(name_latn == LK_Name))
 germany_districts$wave_height[germany_districts$name_latn == "Eisenach"] <- germany_districts$wave_height[germany_districts$name_latn == "Wartburgkreis"]
 #pdf("Map_CasesFirstWave.pdf", width = 6, height = 9)
-densityplot_left <-  germany_districts %>% mutate(wave_height = case_when(wave_height < 10 ~10, .default = wave_height)) %>%
+densityplot_left <-  germany_districts %>% mutate(wave90percentile = case_when(wave90percentile < 10 ~10, .default = wave90percentile)) %>%
   ggplot(aes(geometry = geometry)) +
-  geom_sf(aes(fill = wave_height)) +
+  geom_sf(aes(fill = wave90percentile)) +
   scale_y_log10() +
   #ylim(1, 3) +
   theme_minimal() +
@@ -353,12 +371,11 @@ densityplot_left <-  germany_districts %>% mutate(wave_height = case_when(wave_h
   ) +
   theme(legend.position = "bottom", text = element_text(size = 20), axis.text = element_blank(), axis.ticks = element_blank()) +
   guides(fill = guide_colourbar(
-    title = "Maximal 7-Day Incidence\nper 100.000"
+    title = "90th Percentile\n7-Day Incidence per 100.000"
   )) +
   coord_sf(expand = FALSE)
 
-
-cases_secondWave <- cases %>% filter(date > as.Date("2020-09-01")) %>% group_by(LK_Name) %>% summarise(wave_height = max(Infection_Incidence), corresponding_value = date[which.max(Infection_Incidence)]) 
+cases_secondWave <- cases %>% filter(date > as.Date("2020-09-01")) %>% group_by(LK_Name) %>% summarise(wave90percentile = quantile(Infection_Incidence, 0.9), wave_height = max(Infection_Incidence), corresponding_value = date[which.max(Infection_Incidence)]) 
 quantile(cases_secondWave$wave_height)
 mean(cases_secondWave$wave_height)
 
@@ -415,7 +432,7 @@ germany_districts$wave_height[germany_districts$name_latn == "Eisenach"] <- germ
 #pdf("Map_CasesSecondWave.pdf", width = 6, height = 9)
 densityplot_right <-  germany_districts %>%
   ggplot(aes(geometry = geometry)) +
-  geom_sf(aes(fill = wave_height)) +
+  geom_sf(aes(fill = wave90percentile)) +
   theme_minimal() +
   xlab("") +
   ylab("") +
@@ -430,7 +447,7 @@ densityplot_right <-  germany_districts %>%
   ) +
   theme(legend.position = "bottom", text = element_text(size = 20), axis.text = element_blank(), axis.ticks = element_blank()) +
   guides(fill = guide_colourbar(
-    title = "Maximal 7-Day Incidence\nper 100.000"
+    title = "90th Percentile\n7-Day Incidence per 100.000"
   )) +
   coord_sf(expand = FALSE)
 
@@ -459,7 +476,9 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
     panel.grid = element_blank(),
     
     # Add a box around the plot
-    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
     panel.background = element_blank(),
@@ -495,3 +514,4 @@ ggarrange(casesA, casesB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, f
 
 ggsave("InputCases2020.pdf", casesA, dpi = 500, w = 18, h = 8)
 ggsave("InputCases2020.png", casesA, dpi = 500, w = 18, h = 8)
+
