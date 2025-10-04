@@ -14,13 +14,6 @@ setwd("/Users/sydney/git/mobility_inference/data/input_data_hierarchical/")
 
 outOfHomeDuration <- read_csv("inputDataincl2024_fourhundred.csv")
 
-outOfHomeDuration <- outOfHomeDuration %>% filter(LK_Name == "Berlin")
-
-ggplot(outOfHomeDuration %>% filter(date < "2021-04-01"), aes(x=date, y = outOfHomeDuration)) +
-  geom_line()
-
-ggsave("test2.pdf")
-
 #Groups from https://www.bbsr.bund.de/BBSR/DE/forschung/raumbeobachtung/Raumabgrenzungen/deutschland/kreise/siedlungsstrukturelle-kreistypen/kreistypen.html
 LKType <- read_xlsx("/Users/sydney/Downloads/raumgliederungen-referenzen-2023.xlsx", sheet = 4)
 LKType <- LKType %>% mutate(KRS_NAME = case_when(KRS_NAME == "Dillingen a.d.Donau" ~ "Dillingen an der Donau",
@@ -97,10 +90,12 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
     #text = element_text(size = 22),  # Affects most text elements
     axis.text = element_text(color = "black"),  # Axis labels
     axis.title = element_text(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
   xlab("Date") +
-  ylab("Out-Of-Home\nDuration (hours)") +
+  ylab("Out-of-home duration\n(hours)") +
   #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
   ylim(3,9.5) +
   scale_y_continuous(expand = c(0, 0)) +
@@ -146,13 +141,15 @@ tempA <- ggplot(temperature %>% filter(date < "2021-03-01") %>% filter(date > "2
     #text = element_text(size = 22),  # Affects most text elements
     axis.text = element_text(color = "black"),  # Axis labels
     axis.title = element_text(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
-  scale_y_continuous(expand = c(0, 0)) +
+  #scale_y_continuous(expand = c(0, 0)) +
   scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
-  ylim(-10,34)+
+  ylim(-8,34)+
   xlab("Date") +
-  ylab("Tmax (C°)") 
+  ylab("Temperature (C°)") 
 
 tempB <- ggplot(temperature %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31") , aes(x=date, y=tmax)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) + 
@@ -208,12 +205,14 @@ schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020
     #text = element_text(size = 22),  # Affects most text elements
     axis.text = element_text(color = "black"),  # Axis labels
     axis.title = element_text(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
   #scale_y_continuous(expand = c(0, 0)) +
   scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
-  ylab("Vacation\nDays")
+  ylab("Vacation days")
 
 schoolB <- ggplot(school %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=schoolVacation)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#b5cf6b", alpha = 0.3) + 
@@ -223,7 +222,9 @@ schoolB <- ggplot(school %>% filter(date < "2025-01-01") %>% filter(date > "2023
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
-        axis.ticks.length = unit(10, "pt")) +
+        axis.ticks.length = unit(10, "pt"),
+        axis.title.x = element_text(margin = margin(t = 50)),  # top margin for x-axis title
+        axis.title.y = element_text(margin = margin(r = 20))) +
   xlab("Date") +
   ylab("Vacation\nDays") +
   scale_x_date(breaks = seq(as.Date("2024-01-01"), as.Date("2025-01-01"), by = "2 month"), date_labels = "%m/%y")
@@ -257,6 +258,8 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
     # Add a box around the plot
     axis.line.x.bottom = element_line(color = "black"),
     axis.line.y.left = element_line(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
@@ -272,7 +275,7 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
   ) +
   scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
-  ylab("Public\nHolidays") 
+  ylab("Public holidays") 
 
 pubholB <- ggplot(pubhol %>% filter(date < "2025-01-01") %>% filter(date > "2023-12-31"), aes(x=date, y=pubHoliday)) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#cedb9c", alpha = 0.3) + 
@@ -371,8 +374,9 @@ densityplot_left <-  germany_districts %>% mutate(wave90percentile = case_when(w
   ) +
   theme(legend.position = "bottom", text = element_text(size = 20), axis.text = element_blank(), axis.ticks = element_blank()) +
   guides(fill = guide_colourbar(
-    title = "90th Percentile\n7-Day Incidence per 100.000"
+    title = "Peak incidence"
   )) +
+  ggtitle("First wave") +
   coord_sf(expand = FALSE)
 
 cases_secondWave <- cases %>% filter(date > as.Date("2020-09-01")) %>% group_by(LK_Name) %>% summarise(wave90percentile = quantile(Infection_Incidence, 0.9), wave_height = max(Infection_Incidence), corresponding_value = date[which.max(Infection_Incidence)]) 
@@ -447,8 +451,9 @@ densityplot_right <-  germany_districts %>%
   ) +
   theme(legend.position = "bottom", text = element_text(size = 20), axis.text = element_blank(), axis.ticks = element_blank()) +
   guides(fill = guide_colourbar(
-    title = "90th Percentile\n7-Day Incidence per 100.000"
+    title = "Peak incidence"
   )) +
+  ggtitle("Second wave") +
   coord_sf(expand = FALSE)
 
 ggarrange(densityplot_left, densityplot_right, ncol = 2, labels = c("A", "B"), font.label = list(size = 30))
@@ -478,6 +483,8 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
     # Add a box around the plot
     axis.line.x.bottom = element_line(color = "black"),
     axis.line.y.left = element_line(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
@@ -493,7 +500,7 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
   ) +
   scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
-  ylab("7-Day-Incidence\nper 100,000") 
+  ylab("Incidence") 
 
 
 

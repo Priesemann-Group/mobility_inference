@@ -2,8 +2,10 @@
 
 model <- "2025-07-02_400LK_exp_UsedForPostprocessing"
 model <- "2025-08-20_400_notest"
+model <- "2025-09-14_400_cluster_expdecay_wideealpha"
 
 diseaseFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/d_C.csv"))
+diseaseFactor <- read_csv(paste0("/Users/sydney/Desktop/BayesProjectMathcluster/", model, "/d_C.csv"))
 diseaseFactor <- diseaseFactor %>% mutate(index = ceiling(seq_len(nrow(diseaseFactor)) / 52)-1)
 colnames(diseaseFactor)[1] <- "rowNumberMinus1"
 colnames(diseaseFactor)[2] <- "value"
@@ -59,10 +61,11 @@ diseaseFactor <- diseaseFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52
                                                            rowNumberMinus1 %% 52 == 49 ~ "2021-02-14",
                                                            rowNumberMinus1 %% 52 == 50 ~ "2021-02-21",
                                                            rowNumberMinus1 %% 52 == 51 ~ "2021-02-28"))
-diseaseFactor <- diseaseFactor %>% select(index, Date, value) %>% mutate(Type = "Cases")
+diseaseFactor <- diseaseFactor %>% select(index, Date, value) %>% mutate(Type = "Disease")
 diseaseFactor$Date <- as.Date(diseaseFactor$Date)
 
 temperatureFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/temperature_factor.csv"))
+temperatureFactor <- read_csv(paste0("/Users/sydney/Desktop/BayesProjectMathcluster/", model,  "/temperature_factor.csv"))
 temperatureFactor <- temperatureFactor %>% mutate(index = ceiling(seq_len(nrow(temperatureFactor)) / 52)-1)
 colnames(temperatureFactor)[1] <- "rowNumberMinus1"
 colnames(temperatureFactor)[2] <- "value"
@@ -122,6 +125,7 @@ temperatureFactor <- temperatureFactor %>% select(index, Date, value) %>% mutate
 temperatureFactor$Date <- as.Date(temperatureFactor$Date)
 
 vacationFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/vacation_factor.csv"))
+vacationFactor <- read_csv(paste0("/Users/sydney/Desktop/BayesProjectMathcluster/", model,  "/vacation_factor.csv"))
 vacationFactor <- vacationFactor %>% mutate(index = ceiling(seq_len(nrow(vacationFactor)) / 52)-1)
 colnames(vacationFactor)[1] <- "rowNumberMinus1"
 colnames(vacationFactor)[2] <- "value"
@@ -181,6 +185,7 @@ vacationFactor <- vacationFactor %>% select(index, Date, value) %>% mutate(Type 
 vacationFactor$Date <- as.Date(vacationFactor$Date)
 
 holidayFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/holiday_factor.csv"))
+holidayFactor <- read_csv(paste0("/Users/sydney/Desktop/BayesProjectMathcluster/", model,  "/holiday_factor.csv"))
 holidayFactor <- holidayFactor %>% mutate(index = ceiling(seq_len(nrow(holidayFactor)) / 52)-1)
 colnames(holidayFactor)[1] <- "rowNumberMinus1"
 colnames(holidayFactor)[2] <- "value"
@@ -236,18 +241,18 @@ holidayFactor <- holidayFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52
                                                              rowNumberMinus1 %% 52 == 49 ~ "2021-02-14",
                                                              rowNumberMinus1 %% 52 == 50 ~ "2021-02-21",
                                                              rowNumberMinus1 %% 52 == 51 ~ "2021-02-28"))
-holidayFactor <- holidayFactor %>% select(index, Date, value) %>% mutate(Type = "Public holiday")
+holidayFactor <- holidayFactor %>% select(index, Date, value) %>% mutate(Type = "Public holidays")
 holidayFactor$Date <- as.Date(holidayFactor$Date)
 
-colors <- c("Cases" = "#5254a3", "Temperature" = "#637939", "School vacation" = "#8c6d31", "Public holidays" = "#843c39")
+colors <- c("Disease" = "#5254a3", "Temperature" = "#637939", "School vacation" = "#8c6d31", "Public holidays" = "#843c39")
 
 ggplot() +
-  geom_boxplot(data = diseaseFactor, aes(x=Date, y = value, group = Date, color = "Cases"), fill = "#5254a3", alpha = 0.4, linewidth = 1) +
+  geom_boxplot(data = diseaseFactor, aes(x=Date, y = value, group = Date, color = "Disease"), fill = "#5254a3", alpha = 0.4, linewidth = 1) +
   geom_boxplot(data = temperatureFactor, aes(x=Date, y = value, group = Date, color = "Temperature"), fill = "#637939", alpha = 0.4, linewidth = 1) +
   geom_boxplot(data = vacationFactor, aes(x=Date, y = value, group = Date, color = "School vacation"), fill = "#8c6d31", alpha = 0.4, linewidth = 1) +
   geom_boxplot(data = holidayFactor, aes(x=Date, y = value, group = Date, color = "Public holidays"), fill = "#843c39", alpha = 0.4, linewidth = 1) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
+  theme(text = element_text(size = 40)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -274,7 +279,7 @@ ggplot() +
     axis.title = element_text(color = "black"),
     legend.position = "none"
   ) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) + 
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) + 
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
@@ -282,7 +287,7 @@ ggplot() +
         axis.minor.ticks.length.x = unit(7, "pt"),
         #axis.minor.ticks.x = element_line(color = "#000000"),
         axis.line = element_line()) +
-  ylab("Multiplicative Impact on\nOut-of-home Duration") +
+  ylab("Multiplicative impact on\nout-of-home duration") +
   scale_color_manual(values = colors)
 
 ggsave("DistributionMultiplicativeImpacts_Fig3.pdf", dpi = 500, w = 18, h = 9)
