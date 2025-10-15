@@ -65,7 +65,7 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc),fill = "#a55194", alpha = 0.3) + 
   geom_line(colour="#a55194", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
+  #theme(text = element_text(size = 50)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -88,8 +88,8 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
     #text = element_text(size = 22),  # Affects most text elements
-    axis.text = element_text(color = "black"),  # Axis labels
-    axis.title = element_text(color = "black"),
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
     axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
     axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
@@ -99,7 +99,7 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
   #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
   ylim(3,9.5) +
   scale_y_continuous(expand = c(0, 0)) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0))
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0))
 
 #ggarrange(mobilityA, mobilityB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", widths = c(1,1), common.legend = TRUE)
 
@@ -116,7 +116,7 @@ tempA <- ggplot(temperature %>% filter(date < "2021-03-01") %>% filter(date > "2
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#637939", alpha = 0.3) + 
   geom_line(colour="#637939", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
+  #theme(text = element_text(size = 45)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -139,14 +139,14 @@ tempA <- ggplot(temperature %>% filter(date < "2021-03-01") %>% filter(date > "2
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
     #text = element_text(size = 22),  # Affects most text elements
-    axis.text = element_text(color = "black"),  # Axis labels
-    axis.title = element_text(color = "black"),
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
     axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
     axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
   #scale_y_continuous(expand = c(0, 0)) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   ylim(-8,34)+
   xlab("Date") +
   ylab("Temperature (C°)") 
@@ -180,7 +180,6 @@ schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020
   geom_line(colour="#8c6d31", size = 3) +
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#8c6d31", alpha = 0.3) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -203,14 +202,14 @@ schoolA <- ggplot(school %>% filter(date < "2021-03-01") %>% filter(date > "2020
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
     #text = element_text(size = 22),  # Affects most text elements
-    axis.text = element_text(color = "black"),  # Axis labels
-    axis.title = element_text(color = "black"),
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
     axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
     axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
   #scale_y_continuous(expand = c(0, 0)) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
   ylab("Vacation days")
 
@@ -244,7 +243,6 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#843c39", alpha = 0.3) + 
   geom_line(colour="#843c39", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -258,8 +256,6 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
     # Add a box around the plot
     axis.line.x.bottom = element_line(color = "black"),
     axis.line.y.left = element_line(color = "black"),
-    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
-    axis.title.y = element_text(margin = margin(r = 10)),
     #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
@@ -269,11 +265,13 @@ pubholA <- ggplot(pubhol %>% filter(date < "2021-03-01") %>% filter(date > "2020
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
     #text = element_text(size = 22),  # Affects most text elements
-    axis.text = element_text(color = "black"),  # Axis labels
-    axis.title = element_text(color = "black"),
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
   ylab("Public holidays") 
 
@@ -469,7 +467,6 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc), fill = "#5254a3", alpha = 0.3) + 
   geom_line(colour="#5254a3", size = 3) +
   theme_minimal() +
-  theme(text = element_text(size = 43)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   # theme(axis.ticks.x = element_line(),
   #       axis.ticks.y = element_line(),
@@ -483,8 +480,6 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
     # Add a box around the plot
     axis.line.x.bottom = element_line(color = "black"),
     axis.line.y.left = element_line(color = "black"),
-    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
-    axis.title.y = element_text(margin = margin(r = 10)),
     #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
     
     # Remove the default panel background
@@ -494,11 +489,13 @@ casesA <- ggplot(cases %>% filter(date < "2021-03-01") %>% filter(date > "2020-0
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
     #text = element_text(size = 22),  # Affects most text elements
-    axis.text = element_text(color = "black"),  # Axis labels
-    axis.title = element_text(color = "black"),
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
     legend.position = "none"
   ) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "2 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) +
   xlab("Date") +
   ylab("Incidence") 
 
