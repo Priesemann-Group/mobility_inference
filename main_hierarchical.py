@@ -10,6 +10,10 @@ The results are saved in the results directory and figures are saved in the figu
 """
 
 # Import necessary modules
+#import os
+# macOS multiprocessing fix
+#os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
+#os.environ['PYTENSOR_FLAGS'] = 'device=cpu,cxx=,optimizer_excluding=fusion'
 import pymc as pm
 import pickle
 import cloudpickle
@@ -33,8 +37,8 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2025-06-11_1000halfnormal_a"  # Name of the experiment
-test = False# Whether to run a test with fewer samples
+name = "2026-05-11_sine"  # Name of the experiment
+test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
 disease_indicator = True # Whether to include disease indicators
@@ -47,6 +51,7 @@ M = 10   # Number of days to predict in ELPD calculation; has to be at least 2
 #chosen_model = "cities"
 #chosen_model = "cities_MeckPomm"
 #chosen_model = "large"
+#chosen_model = "firsthundred"
 chosen_model = "fourhundred"
 #chosen_model = "secondhundred"
 #chosen_model = "fourthhundred"
@@ -55,10 +60,13 @@ chosen_model = "fourhundred"
 #chosen_model = "countieswithproblems"
 
 incl2024 = False
+only2024 = False
 
 plus_nat_incidence = False
 
 mix_incidence = True
+
+neighbors = False
 
 #Include population density if required by giving any value
 pop_density = None
@@ -72,6 +80,9 @@ daylight = None
 #Include school vacations and public holidays if required by giving any value
 school = 1
 holiday = 1
+
+#Include telegram data
+telegram = None
 
 # Generate all combinations of indicators
 if disease_indicator:
@@ -179,6 +190,11 @@ time_counter = {
         "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model, incl2024)
 }
 
+if telegram is not None:
+    telegram = {
+        "telegram": data_prep_hierarchical.get_telegram(chosen_model, incl2024)
+    }
+
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model, incl2024)
 
 fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model, incl2024)
@@ -200,7 +216,7 @@ if chosen_model == "cities_MeckPomm":
 if chosen_model == "large":
     fedState_coord = np.arange(0,307)
 if chosen_model == "firsthundred":
-    fedState_coord = np.arange(0,84)
+    fedState_coord = np.arange(0,100)
 if chosen_model == "secondhundred":
     fedState_coord = np.arange(0,81)
 if chosen_model == "thirdhundred":
@@ -212,7 +228,7 @@ if chosen_model == "firstsecondhundred":
 if chosen_model == "thirdfourthhundred":
     fedState_coord = np.arange(0,180)
 if chosen_model == "fourhundred":
-    fedState_coord = np.arange(0,345)
+    fedState_coord = np.arange(0,400)
 if chosen_model == "cities_non_hierarchical":
     fedState_coord = np.array([0])
 if chosen_model == "countieswithproblems":
@@ -299,44 +315,47 @@ for indicators in all_combinations:
             lk_in_long = lk_long,
             counter_in = counter,
             chosen_model_in = chosen_model,
+            neighbors_in = neighbors,
+            telegram_in = telegram
         )
         models[i] = inference_model
 
         if run:
             # Perform inference
             if test:
-                draws = 20 #200
-                tune = 20 #200
+                draws = 100 #200
+                tune = 100 #200
             else:
                 draws = 1000 #1000
                 tune = 1000 #1000
-            with inference_model:
-                # map = pm.find_MAP(maxeval=20000)
-                # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
-                # trace = approx.sample(draws=draws)
-                trace = pm.sample(
-                    model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", # target_accept = 0.9,
-                    idata_kwargs={"include_transformed": False}
-                    #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
-                )
-            with inference_model:
-                pm.compute_log_likelihood(trace)
+            if __name__ == '__main__': 
+                with inference_model:
+                    # map = pm.find_MAP(maxeval=20000)
+                    # approx = pm.fit(n=draws*50, obj_optimizer=pm.adagrad_window(learning_rate=1e-3), start = map, start_sigma={name: 0.01*np.ones_like(var) for name, var in map.items()})
+                    # trace = approx.sample(draws=draws)
+                    trace = pm.sample(
+                        model=inference_model, draws=draws, tune=tune, cores=4, chains=4, nuts_sampler = "nutpie", # target_accept = 0.9,
+                        idata_kwargs={"include_transformed": False},
+                        #nuts_sampler_kwargs= {"max_treedepth": 10, "Emax": 10000}
+                    )
+                with inference_model:
+                    pm.compute_log_likelihood(trace)
 
-            # Save inference results
-            ## trace
-            # path = f"{dir_name}/trace_{tag2}.pickle"
-            # with open(path, "wb") as inference_file:
-            #     pickle.dump(trace, inference_file)
-            # ## summary
-            # summary = az.summary(trace, round_to=2)
-            # path = f"{dir_name}/summary_{tag2}.csv"
-            # summary.to_csv(path)
+                # Save inference results
+                ## trace
+                # path = f"{dir_name}/trace_{tag2}.pickle"
+                # with open(path, "wb") as inference_file:
+                #     pickle.dump(trace, inference_file)
+                # ## summary
+                # summary = az.summary(trace, round_to=2)
+                # path = f"{dir_name}/summary_{tag2}.csv"
+                # summary.to_csv(path)
         else:
             trace = utils.load_trace(name, tag, tag2)
 
         traces[i] = trace
 
-    inference_model.add_coord("timeCounter", counter, mutable = True)
+    #inference_model.add_coord("timeCounter", counter, mutable = True)
 
     # with open(f"{supDir_name}/"f"trace_{tag}.pickle", "wb") as output_file:
     #     pickle.dump([trace, tag, indicators, chosen_model, dates, indicators, temperature, daylight, school, holiday], output_file)
@@ -354,7 +373,8 @@ for indicators in all_combinations:
                     'school': school, 
                     'holiday': holiday,
                     'incl_2024': incl2024,
-                    'mix_incidence' : mix_incidence
+                    'mix_incidence' : mix_incidence,
+                    'telegram': telegram
                 }
 
     with open(pickle_filepath , 'wb') as buff:
@@ -385,23 +405,45 @@ for indicators in all_combinations:
     subDir_named = "results/" + name
     test2d.to_csv(f"{subDir_named}/slope_C.csv")
     
-    preteste = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.temperature_factor)
-    teste = np.median(preteste, axis=0)
-    test2e = pd.DataFrame(teste)
-    subDir_named = "results/" + name
-    test2e.to_csv(f"{subDir_named}/temperature_factor.csv")
+    if temperature is not None:
+        preteste = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.temperature_factor)
+        teste = np.median(preteste, axis=0)
+        test2e = pd.DataFrame(teste)
+        subDir_named = "results/" + name
+        test2e.to_csv(f"{subDir_named}/temperature_factor.csv")
     
-    pretestf = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_v)
-    testf = np.median(pretestf, axis=0)
-    test2f = pd.DataFrame(testf)
-    subDir_named = "results/" + name
-    test2f.to_csv(f"{subDir_named}/theta_vac.csv")
+    if school is not None:
+        pretestf2 = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.vacation_factor)
+        testf2 = np.median(pretestf2, axis=0)
+        test2f2 = pd.DataFrame(testf2)
+        subDir_named = "results/" + name
+        test2f2.to_csv(f"{subDir_named}/vacation_factor.csv")
     
-    pretestg = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_h)
-    testg = np.median(pretestg, axis=0)
-    test2g = pd.DataFrame(testg)
+
+        pretestf = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_v)
+        testf = np.median(pretestf, axis=0)
+        test2f = pd.DataFrame(testf)
+        subDir_named = "results/" + name
+        test2f.to_csv(f"{subDir_named}/theta_vac.csv")
+    
+    if holiday is not None:   
+        pretestg2 = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.holiday_factor)
+        testg2 = np.median(pretestg2, axis=0)
+        test2g2 = pd.DataFrame(testg2)
+        subDir_named = "results/" + name
+        test2g2.to_csv(f"{subDir_named}/holiday_factor.csv")
+        
+        pretestg = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.theta_h)
+        testg = np.median(pretestg, axis=0)
+        test2g = pd.DataFrame(testg)
+        subDir_named = "results/" + name
+        test2g.to_csv(f"{subDir_named}/theta_hol.csv")
+    
+    pretesth = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.incidence_weight)
+    testh = np.median(pretesth, axis=0)
+    test2h = pd.DataFrame(testh)
     subDir_named = "results/" + name
-    test2g.to_csv(f"{subDir_named}/theta_hol.csv")
+    test2h.to_csv(f"{subDir_named}/incidenceweight.csv")        
     
     
     # # Save ELPD result to file
@@ -409,9 +451,29 @@ for indicators in all_combinations:
     #     model_comparison.save_ELPD(models, traces, L, M, len(dates), dir_name, draws, ELPD_method)
 
     # Plot results
-    if plot_figures:
-        subFigDir_name = figdir_name + "/" + tag
-        plot_hierarchical.analysis_figures(
-           inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024, plus_nat_incidence, mix_incidence
-        )
+    # if plot_figures:
+    #     subFigDir_name = figdir_name + "/" + tag
+    #     plot_hierarchical.analysis_figures(
+    #        inference_model, trace, subFigDir_name, dates, dates_long, indicators, school, holiday, temperature, precipitation, daylight, pop_density, disease_data, disease_data_raw, fedState, chosen_model, incl2024, plus_nat_incidence, mix_incidence
+    #     )
         
+        
+        
+dict_to_save = {'model': inference_model,   
+                    'trace': trace,
+                    'tag': tag,
+                    'indicators': indicators,
+                    'chosen_model': chosen_model,
+                    'dates': dates,
+                    'indicators': indicators,
+                    'temperature': temperature,
+                    'daylight': daylight,
+                    'school': school, 
+                    'holiday': holiday,
+                    'incl_2024': incl2024,
+                    'mix_incidence' : mix_incidence,
+                    'telegram' : telegram
+                }
+
+with open(pickle_filepath , 'wb') as buff:
+        cloudpickle.dump(dict_to_save, buff) 

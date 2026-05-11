@@ -193,7 +193,7 @@ def get_disease_dates(ICU=False):
 
 # --- Get data ---
 ## Out of home duration
-def get_out_of_home_duration(chosen_model, incl2024 = False):
+def get_out_of_home_duration(chosen_model, incl2024 = False, only2024 = False):
     """
     Returns:
         Xarray: Out-of-home duration data for 2020.
@@ -239,10 +239,10 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "firsthundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
-            baseline_mobility = [8] * 104 * 104
+            baseline_mobility = [8] * 104 * 100
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_firsthundred.csv"
-            baseline_mobility = [8] * 52 * 84
+            baseline_mobility = [8] * 52 * 100
     if chosen_model == "secondhundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
@@ -274,10 +274,13 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
-            baseline_mobility = [8] * 104 * 345
+            baseline_mobility = [8] * 104 * 400
+        elif only2024 == True:
+            path_mobility = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
+            baseline_mobility = [8] * 52 * 400
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_fourhundred.csv"
-            baseline_mobility = [8] * 52 * 345
+            baseline_mobility = [8] * 52 * 400
     if chosen_model == "thirdfourthhundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdfourthhundred.csv"
@@ -313,7 +316,7 @@ def get_out_of_home_duration(chosen_model, incl2024 = False):
     )
 
 ## Out of home duration
-def get_out_of_home_duration_long(chosen_model, incl2024):
+def get_out_of_home_duration_long(chosen_model, incl2024, only2024):
     """
     Returns:
         Xarray: Out-of-home duration data for 2020.
@@ -359,10 +362,10 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "firsthundred":
         if incl2024 == True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_firsthundred_long.csv"
-            baseline_mobility = [8] * 113 * 84
+            baseline_mobility = [8] * 113 * 100
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_firsthundred_long.csv"
-            baseline_mobility = [8] * 61 * 84
+            baseline_mobility = [8] * 61 * 100
     if chosen_model == "secondhundred":
         if incl2024==True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_secondhundred_long.csv"
@@ -394,10 +397,13 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024==True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
-            baseline_mobility = [8] * 113 * 345
+            baseline_mobility = [8] * 113 * 400
+        elif only2024==True:
+            path_mobility = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
+            baseline_mobility = [8] * 61 * 400
         else:
             path_mobility = "./data/input_data_hierarchical/inputData_fourhundred_long.csv"
-            baseline_mobility = [8] * 61 * 345
+            baseline_mobility = [8] * 61 * 400
     if chosen_model == "thirdfourthhundred":
         if incl2024==True:
             path_mobility = "./data/input_data_hierarchical/inputDataincl2024_thirdfourthhundred_long.csv"
@@ -433,7 +439,7 @@ def get_out_of_home_duration_long(chosen_model, incl2024):
     )
 
 ## R
-def get_R_raw(chosen_model, incl2024):
+def get_R_raw(chosen_model, incl2024, only2024):
     """Get weekly R_eff data based on cov19 repo
 
     Args:
@@ -476,7 +482,7 @@ def get_logR_raw(R_raw):
 
     return logR
 
-def get_R_transformed(R_raw, chosen_model, incl2024):
+def get_R_transformed(R_raw, chosen_model, incl2024, only2024):
 
     """Get normalized, weekly R_eff data based on cov19 repo
 
@@ -521,7 +527,7 @@ def get_logR_transformed(logR):
     return logR_transformed
 
 ### Cases
-def get_C_raw(chosen_model, incl2024):
+def get_C_raw(chosen_model, incl2024, only2024):
     """Get weekly case data from preprocessed data.
 
     Args:
@@ -584,6 +590,8 @@ def get_C_raw(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
+        elif only2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
         else:
             path_cases = "./data/input_data_hierarchical/inputData_fourhundred_long.csv"
     if chosen_model == "thirdfourthhundred":
@@ -603,7 +611,7 @@ def get_C_raw(chosen_model, incl2024):
         
     return case_data
 
-def get_logC_raw(chosen_model, incl2024):
+def get_logC_raw(chosen_model, incl2024, only2024):
     """Get log(weekly case data) from preprocessed data.
 
     Args:
@@ -640,7 +648,7 @@ def get_logC_raw(chosen_model, incl2024):
 
     return case_data
 
-def get_C_transformed(chosen_model, incl2024):
+def get_C_transformed(chosen_model, incl2024, only2024):
     """Get normalized (standardized + mapped to [0,1]) weekly case data from preprocessed data.
 
     Args:
@@ -703,6 +711,8 @@ def get_C_transformed(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
+        elif only2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
         else: 
             path_cases = "./data/input_data_hierarchical/inputData_fourhundred_long.csv"  
     if chosen_model == "thirdfourthhundred":
@@ -723,7 +733,7 @@ def get_C_transformed(chosen_model, incl2024):
    
     return case_data
 
-def get_C_transformed_nat(chosen_model, incl2024):
+def get_C_transformed_nat(chosen_model, incl2024, only2024):
     """Get normalized (standardized + mapped to [0,1]) weekly case data from preprocessed data.
 
     Args:
@@ -786,6 +796,8 @@ def get_C_transformed_nat(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_cases = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
+        if only2024 == True:
+            path_cases = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
         else: 
             path_cases = "./data/input_data_hierarchical/inputData_fourhundred_long.csv" 
     if chosen_model == "thirdfourthhundred":
@@ -803,7 +815,7 @@ def get_C_transformed_nat(chosen_model, incl2024):
    
     return case_data
 
-def get_logC_transformed (chosen_model):
+def get_logC_transformed (chosen_model, incl2024):
 
     if chosen_model == "BEHHHB":
         path_cases = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
@@ -883,7 +895,7 @@ def get_logC_transformed (chosen_model):
 #     return logICU_transformed
 
 ### Hospitalisations
-def get_H_raw(chosen_model, incl2024):
+def get_H_raw(chosen_model, incl2024, only2024):
     """Get weekly hospitalisation data from preprocessed data set.
 
     Args:
@@ -1162,7 +1174,7 @@ def get_logD_transformed(chosen_model):
 
 ## School
 
-def get_school_vacations(chosen_model, incl2024):
+def get_school_vacations(chosen_model, incl2024, only2024):
     """Get weekly no. of school vacation days from preprocessed data set.
 
     Args:
@@ -1225,6 +1237,8 @@ def get_school_vacations(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_school = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_school = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_school = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1242,7 +1256,7 @@ def get_school_vacations(chosen_model, incl2024):
 
 ## Public holidays
 
-def get_pub_holidays(chosen_model, incl2024):
+def get_pub_holidays(chosen_model, incl2024, only2024):
     """Get weekly no. of public holidays data from preprocessed data set.
 
     Args:
@@ -1306,6 +1320,8 @@ def get_pub_holidays(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_pubHol = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_pubHol = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_pubHol = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1321,7 +1337,90 @@ def get_pub_holidays(chosen_model, incl2024):
 
     return  pubHolidays_data  
 
-def get_counter(chosen_model, incl2024):
+## Public holidays
+
+def get_telegram(chosen_model, incl2024, only2024):
+    """Get weekly no. of telegram messages from preprocessed data set.
+
+    Args:
+        None
+    Returns:
+        Xarray: Public holiday data.
+        
+    """
+
+    if chosen_model == "BEHHHB":
+        path_telegram = "./data/input_data_hierarchical/inputDataBerlinHHHB.csv"
+    if chosen_model == "fedStates":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_fedStates.csv"
+    if chosen_model == "fedStates_nat":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_fedStates.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_fedStates.csv"
+    if chosen_model == "cities":
+        if incl2024:
+            path_telegram = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTincl2024.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT.csv"
+    if chosen_model == "cities_MeckPomm":
+        if incl2024:
+            path_telegram = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTMeckpommincl2024.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTTMeckpomm.csv"
+    if chosen_model == "large":
+        path_telegram = "./data/input_data_hierarchical/inputDataincl2024_35counties.csv"
+    if chosen_model == "cities_non_hierarchical":
+        path_telegram = "./data/input_data_hierarchical/inputDataBEHBHHCGNMUCSTUTT_non_hierarchical.csv"
+    if chosen_model == "firsthundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_firsthundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_firsthundred.csv"
+    if chosen_model == "secondhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_secondhundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_secondhundred.csv"
+    if chosen_model == "thirdhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_thirdhundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_thirdhundred.csv"
+    if chosen_model == "fourthhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_fourthhundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_fourthhundred.csv"
+    if chosen_model == "firstsecondhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_firstsecondhundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_firstsecondhundred.csv"
+    if chosen_model == "fourhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
+        else:
+            path_telegram = "./data/input_data_hierarchical/inputData_fourhundred.csv"
+    if chosen_model == "thirdfourthhundred":
+        if incl2024 == True:
+            path_telegram = "./data/input_data_hierarchical/inputDataincl2024_thirdfourthhundred.csv"
+        else:
+            path_telgram = "./data/input_data_hierarchical/inputData_thirdfourthhundred.csv"
+    if chosen_model == "countieswithproblems":
+        path_telegram = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
+    telegram_df = pd.read_csv(path_telegram, index_col=0, parse_dates=True)
+
+    telegram_data  = telegram_df["telegram"].to_xarray()
+
+    return  telegram_data  
+
+def get_counter(chosen_model, incl2024, only2024):
     """counter since start of pandemic.
 
     Args:
@@ -1382,6 +1481,8 @@ def get_counter(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        if only2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_counter = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1399,7 +1500,7 @@ def get_counter(chosen_model, incl2024):
 
     return  counter_data 
 
-def get_counter_long(chosen_model, incl2024):
+def get_counter_long(chosen_model, incl2024, only2024):
     """counter since start of pandemic.
 
     Args:
@@ -1462,6 +1563,8 @@ def get_counter_long(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_counter = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
+        elif only2024 == True:
+            path_counter = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
         else:
             path_counter = "./data/input_data_hierarchical/inputData_fourhundred_long.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1585,7 +1688,7 @@ def get_temperature(chosen_model, incl2024):
             path_temp = "./data/input_data_hierarchical/inputData_thirdfourthhundred.csv"
     if chosen_model == "countieswithproblems":
         path_temp = "./data/input_data_hierarchical/inputDataincl2024_problems.csv"
-    temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True, dtype={"tmax": float, "tavg":float, "tmin":float})
+    temp_df = pd.read_csv(path_temp, index_col=0, parse_dates=True)
 
     temperature_data  = temp_df["tmax"].to_xarray()
 
