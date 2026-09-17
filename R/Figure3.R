@@ -5,8 +5,9 @@ library(smplot2)
 #model <- "2025-07-02_400LK_exp_UsedForPostprocessing"
 #model <- "2025-08-20_400_notest"
 model <- "2025-09-14_400_cluster_expdecay_wideealpha"
+#model <- "2026-05-26_2024_c"
 
-#diseaseFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/d_C.csv"))
+diseaseFactor <- read_csv(paste0("/Users/sydney/git/mobility_inference/results/", model, "/d_C.csv"))
 diseaseFactor <- read_csv(paste0("/Users/sydney/Desktop/BayesProjectMathcluster/", model, "/d_C.csv"))
 diseaseFactor <- diseaseFactor %>% mutate(index = ceiling(seq_len(nrow(diseaseFactor)) / 52)-1)
 colnames(diseaseFactor)[1] <- "rowNumberMinus1"
@@ -123,6 +124,59 @@ temperatureFactor <- temperatureFactor %>% mutate(Date = case_when(rowNumberMinu
                                                            rowNumberMinus1 %% 52 == 49 ~ "2021-02-14",
                                                            rowNumberMinus1 %% 52 == 50 ~ "2021-02-21",
                                                            rowNumberMinus1 %% 52 == 51 ~ "2021-02-28"))
+temperatureFactor <- temperatureFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52 == 0 ~ "2024-01-07",
+                                                                   rowNumberMinus1 %% 52 == 1 ~ "2024-01-14",
+                                                                   rowNumberMinus1 %% 52 == 2 ~ "2024-01-21",
+                                                                   rowNumberMinus1 %% 52 == 3 ~ "2024-01-28",
+                                                                   rowNumberMinus1 %% 52 == 4 ~ "2024-02-04",
+                                                                   rowNumberMinus1 %% 52 == 5 ~ "2024-02-11",
+                                                                   rowNumberMinus1 %% 52 == 6 ~ "2024-02-18",
+                                                                   rowNumberMinus1 %% 52 == 7 ~ "2024-02-25",
+                                                                   rowNumberMinus1 %% 52 == 8 ~ "2024-03-03",
+                                                                   rowNumberMinus1 %% 52 == 9 ~ "2024-03-10",
+                                                                   rowNumberMinus1 %% 52 == 10 ~ "2024-03-17",
+                                                                   rowNumberMinus1 %% 52 == 11 ~ "2024-03-24",
+                                                                   rowNumberMinus1 %% 52 == 12 ~ "2024-03-31",
+                                                                   rowNumberMinus1 %% 52 == 13 ~ "2024-04-07",
+                                                                   rowNumberMinus1 %% 52 == 14 ~ "2024-04-14",
+                                                                   rowNumberMinus1 %% 52 == 15 ~ "2024-04-21",
+                                                                   rowNumberMinus1 %% 52 == 16 ~ "2024-04-28",
+                                                                   rowNumberMinus1 %% 52 == 17 ~ "2024-05-05",
+                                                                   rowNumberMinus1 %% 52 == 18 ~ "2024-05-12",
+                                                                   rowNumberMinus1 %% 52 == 19 ~ "2024-05-19",
+                                                                   rowNumberMinus1 %% 52 == 20 ~ "2024-05-26",
+                                                                   rowNumberMinus1 %% 52 == 21 ~ "2024-06-02",
+                                                                   rowNumberMinus1 %% 52 == 22 ~ "2024-06-09",
+                                                                   rowNumberMinus1 %% 52 == 23 ~ "2024-06-16",
+                                                                   rowNumberMinus1 %% 52 == 24 ~ "2024-06-23",
+                                                                   rowNumberMinus1 %% 52 == 25 ~ "2024-06-30",
+                                                                   rowNumberMinus1 %% 52 == 26 ~ "2024-07-07",
+                                                                   rowNumberMinus1 %% 52 == 27 ~ "2024-07-14",
+                                                                   rowNumberMinus1 %% 52 == 28 ~ "2024-07-21",
+                                                                   rowNumberMinus1 %% 52 == 29 ~ "2024-07-28",
+                                                                   rowNumberMinus1 %% 52 == 30 ~ "2024-08-04",
+                                                                   rowNumberMinus1 %% 52 == 31 ~ "2024-08-11",
+                                                                   rowNumberMinus1 %% 52 == 32 ~ "2024-08-18",
+                                                                   rowNumberMinus1 %% 52 == 33 ~ "2024-08-25",
+                                                                   rowNumberMinus1 %% 52 == 34 ~ "2024-09-01",
+                                                                   rowNumberMinus1 %% 52 == 35 ~ "2024-09-08",
+                                                                   rowNumberMinus1 %% 52 == 36 ~ "2024-09-15",
+                                                                   rowNumberMinus1 %% 52 == 37 ~ "2024-09-22",
+                                                                   rowNumberMinus1 %% 52 == 38 ~ "2024-09-29",
+                                                                   rowNumberMinus1 %% 52 == 39 ~ "2024-10-06",
+                                                                   rowNumberMinus1 %% 52 == 40 ~ "2024-10-13",
+                                                                   rowNumberMinus1 %% 52 == 41 ~ "2024-10-20",
+                                                                   rowNumberMinus1 %% 52 == 42 ~ "2024-10-27",
+                                                                   rowNumberMinus1 %% 52 == 43 ~ "2024-11-03",
+                                                                   rowNumberMinus1 %% 52 == 44 ~ "2024-11-10",
+                                                                   rowNumberMinus1 %% 52 == 45 ~ "2024-11-17",
+                                                                   rowNumberMinus1 %% 52 == 46 ~ "2024-11-24",
+                                                                   rowNumberMinus1 %% 52 == 47 ~ "2024-12-01",
+                                                                   rowNumberMinus1 %% 52 == 48 ~ "2024-12-08",
+                                                                   rowNumberMinus1 %% 52 == 49 ~ "2024-12-15",
+                                                                   rowNumberMinus1 %% 52 == 50 ~ "2024-12-22",
+                                                                   rowNumberMinus1 %% 52 == 51 ~ "2024-12-29"))
+
 temperatureFactor <- temperatureFactor %>% select(index, Date, value) %>% mutate(Type = "Temperature")
 temperatureFactor$Date <- as.Date(temperatureFactor$Date)
 
@@ -183,6 +237,59 @@ vacationFactor <- vacationFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 
                                                                    rowNumberMinus1 %% 52 == 49 ~ "2021-02-14",
                                                                    rowNumberMinus1 %% 52 == 50 ~ "2021-02-21",
                                                                    rowNumberMinus1 %% 52 == 51 ~ "2021-02-28"))
+
+vacationFactor <- vacationFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52 == 0 ~ "2024-01-07",
+                                                                   rowNumberMinus1 %% 52 == 1 ~ "2024-01-14",
+                                                                   rowNumberMinus1 %% 52 == 2 ~ "2024-01-21",
+                                                                   rowNumberMinus1 %% 52 == 3 ~ "2024-01-28",
+                                                                   rowNumberMinus1 %% 52 == 4 ~ "2024-02-04",
+                                                                   rowNumberMinus1 %% 52 == 5 ~ "2024-02-11",
+                                                                   rowNumberMinus1 %% 52 == 6 ~ "2024-02-18",
+                                                                   rowNumberMinus1 %% 52 == 7 ~ "2024-02-25",
+                                                                   rowNumberMinus1 %% 52 == 8 ~ "2024-03-03",
+                                                                   rowNumberMinus1 %% 52 == 9 ~ "2024-03-10",
+                                                                   rowNumberMinus1 %% 52 == 10 ~ "2024-03-17",
+                                                                   rowNumberMinus1 %% 52 == 11 ~ "2024-03-24",
+                                                                   rowNumberMinus1 %% 52 == 12 ~ "2024-03-31",
+                                                                   rowNumberMinus1 %% 52 == 13 ~ "2024-04-07",
+                                                                   rowNumberMinus1 %% 52 == 14 ~ "2024-04-14",
+                                                                   rowNumberMinus1 %% 52 == 15 ~ "2024-04-21",
+                                                                   rowNumberMinus1 %% 52 == 16 ~ "2024-04-28",
+                                                                   rowNumberMinus1 %% 52 == 17 ~ "2024-05-05",
+                                                                   rowNumberMinus1 %% 52 == 18 ~ "2024-05-12",
+                                                                   rowNumberMinus1 %% 52 == 19 ~ "2024-05-19",
+                                                                   rowNumberMinus1 %% 52 == 20 ~ "2024-05-26",
+                                                                   rowNumberMinus1 %% 52 == 21 ~ "2024-06-02",
+                                                                   rowNumberMinus1 %% 52 == 22 ~ "2024-06-09",
+                                                                   rowNumberMinus1 %% 52 == 23 ~ "2024-06-16",
+                                                                   rowNumberMinus1 %% 52 == 24 ~ "2024-06-23",
+                                                                   rowNumberMinus1 %% 52 == 25 ~ "2024-06-30",
+                                                                   rowNumberMinus1 %% 52 == 26 ~ "2024-07-07",
+                                                                   rowNumberMinus1 %% 52 == 27 ~ "2024-07-14",
+                                                                   rowNumberMinus1 %% 52 == 28 ~ "2024-07-21",
+                                                                   rowNumberMinus1 %% 52 == 29 ~ "2024-07-28",
+                                                                   rowNumberMinus1 %% 52 == 30 ~ "2024-08-04",
+                                                                   rowNumberMinus1 %% 52 == 31 ~ "2024-08-11",
+                                                                   rowNumberMinus1 %% 52 == 32 ~ "2024-08-18",
+                                                                   rowNumberMinus1 %% 52 == 33 ~ "2024-08-25",
+                                                                   rowNumberMinus1 %% 52 == 34 ~ "2024-09-01",
+                                                                   rowNumberMinus1 %% 52 == 35 ~ "2024-09-08",
+                                                                   rowNumberMinus1 %% 52 == 36 ~ "2024-09-15",
+                                                                   rowNumberMinus1 %% 52 == 37 ~ "2024-09-22",
+                                                                   rowNumberMinus1 %% 52 == 38 ~ "2024-09-29",
+                                                                   rowNumberMinus1 %% 52 == 39 ~ "2024-10-06",
+                                                                   rowNumberMinus1 %% 52 == 40 ~ "2024-10-13",
+                                                                   rowNumberMinus1 %% 52 == 41 ~ "2024-10-20",
+                                                                   rowNumberMinus1 %% 52 == 42 ~ "2024-10-27",
+                                                                   rowNumberMinus1 %% 52 == 43 ~ "2024-11-03",
+                                                                   rowNumberMinus1 %% 52 == 44 ~ "2024-11-10",
+                                                                   rowNumberMinus1 %% 52 == 45 ~ "2024-11-17",
+                                                                   rowNumberMinus1 %% 52 == 46 ~ "2024-11-24",
+                                                                   rowNumberMinus1 %% 52 == 47 ~ "2024-12-01",
+                                                                   rowNumberMinus1 %% 52 == 48 ~ "2024-12-08",
+                                                                   rowNumberMinus1 %% 52 == 49 ~ "2024-12-15",
+                                                                   rowNumberMinus1 %% 52 == 50 ~ "2024-12-22",
+                                                                   rowNumberMinus1 %% 52 == 51 ~ "2024-12-29"))
 vacationFactor <- vacationFactor %>% select(index, Date, value) %>% mutate(Type = "School vacation")
 vacationFactor$Date <- as.Date(vacationFactor$Date)
 
@@ -243,20 +350,86 @@ holidayFactor <- holidayFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52
                                                              rowNumberMinus1 %% 52 == 49 ~ "2021-02-14",
                                                              rowNumberMinus1 %% 52 == 50 ~ "2021-02-21",
                                                              rowNumberMinus1 %% 52 == 51 ~ "2021-02-28"))
+
+holidayFactor <- holidayFactor %>% mutate(Date = case_when(rowNumberMinus1 %% 52 == 0 ~ "2024-01-07",
+                                                                   rowNumberMinus1 %% 52 == 1 ~ "2024-01-14",
+                                                                   rowNumberMinus1 %% 52 == 2 ~ "2024-01-21",
+                                                                   rowNumberMinus1 %% 52 == 3 ~ "2024-01-28",
+                                                                   rowNumberMinus1 %% 52 == 4 ~ "2024-02-04",
+                                                                   rowNumberMinus1 %% 52 == 5 ~ "2024-02-11",
+                                                                   rowNumberMinus1 %% 52 == 6 ~ "2024-02-18",
+                                                                   rowNumberMinus1 %% 52 == 7 ~ "2024-02-25",
+                                                                   rowNumberMinus1 %% 52 == 8 ~ "2024-03-03",
+                                                                   rowNumberMinus1 %% 52 == 9 ~ "2024-03-10",
+                                                                   rowNumberMinus1 %% 52 == 10 ~ "2024-03-17",
+                                                                   rowNumberMinus1 %% 52 == 11 ~ "2024-03-24",
+                                                                   rowNumberMinus1 %% 52 == 12 ~ "2024-03-31",
+                                                                   rowNumberMinus1 %% 52 == 13 ~ "2024-04-07",
+                                                                   rowNumberMinus1 %% 52 == 14 ~ "2024-04-14",
+                                                                   rowNumberMinus1 %% 52 == 15 ~ "2024-04-21",
+                                                                   rowNumberMinus1 %% 52 == 16 ~ "2024-04-28",
+                                                                   rowNumberMinus1 %% 52 == 17 ~ "2024-05-05",
+                                                                   rowNumberMinus1 %% 52 == 18 ~ "2024-05-12",
+                                                                   rowNumberMinus1 %% 52 == 19 ~ "2024-05-19",
+                                                                   rowNumberMinus1 %% 52 == 20 ~ "2024-05-26",
+                                                                   rowNumberMinus1 %% 52 == 21 ~ "2024-06-02",
+                                                                   rowNumberMinus1 %% 52 == 22 ~ "2024-06-09",
+                                                                   rowNumberMinus1 %% 52 == 23 ~ "2024-06-16",
+                                                                   rowNumberMinus1 %% 52 == 24 ~ "2024-06-23",
+                                                                   rowNumberMinus1 %% 52 == 25 ~ "2024-06-30",
+                                                                   rowNumberMinus1 %% 52 == 26 ~ "2024-07-07",
+                                                                   rowNumberMinus1 %% 52 == 27 ~ "2024-07-14",
+                                                                   rowNumberMinus1 %% 52 == 28 ~ "2024-07-21",
+                                                                   rowNumberMinus1 %% 52 == 29 ~ "2024-07-28",
+                                                                   rowNumberMinus1 %% 52 == 30 ~ "2024-08-04",
+                                                                   rowNumberMinus1 %% 52 == 31 ~ "2024-08-11",
+                                                                   rowNumberMinus1 %% 52 == 32 ~ "2024-08-18",
+                                                                   rowNumberMinus1 %% 52 == 33 ~ "2024-08-25",
+                                                                   rowNumberMinus1 %% 52 == 34 ~ "2024-09-01",
+                                                                   rowNumberMinus1 %% 52 == 35 ~ "2024-09-08",
+                                                                   rowNumberMinus1 %% 52 == 36 ~ "2024-09-15",
+                                                                   rowNumberMinus1 %% 52 == 37 ~ "2024-09-22",
+                                                                   rowNumberMinus1 %% 52 == 38 ~ "2024-09-29",
+                                                                   rowNumberMinus1 %% 52 == 39 ~ "2024-10-06",
+                                                                   rowNumberMinus1 %% 52 == 40 ~ "2024-10-13",
+                                                                   rowNumberMinus1 %% 52 == 41 ~ "2024-10-20",
+                                                                   rowNumberMinus1 %% 52 == 42 ~ "2024-10-27",
+                                                                   rowNumberMinus1 %% 52 == 43 ~ "2024-11-03",
+                                                                   rowNumberMinus1 %% 52 == 44 ~ "2024-11-10",
+                                                                   rowNumberMinus1 %% 52 == 45 ~ "2024-11-17",
+                                                                   rowNumberMinus1 %% 52 == 46 ~ "2024-11-24",
+                                                                   rowNumberMinus1 %% 52 == 47 ~ "2024-12-01",
+                                                                   rowNumberMinus1 %% 52 == 48 ~ "2024-12-08",
+                                                                   rowNumberMinus1 %% 52 == 49 ~ "2024-12-15",
+                                                                   rowNumberMinus1 %% 52 == 50 ~ "2024-12-22",
+                                                                   rowNumberMinus1 %% 52 == 51 ~ "2024-12-29"))
 holidayFactor <- holidayFactor %>% select(index, Date, value) %>% mutate(Type = "Public holiday")
 holidayFactor$Date <- as.Date(holidayFactor$Date)
 
 # Boxplot Effect Sizes ----------------------------------------------------
 
-temperatureFactorViolin <- temperatureFactor %>% filter(Date %in% c(as.Date("2020-08-02"), as.Date("2021-01-03"))) %>%
+temperatureFactorViolin <- temperatureFactor %>% #filter(Date %in% c(as.Date("2020-08-02"), as.Date("2021-01-03"))) %>%
                             pivot_wider(names_from = Date, values_from = value) %>%
-                            mutate(effect_size = `2020-08-02` - `2021-01-03`) %>% mutate(effect = "Temperature") %>%
+                            #mutate(effect_size = `2020-08-02` - `2021-01-03`) %>% mutate(effect = "Temperature") %>%
+                            mutate(effect_size = max(value) - min(value)) %>% mutate(effect = "Temperature") %>%
                             select(effect, effect_size, index)
 
-holidayFactorViolin <- holidayFactor %>% filter(Date == as.Date("2020-10-04")) %>%
-                                          mutate(effect_size = 1 - value) %>% 
-                                          mutate(effect = "Public\nholiday") %>%
-                                          select(effect, effect_size, index)
+temperatureFactorViolin <- temperatureFactor %>% group_by(index) %>% 
+  summarise(value = max(value) - min(value)) %>%
+  mutate(effect_size = value) %>%
+  mutate(effect = "Temperature") %>%
+  select(effect, effect_size, index)
+
+# holidayFactorViolin <- holidayFactor %>% filter(Date == as.Date("2020-10-04")) %>%
+#                                           mutate(effect_size = 1 - value) %>% 
+#                                           mutate(effect = "Public\nholiday") %>%
+#                                           select(effect, effect_size, index)
+
+holidayFactorViolin <- holidayFactor %>% group_by(index) %>% 
+  summarise(value = min(value)) %>%
+  mutate(effect_size = 1 - value) %>%
+  mutate(effect = "Public\nholiday") %>%
+  select(effect, effect_size, index)
 
 vacationFactorViolin <- vacationFactor %>% group_by(index) %>% 
   summarise(value = min(value)) %>%
@@ -299,7 +472,7 @@ boxplotseffectsize <- ggplot(ViolinplotDF, aes(x=effect, y=effect_size, color = 
                  jitter.width = 0.1, jitter.height = 0.01      
                )), 
                boxplot.params =  list(alpha = 0.0, width = 0.0, notch = FALSE), 
-               violin.params = list(width = 1.4,  scale = "width", alpha = 0.6, adjust = 3),
+               violin.params = list(width = 1.4,  scale = "width", alpha = 0.6, adjust = 1.2),
                sep_level = 2)+
   coord_cartesian(ylim = c(min(ViolinplotDF$effect_size), max(ViolinplotDF$effect_size))) +
   #stat_compare_means(comparisons = my_comparisons, label.y = c(0.8,0.85, 0.9, 0.95), symnum.args = list(cutpoints = c(0, 0.01, 0.05, 0.1, Inf), symbols = c("***", "**", "*", "ns")), bracket.size=1, size = 8) +
@@ -368,7 +541,7 @@ panel_across_districts <- ggplot() +
     axis.title = element_text(color = "black"),
     legend.position = "none"
   ) +
-  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) + 
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2024-12-29"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0)) + 
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(axis.ticks.x = element_line(),
         axis.ticks.y = element_line(),
@@ -381,6 +554,12 @@ panel_across_districts <- ggplot() +
 
 ggsave("DistributionMultiplicativeImpacts_Fig3.pdf", dpi = 500, w = 18, h = 9)
 ggsave("DistributionMultiplicativeImpacts_Fig3.png", dpi = 500, w = 18, h = 9)
+
+ggarrange(ggarrange(panel_across_districts, boxplotseffectsize, ncol = 2, labels = c("A", "B"), font.label = list(size = 30), widths = c(0.6, 0.4)), 
+          nrow = 1)
+
+
+ggsave("DistributionMultiplicativeImpacts_Fig3_Only2024.pdf", dpi = 500, w = 21, h = 8)
 
 # 1st Wave Analysis -------------------------------------------------------
 #Influence of Case Numbers
@@ -479,6 +658,8 @@ my_comparisons <- list(c("Large\ncity", "Small\ncity"),
 
 manual_scale <- c("#D4B2CC", "#D385AC",  "#A56693", "#66507A", "#2D204C")
 
+disFac_post %>% anova_test(value ~ group_eng)
+
 weight_across_districts <- ggplot(disFac_post, aes(x=group_eng, y=value, color = group_eng, fill = group_eng)) +
   #sm_raincloud(aes(stat=median_cl, x=group_eng, y=value), size = 1.2, color= "#393b79") +
   sm_raincloud(aes(stat = median_cl), 
@@ -526,7 +707,83 @@ weight_across_districts <- ggplot(disFac_post, aes(x=group_eng, y=value, color =
   ) +
   xlab("")
 
-ggarrange(panel_across_districts, ggarrange(boxplotseffectsize, weight_across_districts, ncol = 2, labels = c("B", "C"), font.label = list(size = 37)), labels = c("A", ""), nrow = 2, font.label = list(size = 37))
+
+
+# Kernel plot -------------------------------------------------------------
+
+mu <- read_csv("/Users/sydney/git/mobility_inference/results/2025-09-14_400_cluster_expdecay_wideealpha/mu_gamma_C.csv")
+colnames(mu) <- c("district", "mu")
+sigma <- read_csv("/Users/sydney/git/mobility_inference/results/2025-09-14_400_cluster_expdecay_wideealpha/sigma_gamma_C.csv")
+colnames(sigma) <- c("district", "sigma")
+
+df <- left_join(mu,sigma)
+df <- df %>% mutate(alpha = mu^2 / (sigma^2 + 1e-8))
+df <- df %>% mutate(beta = mu / (sigma^2 + 1e-8))
+
+df <- df %>% mutate(mean = alpha/beta)
+
+x = seq(0.001,10000.001,0.1)
+
+result <- df %>%
+  group_by(district) %>%
+  reframe(
+    x = x,
+    y = beta^alpha * x^(alpha - 1) * exp(-beta * x),
+  )
+
+#result$y[is.nan(result$y)] <- 0
+#result$y[is.infinite(result$y)] <- 0
+#result <- result %>% filter(x!=0)
+
+result <- result %>% group_by(district) %>% mutate(y_new = y/sum(y+1e-8))
+
+result <- result %>% group_by(x) %>% summarise(mean = mean(y_new), lower = quantile(y_new, 0.1), upper = quantile(y_new, 0.9))
+
+kernel <- ggplot(result) +
+  geom_line(aes(x=x, y = mean, size = 2)) + 
+  geom_ribbon(aes(x=x, ymin=lower, ymax=upper, alpha = 1, size = 3)) +
+  theme_minimal() +
+  theme(text = element_text(size = 35)) +
+  theme(
+      # Remove grid lines
+      panel.grid = element_blank(),
+      
+      # Add a box around the plot
+      axis.line.x.bottom = element_line(color = "black"),
+      axis.line.y.left = element_line(color = "black"),
+      #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+      
+      # Remove the default panel background
+      panel.background = element_blank(),
+      
+      # Optional: adjust axis appearance to be more matplotlib-like
+      axis.ticks = element_line(color = "black"),
+      axis.ticks.length = unit(12, "pt"),
+      #text = element_text(size = 22),  # Affects most text elements
+      axis.text = element_text(color = "black"),  # Axis labels
+      #axis.text.x = element_text(angle = 90),
+      axis.title = element_text(color = "black"),
+      legend.position = "none",     # Remove axis labels
+      #axis.text.x = element_blank(),     # Remove x-axis tick labels
+      #axis.ticks.x = element_blank() 
+    ) +
+  xlab("Time (weeks)") +
+  xlim(c(0,60)) +
+  ylab("Delay kernel density")
+
+# 1. Ensure x is sorted
+result <- result[order(result$x), ]
+# 2. Normalize y so it integrates to 1 (if not already a proper density)
+result$mean <- result$mean / sum(result$mean)
+# 3. Compute cumulative distribution
+result$cumulative <- cumsum(result$mean)
+# 4. Find the median (where cumulative reaches 0.5)
+median_value <- approx(x = result$cumulative, y = result$x, xout = 0.5)$y
+mean_value <- sum(result$x * result$mean)
+
+ggarrange(ggarrange(panel_across_districts, kernel, ncol = 2, labels = c("A", "B"), font.label = list(size = 37), widths = c(0.7, 0.3)), 
+          ggarrange(boxplotseffectsize, weight_across_districts, ncol = 2, labels = c("C", "D"), font.label = list(size = 37)), 
+          nrow = 2, font.label = list(size = 37))
 
 ggsave("WeightTrial.pdf", weight_across_districts, dpi = 500, w = 15, h = 12)
 

@@ -103,6 +103,10 @@ cases_firstWave <- cases %>% filter(date < as.Date("2020-06-01")) %>% group_by(L
 
 cases_firstWave$group_eng <- factor(cases_firstWave $group_eng, levels = c("Large\ncity", "Small\ncity", "Suburban/\nindependent\ntown", "Medium\nrural", "Rural"))
 
+cases_firstWave <- cases_firstWave %>% ungroup %>% unique()
+
+cases_firstWave %>% anova_test(wave90percentile ~ group_eng)
+
 my_comparisons <- list(c("Grosse Grossstadt", "Kleine Grossstadt"),
                        c("Kleine Grossstadt", "Städtische Kreise"),
                        c("Städtische Kreise", "Ländlicher Kreis mit Verdichtungsansätzen"),
@@ -114,10 +118,9 @@ my_comparisons <- list(c("Large\ncity", "Small\ncity"),
 symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
 manual_scale <- c("#D4B2CC", "#D385AC",  "#A56693", "#66507A", "#2D204C")
-
-boxplot_firstWave <- ggplot(cases_firstWave %>% filter(wave90percentile < 300), aes(x= group_eng, y=wave90percentile)) +
+boxplot_firstWave <- ggplot(cases_firstWave %>% filter(wave90percentile < 300) %>% unique(), aes(x= group_eng, y=wave90percentile)) +
   geom_boxplot(lwd=1.5, color = "#393b79")+
-  stat_compare_means(comparisons = my_comparisons, symnum.args = symnum.args, method = "t.test", size = 7) +
+  stat_compare_means(comparisons = my_comparisons, symnum.args = symnum.args, method = "t.test", size = 8) +
   theme_minimal() +
   #ylim(0,400) +
   guides(color=guide_legend(nrow=2,byrow=TRUE)) +
@@ -139,14 +142,13 @@ boxplot_firstWave <- ggplot(cases_firstWave %>% filter(wave90percentile < 300), 
     # Optional: adjust axis appearance to be more matplotlib-like
     axis.ticks = element_line(color = "black"),
     axis.ticks.length = unit(10, "pt"),
-    #text = element_text(size = 22),  # Affects most text elements
     axis.text = element_text(color = "black"),  # Axis labels
     axis.title = element_text(color = "black"),
-    axis.text.y=element_text(size = 18, color = "#000000"),
-    axis.text.x=element_text(size = 18, color = "#000000"),
+    axis.text.y=element_text(size = 21, color = "#000000"),
+    axis.text.x=element_text(size = 21, color = "#000000"),
     axis.title.y=element_text(size = 23),
-    legend.text = element_text(size = 20),
-    plot.title = element_text(size = 23)
+    legend.text = element_text(size = 21),
+    plot.title = element_text(size = 25)
   ) +
   ggtitle("First wave") +
   theme(legend.position = "none", legend.title = element_blank())
@@ -158,6 +160,10 @@ cases_secondWave <- cases %>% filter(date > as.Date("2020-09-01")) %>% group_by(
 
 cases_secondWave$group_eng <- factor(cases_secondWave $group_eng, levels = c("Large\ncity", "Small\ncity", "Suburban/\nindependent\ntown", "Medium\nrural", "Rural"))
 
+cases_secondWave <- cases_secondWave %>% ungroup %>% unique()
+
+cases_secondWave %>% anova_test(wave90percentile ~ group_eng)
+
 my_comparisons <- list(c("Grosse Grossstadt", "Kleine Grossstadt"),
                        c("Kleine Grossstadt", "Städtische Kreise"),
                        c("Städtische Kreise", "Ländlicher Kreis mit Verdichtungsansätzen"),
@@ -170,9 +176,11 @@ symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = 
 
 manual_scale <- c("#D4B2CC", "#D385AC",  "#A56693", "#66507A", "#2D204C")
 
-boxplot_secondWave <- ggplot(cases_secondWave, aes(x= group_eng, y=wave90percentile)) +
+cases_secondWave %>% anova_test(value ~ group_eng)
+
+boxplot_secondWave <- ggplot(cases_secondWave %>% unique(), aes(x= group_eng, y=wave90percentile)) +
   geom_boxplot(lwd=1.5, color = "#393b79")+
-  stat_compare_means(comparisons = my_comparisons, symnum.args = symnum.args, method = "t.test", size = 7) +
+  stat_compare_means(comparisons = my_comparisons, symnum.args = symnum.args, method = "t.test", size = 8) +
   theme_minimal() +
   #ylim(0,400) +
   guides(color=guide_legend(nrow=2,byrow=TRUE)) +
@@ -197,11 +205,11 @@ boxplot_secondWave <- ggplot(cases_secondWave, aes(x= group_eng, y=wave90percent
     #text = element_text(size = 22),  # Affects most text elements
     axis.text = element_text(color = "black"),  # Axis labels
     axis.title = element_text(color = "black"),
-    axis.text.y=element_text(size = 18, color = "#000000"),
-    axis.text.x=element_text(size = 18, color = "#000000"),
+    axis.text.y=element_text(size = 21, color = "#000000"),
+    axis.text.x=element_text(size = 21, color = "#000000"),
     axis.title.y=element_text(size = 23),
-    legend.text = element_text(size = 20),
-    plot.title = element_text(size = 23)
+    legend.text = element_text(size = 21),
+    plot.title = element_text(size = 25)
   ) +
   ggtitle("Second wave") +
   theme(legend.position = "none", legend.title = element_blank())
@@ -209,8 +217,8 @@ boxplot_secondWave <- ggplot(cases_secondWave, aes(x= group_eng, y=wave90percent
 
 ggarrange(boxplot_firstWave, boxplot_secondWave, labels = c("A", "B"), nrow = 1, ncol = 2,font.label = list(size = 25), heights = c(1,1))
 
-ggsave(paste0("DistrictType-90thPercentileIncidence.pdf"), dpi = 500, h = 7, w = 18)
-ggsave(paste0("DistrictType-90thPercentileIncidence.png"), dpi = 500, h = 7, w = 18)
+ggsave(paste0("DistrictType-90thPercentileIncidence.pdf"), dpi = 500, h = 6, w = 18)
+ggsave(paste0("DistrictType-90thPercentileIncidence.png"), dpi = 500, h = 6, w = 18)
 
 
 # Regression First Wave ---------------------------------------------------
@@ -280,76 +288,80 @@ vif(lm(value ~ . , data = valuetoplotRed)) #All between 1 and 5 --> Some sort of
 bestsubsetFirstWave <- olsrr::ols_step_best_subset(lm(wave90percentile  ~ valueInitWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022  + childrenbelow3inprimarycare + `Voted for Incoming Government` + 
                                                `Voted for Parting Government` + peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
                                                ForstFischerei + ProduzierendesGewerbe + VerarbeitendesGewerbe + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung + OeffentlichSonstigeDienstleistungen, 
-                                             data=valuetoplotRed %>% select(-valueSecondWave)), metric = "adjr") 
+                                             data=valuetoplotRed), metric = "adjr") 
 
-summary(bestSubset)
+lmSixVariablesFirstWave <- lm(wave90percentile ~ valueInitWave + Inhabitantsperkm2 + voterTurnout ,valuetoplotRed)
 
-vif(sameSixVariablesIntWave) #All between 1 and 5 --> Some sort of correlation, not large enough to warrant adaptations
+ggplot(valuetoplotRed) +
+  geom_point(aes(x=wave90percentile, y=valueInitWave))
 
-forestplotData <-tibble::tibble(mean = c(round(sameSixVariablesIntWave$coefficients[2],4), round(sameSixVariablesIntWave$coefficients[3],4), round(sameSixVariablesIntWave$coefficients[4],2), round(sameSixVariablesIntWave$coefficients[5],2), round(sameSixVariablesIntWave$coefficients[6],2), round(sameSixVariablesIntWave$coefficients[7],2), round(sameSixVariablesIntWave$coefficients[8],2)),
-                                mean_table = c(round(sameSixVariablesIntWave$coefficients[2],2), round(sameSixVariablesIntWave$coefficients[3],2), round(sameSixVariablesIntWave$coefficients[4],2), round(sameSixVariablesIntWave$coefficients[5],2), round(sameSixVariablesIntWave$coefficients[6],2), round(sameSixVariablesIntWave$coefficients[7],2), round(sameSixVariablesIntWave$coefficients[8],2)),
-                                lower = c(confint(sameSixVariablesIntWave)[2,1], confint(sameSixVariablesIntWave)[3,1], confint(sameSixVariablesIntWave)[4,1], confint(sameSixVariablesIntWave)[5,1], confint(sameSixVariablesIntWave)[6,1], confint(sameSixVariablesIntWave)[7,1], confint(sameSixVariablesIntWave)[8,1]),
-                                upper = c(confint(sameSixVariablesIntWave)[2,2], confint(sameSixVariablesIntWave)[3,2], confint(sameSixVariablesIntWave)[4,2], confint(sameSixVariablesIntWave)[5,2], confint(sameSixVariablesIntWave)[6,2], confint(sameSixVariablesIntWave)[7,2], confint(sameSixVariablesIntWave)[8,2]),
-                                confint = c(
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[2,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[2,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[3,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[3,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[4,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[4,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[5,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[5,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[6,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[6,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[7,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[7,2], 4)), "]"),
-                                  paste0("[", as.character(round(confint(sameSixVariablesIntWave)[8,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[8,2], 4)), "]")
-                                ),
-                                pvalue = c(
-                                  "<0.001",
-                                  "<0.001",
-                                  round(summary(sameSixVariablesIntWave)$coefficients[,4][4],3),
-                                  round(summary(sameSixVariablesIntWave)$coefficients[,4][5],3),
-                                  round(summary(sameSixVariablesIntWave)$coefficients[,4][6],3),
-                                  "<0.001",
-                                  "<0.001"
-                                ),
-                                variable = c("Reaction strength first wave", "Population density", "Unemployment quota", "Voter turnout", "Income" , "Small children in childcare", "Voted for incoming government"))
 
-forestplotData <- forestplotData %>% mutate(mean = (-1)*mean, mean_table = (-1)*mean_table, lowersave = lower, lower = (-1)*upper, upper = (-1)*lowersave)
-
-pdf("ForestplotFinalModelFirstWave.pdf", width = 11, height = 3)
-forestplotData %>%
-  forestplot::forestplot(
-    labeltext = c(variable, mean_table, confint, pvalue),
-    xlab = "Standardized Coefficient",
-    xticks = c(-0.4, -0.2, 0, 0.2, 0.4),
-    txt_gp = forestplot::fpTxtGp(ticks=gpar(cex=1.1), xlab=gpar(cex=1.1)),
-    lwd.ci = 2,           # Thicker CI lines (default is usually 1)
-    boxsize =  0.2       # Larger boxes, keeping relative sizes
-  ) %>% 
-  forestplot::fp_set_style(box = "royalblue",
-                           line = "darkblue",
-                           summary = "royalblue") %>%
-  forestplot::fp_add_header(variable = c("Explanatory Variable"), mean_table = c("Stand. Coefficient"), confint = c("95% CI"), pvalue = c("p-value")) %>%
-  forestplot::fp_set_zebra_style("#EFEFEF")
-dev.off()
-
-pdf("ForestplotFinalModelFirstWave.pdf", width = 6, height = 3)
-forestplotData %>%
-  forestplot::forestplot(
-    labeltext = c(variable),
-    xlab = "Standardized Coefficient",
-    xticks = c(-0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8),
-    txt_gp = forestplot::fpTxtGp(ticks=gpar(cex=1.1), xlab=gpar(cex=1.1)),
-    lwd.ci = 2,           # Thicker CI lines (default is usually 1)
-    boxsize =  0.2       # Larger boxes, keeping relative sizes
-  ) %>% 
-  forestplot::fp_set_style(box = "royalblue",
-                           line = "darkblue",
-                           summary = "royalblue") %>%
-  forestplot::fp_add_header(variable = c("Explanatory Variable")) %>%
-  forestplot::fp_set_zebra_style("#EFEFEF")
-dev.off()
+# forestplotData <-tibble::tibble(mean = c(round(sameSixVariablesIntWave$coefficients[2],4), round(sameSixVariablesIntWave$coefficients[3],4), round(sameSixVariablesIntWave$coefficients[4],2), round(sameSixVariablesIntWave$coefficients[5],2), round(sameSixVariablesIntWave$coefficients[6],2), round(sameSixVariablesIntWave$coefficients[7],2), round(sameSixVariablesIntWave$coefficients[8],2)),
+#                                 mean_table = c(round(sameSixVariablesIntWave$coefficients[2],2), round(sameSixVariablesIntWave$coefficients[3],2), round(sameSixVariablesIntWave$coefficients[4],2), round(sameSixVariablesIntWave$coefficients[5],2), round(sameSixVariablesIntWave$coefficients[6],2), round(sameSixVariablesIntWave$coefficients[7],2), round(sameSixVariablesIntWave$coefficients[8],2)),
+#                                 lower = c(confint(sameSixVariablesIntWave)[2,1], confint(sameSixVariablesIntWave)[3,1], confint(sameSixVariablesIntWave)[4,1], confint(sameSixVariablesIntWave)[5,1], confint(sameSixVariablesIntWave)[6,1], confint(sameSixVariablesIntWave)[7,1], confint(sameSixVariablesIntWave)[8,1]),
+#                                 upper = c(confint(sameSixVariablesIntWave)[2,2], confint(sameSixVariablesIntWave)[3,2], confint(sameSixVariablesIntWave)[4,2], confint(sameSixVariablesIntWave)[5,2], confint(sameSixVariablesIntWave)[6,2], confint(sameSixVariablesIntWave)[7,2], confint(sameSixVariablesIntWave)[8,2]),
+#                                 confint = c(
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[2,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[2,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[3,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[3,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[4,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[4,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[5,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[5,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[6,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[6,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[7,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[7,2], 4)), "]"),
+#                                   paste0("[", as.character(round(confint(sameSixVariablesIntWave)[8,1], 4)), ",", as.character(round(confint(sameSixVariablesIntWave)[8,2], 4)), "]")
+#                                 ),
+#                                 pvalue = c(
+#                                   "<0.001",
+#                                   "<0.001",
+#                                   round(summary(sameSixVariablesIntWave)$coefficients[,4][4],3),
+#                                   round(summary(sameSixVariablesIntWave)$coefficients[,4][5],3),
+#                                   round(summary(sameSixVariablesIntWave)$coefficients[,4][6],3),
+#                                   "<0.001",
+#                                   "<0.001"
+#                                 ),
+#                                 variable = c("Reaction strength first wave", "Population density", "Unemployment quota", "Voter turnout", "Income" , "Small children in childcare", "Voted for incoming government"))
+# 
+# forestplotData <- forestplotData %>% mutate(mean = (-1)*mean, mean_table = (-1)*mean_table, lowersave = lower, lower = (-1)*upper, upper = (-1)*lowersave)
+# 
+# pdf("ForestplotFinalModelFirstWave.pdf", width = 11, height = 3)
+# forestplotData %>%
+#   forestplot::forestplot(
+#     labeltext = c(variable, mean_table, confint, pvalue),
+#     xlab = "Standardized Coefficient",
+#     xticks = c(-0.4, -0.2, 0, 0.2, 0.4),
+#     txt_gp = forestplot::fpTxtGp(ticks=gpar(cex=1.1), xlab=gpar(cex=1.1)),
+#     lwd.ci = 2,           # Thicker CI lines (default is usually 1)
+#     boxsize =  0.2       # Larger boxes, keeping relative sizes
+#   ) %>% 
+#   forestplot::fp_set_style(box = "royalblue",
+#                            line = "darkblue",
+#                            summary = "royalblue") %>%
+#   forestplot::fp_add_header(variable = c("Explanatory Variable"), mean_table = c("Stand. Coefficient"), confint = c("95% CI"), pvalue = c("p-value")) %>%
+#   forestplot::fp_set_zebra_style("#EFEFEF")
+# dev.off()
+# 
+# pdf("ForestplotFinalModelFirstWave.pdf", width = 6, height = 3)
+# forestplotData %>%
+#   forestplot::forestplot(
+#     labeltext = c(variable),
+#     xlab = "Standardized Coefficient",
+#     xticks = c(-0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8),
+#     txt_gp = forestplot::fpTxtGp(ticks=gpar(cex=1.1), xlab=gpar(cex=1.1)),
+#     lwd.ci = 2,           # Thicker CI lines (default is usually 1)
+#     boxsize =  0.2       # Larger boxes, keeping relative sizes
+#   ) %>% 
+#   forestplot::fp_set_style(box = "royalblue",
+#                            line = "darkblue",
+#                            summary = "royalblue") %>%
+#   forestplot::fp_add_header(variable = c("Explanatory Variable")) %>%
+#   forestplot::fp_set_zebra_style("#EFEFEF")
+# dev.off()
 
 # Regression Second Wave --------------------------------------------------
 
 cases_secondWave <- cases_secondWave %>% ungroup()
 cases_secondWave <- left_join(cases_secondWave, RegVariables)
+cases_secondWave <- left_join(cases_secondWave, disFac_post)
+cases_secondWave <- cases_secondWave %>% unique()
 
 #Correlation matrix
 valuetoplotRed <- cases_secondWave %>% ungroup() 
@@ -392,7 +404,7 @@ valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitant
   mutate(HandelVerkehrGastgewerbe = scale(HandelVerkehrGastgewerbe)) %>%
   mutate(FinanzVersicherung = scale(FinanzVersicherung)) %>%
   mutate(OeffentlichSonstigeDienstleistungen = scale(OeffentlichSonstigeDienstleistungen)) %>%
-  mutate(ReacStrengthSecondWave = scale(ReacStrengthSecondWave)) %>%
+  #mutate(ReacStrengthSecondWave = scale(ReacStrengthSecondWave)) %>%
   mutate(wave90percentile = scale (wave90percentile))
 
 #Variance of inflation factor
@@ -401,12 +413,15 @@ vif(lm(wave90percentile ~ . , data = valuetoplotRed)) #All between 1 and 5 --> S
 
 # Same Six Variables as for Reaction Strength -----------------------------
 
-bestsubset <- olsrr::ols_step_best_subset(lm(wave90percentile  ~ ReacStrengthSecondWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022  + childrenbelow3inprimarycare + `Voted for Incoming Government` + 
+bestsubsetSecondWave <- olsrr::ols_step_best_subset(lm(wave90percentile  ~  valueSecondWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022  + childrenbelow3inprimarycare + `Voted for Incoming Government` + 
                                                `Voted for Parting Government` + peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
                                                ForstFischerei + ProduzierendesGewerbe + VerarbeitendesGewerbe + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung + OeffentlichSonstigeDienstleistungen, 
-                                             data=valuetoplotRed %>% select(-valueInitWave, -valueSecondWave)), metric = "adjr") 
+                                             data=valuetoplotRed), metric = "adjr") 
 
-summary(bestSubset)
+lmTenVariablesSecondWave <- lm(wave90percentile ~ valueSecondWave + IncomePerson2022 + childrenbelow3inprimarycare +
+                                 `Voted for Incoming Government` + `Voted for Parting Government`+ peopleover65 + Alq2020 + ProduzierendesGewerbe + VerarbeitendesGewerbe + FinanzVersicherung,
+                               data =valuetoplotRed)
+summary(lmTenVariablesSecondWave)
 
 forestplotData <-tibble::tibble(mean = c(round(sameSixVariablesSecondWave$coefficients[2],4), round(sameSixVariablesSecondWave$coefficients[3],4), round(sameSixVariablesSecondWave$coefficients[4],2), round(sameSixVariablesSecondWave$coefficients[5],2), round(sameSixVariablesSecondWave$coefficients[6],2), round(sameSixVariablesSecondWave$coefficients[7],2), round(sameSixVariablesSecondWave$coefficients[8],2)),
                                 mean_table = c(round(sameSixVariablesSecondWave$coefficients[2],2), round(sameSixVariablesSecondWave$coefficients[3],2), round(sameSixVariablesSecondWave$coefficients[4],2), round(sameSixVariablesSecondWave$coefficients[5],2), round(sameSixVariablesSecondWave$coefficients[6],2), round(sameSixVariablesSecondWave$coefficients[7],2), round(sameSixVariablesSecondWave$coefficients[8],2)),

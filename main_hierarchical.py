@@ -37,7 +37,7 @@ import xarray
 import model_comparison
 
 # Set up basic configurations
-name = "2026-05-11_sine"  # Name of the experiment
+name = "2026-05-26_2024_c"  # Name of the experiment
 test = False # Whether to run a test with fewer samples
 single = True  # Whether to run a single model 
 run = True # Whether to run the model or load the trace from a file
@@ -60,7 +60,7 @@ chosen_model = "fourhundred"
 #chosen_model = "countieswithproblems"
 
 incl2024 = False
-only2024 = False
+only2024 = True
 
 plus_nat_incidence = False
 
@@ -112,8 +112,8 @@ shutil.copyfile("data_prep_hierarchical.py", f"{supDir_name}/data_prep_new.py")
 
 # Load and prepare data
 # Get out of home duration data
-d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model, incl2024)
-d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model, incl2024)
+d_2020, d_base, dates = data_prep_hierarchical.get_out_of_home_duration(chosen_model, incl2024, only2024)
+d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_duration_long(chosen_model, incl2024, only2024)
 
 # Get R_effective value for disease data
 # disease_data_raw["R"] = data_prep_hierarchical.get_R_raw(chosen_model, incl2024)
@@ -124,9 +124,9 @@ d_2020_long, d_base_long, dates_long = data_prep_hierarchical.get_out_of_home_du
 # disease_data["logR"] = data_prep_hierarchical.get_logR_transformed(disease_data_raw["logR"])
 
 # Get cases, ICU, deaths and hospitalisations data from OWID
-disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model, incl2024)
-disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model, incl2024)
-disease_data["C_nat"] = data_prep_hierarchical.get_C_transformed_nat(chosen_model, incl2024)
+disease_data_raw["C"] = data_prep_hierarchical.get_C_raw(chosen_model, incl2024, only2024)
+disease_data["C"] = data_prep_hierarchical.get_C_transformed(chosen_model, incl2024, only2024)
+disease_data["C_nat"] = data_prep_hierarchical.get_C_transformed_nat(chosen_model, incl2024, only2024)
 
 # disease_data_raw["logC"] = data_prep_hierarchical.get_logC_raw(chosen_model, incl2024)
 # disease_data["logC"] = data_prep_hierarchical.get_logC_transformed(chosen_model)
@@ -165,39 +165,39 @@ disease_data["C_nat"] = data_prep_hierarchical.get_C_transformed_nat(chosen_mode
 # # If temperature is included, get temperature data
 if temperature is not None:
     temperature = {
-        "temperature": data_prep_hierarchical.get_temperature(chosen_model, incl2024)
+        "temperature": data_prep_hierarchical.get_temperature(chosen_model, incl2024, only2024)
     }
 
 if daylight is not None:
     daylight = {
-        "daylight": data_prep_hierarchical.get_daylight(chosen_model, incl2024),
+        "daylight": data_prep_hierarchical.get_daylight(chosen_model, incl2024, only2024),
     }
 
 #If school is included, get school data
 if school is not None:
     school = {
-        "school vacation": data_prep_hierarchical.get_school_vacations(chosen_model, incl2024)
+        "school vacation": data_prep_hierarchical.get_school_vacations(chosen_model, incl2024, only2024)
     }
 
 #If public holidays are included, get public holiday data
 if holiday is not None:
     holiday = {
-        "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model, incl2024)
+        "pub holiday": data_prep_hierarchical.get_pub_holidays(chosen_model, incl2024, only2024)
     }
 
 time_counter = {
-        "time counter": data_prep_hierarchical.get_counter(chosen_model, incl2024),
-        "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model, incl2024)
+        "time counter": data_prep_hierarchical.get_counter(chosen_model, incl2024, only2024),
+        "time_counter_long": data_prep_hierarchical.get_counter_long(chosen_model, incl2024, only2024)
 }
 
 if telegram is not None:
     telegram = {
-        "telegram": data_prep_hierarchical.get_telegram(chosen_model, incl2024)
+        "telegram": data_prep_hierarchical.get_telegram(chosen_model, incl2024, only2024)
     }
 
 obs_id_long = data_prep_hierarchical.get_index_long(chosen_model, incl2024)
 
-fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model, incl2024)
+fedState, fedStates, obs_id = data_prep_hierarchical.get_federal_states(chosen_model, incl2024, only2024)
 lk = None
 #lk = data_prep_hierarchical.get_lk(chosen_model)
 fedState_long, fedStates_long, obs_id_long = data_prep_hierarchical.get_federal_states_long(chosen_model, incl2024)
@@ -381,29 +381,29 @@ for indicators in all_combinations:
         cloudpickle.dump(dict_to_save, buff) 
         
     #Create output for post-processing
-    pretest = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.d_C)
-    test = np.median(pretest, axis=0)
-    test2 = pd.DataFrame(test)
-    subDir_name = "results/" + name
-    test2.to_csv(f"{subDir_name}/d_C.csv")
+    # pretest = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.d_C)
+    # test = np.median(pretest, axis=0)
+    # test2 = pd.DataFrame(test)
+    # subDir_name = "results/" + name
+    # test2.to_csv(f"{subDir_name}/d_C.csv")
     
-    pretestb = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.factor_C)
-    testb = np.median(pretestb, axis=0)
-    test2b = pd.DataFrame(testb)
-    subDir_nameb = "results/" + name
-    test2b.to_csv(f"{subDir_nameb}/factor_C.csv")
+    # pretestb = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.factor_C)
+    # testb = np.median(pretestb, axis=0)
+    # test2b = pd.DataFrame(testb)
+    # subDir_nameb = "results/" + name
+    # test2b.to_csv(f"{subDir_nameb}/factor_C.csv")
         
-    pretestc = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.multiplicator_C)
-    testc = np.median(pretestc, axis=0)
-    test2c = pd.DataFrame(testc)
-    subDir_namec = "results/" + name
-    test2c.to_csv(f"{subDir_namec}/multiplicator_C.csv")
+    # pretestc = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.multiplicator_C)
+    # testc = np.median(pretestc, axis=0)
+    # test2c = pd.DataFrame(testc)
+    # subDir_namec = "results/" + name
+    # test2c.to_csv(f"{subDir_namec}/multiplicator_C.csv")
         
-    pretestd = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.slope_C)
-    testd = np.median(pretestd, axis=0)
-    test2d = pd.DataFrame(testd)
-    subDir_named = "results/" + name
-    test2d.to_csv(f"{subDir_named}/slope_C.csv")
+    # pretestd = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.slope_C)
+    # testd = np.median(pretestd, axis=0)
+    # test2d = pd.DataFrame(testd)
+    # subDir_named = "results/" + name
+    # test2d.to_csv(f"{subDir_named}/slope_C.csv")
     
     if temperature is not None:
         preteste = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.temperature_factor)
@@ -439,11 +439,11 @@ for indicators in all_combinations:
         subDir_named = "results/" + name
         test2g.to_csv(f"{subDir_named}/theta_hol.csv")
     
-    pretesth = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.incidence_weight)
-    testh = np.median(pretesth, axis=0)
-    test2h = pd.DataFrame(testh)
-    subDir_named = "results/" + name
-    test2h.to_csv(f"{subDir_named}/incidenceweight.csv")        
+    # pretesth = plot_hierarchical.concatenate_chains_and_draws(trace.posterior.incidence_weight)
+    # testh = np.median(pretesth, axis=0)
+    # test2h = pd.DataFrame(testh)
+    # subDir_named = "results/" + name
+    # test2h.to_csv(f"{subDir_named}/incidenceweight.csv")        
     
     
     # # Save ELPD result to file

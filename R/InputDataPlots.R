@@ -62,7 +62,63 @@ outOfHomeDuration <- outOfHomeDuration %>% group_by(date) %>% summarise(lowerper
 # outOfHomeDuration$group_reduced <- factor(outOfHomeDuration$group_reduced, levels = c("Rural","Medium Rural", "Suburban/Independent Town", "City", "City State"))
 
 mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=outOfHomeDuration)) +
+  geom_vline(xintercept = as.Date("2020-11-02"), linetype = "dashed", color = "gray10", size = 1) +
+  geom_vline(xintercept = as.Date("2020-12-16"), linetype = "dashed", color = "gray10", size = 1) +
+  geom_vline(xintercept = as.Date("2020-03-22"), linetype = "dashed", color = "gray10", size = 1) + 
   geom_ribbon(aes(ymin = lowerperc, ymax = upperperc),fill = "#a55194", alpha = 0.3) + 
+  geom_line(colour="#a55194", size = 3) +
+  # Vertical line for Lockdown light
+  theme_minimal() +
+  #theme(text = element_text(size = 50)) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  # theme(axis.ticks.x = element_line(),
+  #       axis.ticks.y = element_line(),
+  #       axis.ticks.length = unit(10, "pt"),
+  #       plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm"),
+  #       axis.line = element_line()) +
+  theme(
+    # Remove grid lines
+    panel.grid = element_blank(),
+    
+    # Add a box around the plot
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    
+    # Remove the default panel background
+    panel.background = element_blank(),
+    
+    # Optional: adjust axis appearance to be more matplotlib-like
+    axis.ticks = element_line(color = "black"),
+    axis.ticks.length = unit(10, "pt"),
+    #text = element_text(size = 22),  # Affects most text elements
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
+    legend.position = "none"
+  ) +
+  xlab("Date") +
+  ylab("Out-of-home\nduration (hours)") +
+  #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
+  ylim(3,9.5) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0))
+
+#ggarrange(mobilityA, mobilityB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", widths = c(1,1), common.legend = TRUE)
+
+ggsave("MobilityInput.pdf", mobilityA, dpi = 500, w = 18, bg = "white", h = 8)
+ggsave("MobilityInput.png", mobilityA, dpi = 500, w = 18, bg = "white", h = 8)
+
+
+rangeAndMobilePersons <- read_delim("/Users/sydney/Downloads/LK_Range_weekly.csv")
+rangeAndMobilePersons <- rangeAndMobilePersons %>% mutate(date = as.Date(as.character(date), format = "%Y%m%d"))
+
+rangeAndMobilePersons  <- rangeAndMobilePersons  %>% group_by(date) %>% summarise(lowerperc_PersonLeaving = quantile(sharePersonLeavingHome, 0.025), upperperc_PersonLeaving = quantile(sharePersonLeavingHome, 0.975), sharePersonLeavingHome = mean(sharePersonLeavingHome),
+                                                                                  lowerperc_dailyRangePerPerson = quantile(dailyRangePerPerson, 0.025), upperperc_dailyRangePerPerson = quantile(dailyRangePerPerson, 0.975), dailyRangePerPerson = mean(dailyRangePerPerson))
+
+mobilePersons <- ggplot(rangeAndMobilePersons  %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=sharePersonLeavingHome)) +
+  geom_ribbon(aes(ymin = lowerperc_PersonLeaving, ymax = upperperc_PersonLeaving),fill = "#a55194", alpha = 0.3) + 
   geom_line(colour="#a55194", size = 3) +
   theme_minimal() +
   #theme(text = element_text(size = 50)) +
@@ -95,16 +151,66 @@ mobilityA <- ggplot(outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter
     legend.position = "none"
   ) +
   xlab("Date") +
-  ylab("Out-of-home duration\n(hours)") +
+  ylab("Share of mobile\npersons (percent)") +
   #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
-  ylim(3,9.5) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0))
 
-#ggarrange(mobilityA, mobilityB, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "bottom", widths = c(1,1), common.legend = TRUE)
+traveledDistances <- ggplot(rangeAndMobilePersons  %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01"), aes(x=date, y=dailyRangePerPerson)) +
+  geom_ribbon(aes(ymin = lowerperc_dailyRangePerPerson, ymax = upperperc_dailyRangePerPerson),fill = "#a55194", alpha = 0.3) + 
+  geom_line(colour="#a55194", size = 3) +
+  theme_minimal() +
+  #theme(text = element_text(size = 50)) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  # theme(axis.ticks.x = element_line(),
+  #       axis.ticks.y = element_line(),
+  #       axis.ticks.length = unit(10, "pt"),
+  #       plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm"),
+  #       axis.line = element_line()) +
+  theme(
+    # Remove grid lines
+    panel.grid = element_blank(),
+    
+    # Add a box around the plot
+    axis.line.x.bottom = element_line(color = "black"),
+    axis.line.y.left = element_line(color = "black"),
+    #panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    
+    # Remove the default panel background
+    panel.background = element_blank(),
+    
+    # Optional: adjust axis appearance to be more matplotlib-like
+    axis.ticks = element_line(color = "black"),
+    axis.ticks.length = unit(10, "pt"),
+    #text = element_text(size = 22),  # Affects most text elements
+    axis.text = element_text(color = "black", size = 42),  # Axis labels
+    axis.title = element_text(color = "black", size = 47),
+    axis.title.x = element_text(margin = margin(t = 10)),  # top margin for x-axis title
+    axis.title.y = element_text(margin = margin(r = 10)),
+    legend.position = "none"
+  ) +
+  xlab("Date") +
+  ylab("Distance per\nperson (km)") +
+  #guides(color=guide_legend(nrow=2,byrow=TRUE)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_date(breaks = seq(as.Date("2020-04-01"), as.Date("2021-02-01"), by = "3 month"), date_labels = "%d/%b/%y", expand = c(0, 0))
 
-ggsave("MobilityInput.pdf", mobilityA, dpi = 500, w = 18, bg = "white", h = 8)
-ggsave("MobilityInput.png", mobilityA, dpi = 500, w = 18, bg = "white", h = 8)
+ggarrange(mobilityA, traveledDistances, mobilePersons, labels = c("A", "B", "C"), align="v", nrow = 3, ncol = 1, font.label = list(size = 37), legend = "bottom", heights = c(1,1,1))
+
+outOfHomeDuration2020 <- outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01")
+rangeAndMobilePersons2020 <- rangeAndMobilePersons %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01")
+cor(outOfHomeDuration2020$outOfHomeDuration, rangeAndMobilePersons2020$sharePersonLeavingHome)
+cor(outOfHomeDuration2020$outOfHomeDuration, rangeAndMobilePersons2020$dailyRangePerPerson)
+
+
+
+ggsave("DifferentMobilityMeasures.pdf", dpi = 500, w = 18, h = 20)
+
+
+rangeAndMobilePersons <- rangeAndMobilePersons %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01")
+outOfHomeDuration <- outOfHomeDuration %>% filter(date < "2021-03-01") %>% filter(date > "2020-03-01")
+cor(outOfHomeDuration$outOfHomeDuration, rangeAndMobilePersons$sharePersonLeavingHome)
+cor(outOfHomeDuration$outOfHomeDuration, rangeAndMobilePersons$dailyRangePerPerson)
 
 # Temperature -------------------------------------------------------------
 

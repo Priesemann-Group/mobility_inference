@@ -1,6 +1,191 @@
+library(tidyverse)
+library(here)
+
+here()
+
 # Regression Analysis -----------------------------------------------------
 
 #Data Preprocessing -------------------------------------------------------
+
+model <- "counties"
+
+consideredwave <- "firstwave"
+
+run <- "2025-07-02_400LK_exp_UsedForPostProcessing"
+
+whattoplot <- "exponential"
+
+source("./R/Postprocessing.R")
+
+disFac_post <- disFac_post %>% mutate(group_eng = case_when(group_eng == "Large City" ~ "Large\nCity",
+                                                            group_eng == "Small City" ~ "Small\nCity",
+                                                            group_eng == "Suburban/Independent Town" ~ "Suburban/\nIndependent Town",
+                                                            group_eng == "Medium Rural" ~ "Medium\nRural",
+                                                            .default = group_eng))
+
+#valuetoplot$group <- factor(valuetoplot$group, levels = c("Grosse Grossstadt", "Kleine Grossstadt", "Städtische Kreise", "Ländlicher Kreis mit Verdichtungsansätzen", "Dünn besiedelt ländlicher Kreis"))
+disFac_post$group_eng <- factor(disFac_post$group_eng, levels = c("Large\nCity", "Small\nCity", "Suburban/\nIndependent Town", "Medium\nRural", "Rural"))
+
+my_comparisons <- list(c("Grosse Grossstadt", "Kleine Grossstadt"),
+                       c("Kleine Grossstadt", "Städtische Kreise"),
+                       c("Städtische Kreise", "Ländlicher Kreis mit Verdichtungsansätzen"),
+                       c("Ländlicher Kreis mit Verdichtungsansätzen", "Dünn besiedelt ländlicher Kreis"))
+my_comparisons <- list(c("Large\nCity", "Small\nCity"),
+                       c("Small\nCity", "Suburban/\nIndependent Town"),
+                       c("Suburban/\nIndependent Town", "Medium\nRural"),
+                       c("Medium\nRural", "Rural"))
+symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+manual_scale <- c("#D4B2CC", "#D385AC",  "#A56693", "#66507A", "#2D204C")
+
+boxplot <- ggplot(disFac_post %>% filter(!is.na(group_eng)) %>% filter(!is.na(value)), aes(x= group_eng, y=value)) +
+  geom_boxplot(aes(color = group_eng), lwd=1.5)+
+  stat_compare_means(comparisons = my_comparisons, symnum.args = symnum.args, method = "t.test", size = 6) +
+  ylab("Reaction Strength\n(Avg. % Change of Ooh\nper (New Weekly Cases/100,000))") +
+  scale_color_manual(values= manual_scale) +
+  guides(color=guide_legend(nrow=2)) +
+  xlab("") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        text = element_text(size = 25),
+        legend.title = element_blank()) +
+  # theme(axis.ticks.x = element_line(),
+  #       axis.ticks.y = element_line(),
+  #       axis.ticks.length = unit(10, "pt"),
+  #       plot.margin = margin (l=0.2, t = 0.3, r=1.3, unit = "cm"),
+  #       axis.line = element_line()) +
+  theme(
+    # Remove grid lines
+    panel.grid = element_blank(),
+    
+    # Add a box around the plot
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    
+    # Remove the default panel background
+    panel.background = element_blank(),
+    
+    # Optional: adjust axis appearance to be more matplotlib-like
+    axis.ticks = element_line(color = "black"),
+    axis.ticks.length = unit(10, "pt"),
+    #text = element_text(size = 22),  # Affects most text elements
+    axis.text = element_text(color = "black"),  # Axis labels
+    axis.title = element_text(color = "black")
+  ) 
+
+ggsave(paste0("FirstAnalysisCountyTyp-", outcomeVariable, "-", run, ".pdf"), boxplot, dpi = 500, w = 9, h = 7)
+ggsave(paste0("FirstAnalysisCountyTyp-", outcomeVariable, "-", run, ".png"), boxplot, dpi = 500, w = 9, h = 7)
+
+# Spatial Plot ------------------------------------------------------------
+
+if(model == "fedStates"){
+  germany_districts <- gisco_get_nuts(
+    year = "2021", 
+    nuts_level = 1,
+    epsg = 3035,
+    country = 'Germany'
+  ) %>% # Nicer output
+    as_tibble() %>% 
+    janitor::clean_names() %>% dplyr::rowwise() %>%
+    mutate(name_latn = str_split(name_latn, ",")[[1]][1]) %>%
+    left_join(min_first_wave, by = join_by(name_latn == LK_Name)) %>%
+    mutate(diseaseFactor = case_when(nuts_name == "Leipzig" ~ NA, .default = diseaseFactor))
+}else if(model %in% c("counties", "fourhundred")){
+  germany_districts <- gisco_get_nuts(
+    year = "2021", 
+    nuts_level = 3,
+    epsg = 3035,
+    country = 'Germany',
+    cache = TRUE,
+    update_cache = TRUE
+  ) %>%
+    as_tibble() %>% 
+    mutate(NAME_LATN = case_when(NAME_LATN == "München, Landkreis" ~ "Landkreis München",
+                                 NAME_LATN ==  "Karlsruhe, Landkreis" ~ "Landkreis Karlsruhe",
+                                 NAME_LATN == "Leipzig" ~ "Landkreis Leipzig",
+                                 NAME_LATN == "Oldenburg (Oldenburg), Kreisfreie Stadt" ~ "Oldenburg",
+                                 NAME_LATN == "Oldenburg" ~ "Landkreis Oldenburg",
+                                 NAME_LATN == "Osnabrück, Landkreis" ~ "Landkreis Osnabrück",
+                                 NAME_LATN ==  "Augsburg, Landkreis" ~ "Landkreis Augsburg",
+                                 NAME_LATN ==  "Landshut, Landkreis" ~ "Landkreis Landshut",
+                                 NAME_LATN ==  "Regensburg, Landkreis" ~ "Landkreis Regensburg",
+                                 NAME_LATN ==  "Würzburg, Landkreis" ~ "Landkreis Würzburg",
+                                 NAME_LATN ==  "Schweinfurt, Landkreis" ~ "Landkreis Schweinfurt",
+                                 NAME_LATN ==  "Passau, Landkreis" ~ "Landkreis Passau",
+                                 NAME_LATN ==  "Hof, Landkreis" ~ "Landkreis Hof",
+                                 NAME_LATN ==  "Heilbronn, Landkreis" ~ "Landkreis Heilbronn",
+                                 NAME_LATN ==  "Fürth, Landkreis" ~ "Landkreis Fürth",
+                                 NAME_LATN ==  "Coburg, Landkreis" ~ "Landkreis Coburg",
+                                 NAME_LATN ==  "Bayreuth, Landkreis" ~ "Landkreis Bayreuth",
+                                 NAME_LATN ==  "Bamberg, Landkreis" ~ "Landkreis Bamberg",
+                                 NAME_LATN ==  "Ansbach, Landkreis" ~ "Landkreis Ansbach",
+                                 NAME_LATN ==  "Region Hannover" ~ "Hannover",
+                                 NAME_LATN == "Dillingen a.d. Donau" ~ "Dillingen an der Donau",
+                                 NAME_LATN ==  "Aschaffenburg, Landkreis" ~ "Landkreis Aschaffenburg",
+                                 NAME_LATN == "Wunsiedel i. Fichtelgebirge" ~ "Wunsiedel im Fichtelgebirge",
+                                 NAME_LATN == "Neustadt a. d. Waldnaab" ~ "Neustadt an der Waldnaab",
+                                 NAME_LATN == "Mühldorf a. Inn" ~ "Mühldorf am Inn",
+                                 NAME_LATN == "Weiden i. d. Opf, Kreisfreie Stadt" ~ "Weiden in der Oberpfalz",
+                                 NAME_LATN == "Neumarkt i. d. OPf." ~ "Neumarkt in der Oberpfalz",
+                                 NAME_LATN == "Neustadt a. d. Aisch-Bad Windsheim" ~ "Neustadt an der Aisch-Bad Windsheim",
+                                 NAME_LATN == "Altenkirchen (Westerwald)" ~ "Altenkirchen",
+                                 NAME_LATN == "Nienburg (Weser)" ~ "Nienburg/Weser",
+                                 NAME_LATN == "Rhein-Kreis Neuss" ~ "Rhein-Neuss",
+                                 NAME_LATN == "Cottbus, Kreisfreie Stadt" ~ "Cottbus - Chóśebuz",
+                                 NAME_LATN == "Pfaffenhofen a. d. Ilm" ~ "Pfaffenhofen an der Ilm",
+                                 NAME_LATN == "Lindau (Bodensee)" ~ "Lindau",
+                                 NAME_LATN == "Friesland (DE)" ~ "Friesland",
+                                 NAME_LATN == "Eisenach, Kreisfreie Stadt" ~ "Wartburgkreis",
+                                 .default = NAME_LATN)) %>%
+    #janitor::clean_names() %>%
+    dplyr::rowwise() %>%
+    mutate(NAME_LATN = str_split(NAME_LATN, ",")[[1]][1]) %>%
+    left_join(disFac_post, by = join_by(NAME_LATN == LK_Name))
+}
+
+
+title <- "Reaction Strength"
+
+germany_districts <- germany_districts %>% mutate(isna = case_when(is.na(value) ~ "NA", .default = "no"))
+
+plot <- germany_districts %>% 
+  ggplot(aes(geometry = geometry)) +
+  geom_sf(aes(fill=value))+
+  #ggpattern::geom_sf_pattern(aes(fill = value, pattern = isna, alpha = is.na(value)),
+  #                 pattern_angle = 45,
+  #                 pattern_density = 0.1,
+  #                 pattern_spacing = 0.01,
+  #                 pattern_key_scale_factor = 0.4, pattern_colour = "808080") +
+  scico::scale_fill_scico(palette = "acton") +
+  #scale_alpha_manual(values = c("TRUE" = 0, "FALSE" = 1), guide = NULL) +
+  #geom_sf(fill = "white") +
+  theme_minimal() +
+  xlab("") +
+  ylab("") +
+  ggpattern::scale_pattern_manual(
+    values = c(
+      "NA" = 'stripe',
+      "no" = 'none'
+    )
+  ) +
+  geom_sf_interactive(
+    fill = NA,
+    aes(
+      data_id = NUTS_ID,
+      tooltip = glue::glue('{NUTS_NAME}')
+    ),
+    linewidth = 0.1
+  ) +
+  theme(text = element_text(size = 20), axis.text = element_blank(), axis.ticks = element_blank(), legend.position = "bottom") +
+  guides(fill = guide_colourbar(
+    title = title
+  )) +
+  coord_sf(expand = FALSE)
+
+sharedplot <- ggarrange(boxplot, plot, labels = c("A", "B"), nrow = 1, ncol = 2,font.label = list(size = 20), heights = c(1,1), legend="bottom")
+
+ggsave(paste0("SpatialAnalysis-", whattoplot, "-", run, ".pdf"), sharedplot, dpi = 500, h = 7, w = 18)
+ggsave(paste0("SpatialAnalysis-", whattoplot, "-", run, ".png"), sharedplot, dpi = 500, h = 7, w = 18)
+
 
 # Population density 
 

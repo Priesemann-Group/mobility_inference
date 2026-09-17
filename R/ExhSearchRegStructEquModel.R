@@ -122,18 +122,17 @@ cases_secondWave <- cases_secondWave %>% unique()
 valuetoplotRed <- left_join(cases_firstWave, cases_secondWave, by = "LK_Name")
                              
 valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitantsperkm2)) %>%
-                               mutate(voterTurnout = scale(voterTurnout)) %>%
-                               mutate(IncomePerson2022 = scale(IncomePerson2022)) %>%
+                               mutate(voterTurnout2017= scale(voterTurnout2017)) %>%
+                               mutate(voterTurnout2021= scale(voterTurnout2021)) %>%
+                               mutate(IncomePerson2020 = scale(IncomePerson2020)) %>%
                                mutate(peopleover65 = scale(peopleover65)) %>%
                                mutate(childrenbelow3inprimarycare = scale(childrenbelow3inprimarycare)) %>%
-                               mutate(`Voted for Parting Government` = scale(`Voted for Parting Government`)) %>%
-                               mutate(`Voted for Incoming Government` = scale(`Voted for Incoming Government`)) %>%
-                               mutate(CDU = scale(CDU)) %>%
-                               mutate(SPD = scale(SPD)) %>%
-                               mutate(FDP = scale(FDP)) %>%
-                               mutate(GRUENE = scale(GRUENE)) %>%
-                               mutate(AFD = scale(Afd)) %>%
-                               mutate(LINKE = scale(Linke)) %>%
+                               mutate(CDU2021 = scale(CDU2021)) %>%
+                               mutate(SPD2021 = scale(SPD2021)) %>%
+                               mutate(FDP2021 = scale(FDP2021)) %>%
+                               mutate(GRUENE2021 = scale(GRUENE2021)) %>%
+                               mutate(AFD2021 = scale(Afd2021)) %>%
+                               mutate(LINKE2021 = scale(Linke2021)) %>%
                                mutate(CDU2017 = scale(CDU2017)) %>%
                                mutate(SPD2017 = scale(SPD2017)) %>%
                                mutate(FDP2017 = scale(FDP2017)) %>%
@@ -141,7 +140,7 @@ valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitant
                                mutate(AFD2017 = scale(Afd2017)) %>%
                                mutate(LINKE2017 = scale(Linke2017)) %>%
                                mutate(`Average Age` = scale(`Average Age`)) %>%
-                               mutate(`Employment Rate` = scale(`Employment Rate`)) %>%
+                               mutate(EmploymentRate2020 = scale(EmploymentRate2020)) %>%
                                mutate(value = scale(value)) %>%
                                mutate(valueInitWave = scale(valueInitWave)) %>%
                                mutate(valueSecondWave = scale(valueSecondWave)) %>%
@@ -160,37 +159,37 @@ valuetoplotRed <- valuetoplotRed %>% mutate(Inhabitantsperkm2 = scale(Inhabitant
 
 
 models <- list(
-  modelOverall2021 = value ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
-       CDU + SPD + GRUENE + FDP + AFD + LINKE + 
-     peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+  modelOverall2021 = value ~  Inhabitantsperkm2 + voterTurnout2021 + IncomePerson2020 + childrenbelow3inprimarycare + 
+       CDU2021 + SPD2021 + GRUENE2021 + FDP2021 + AFD2021 + LINKE2021 + 
+     peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
        ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung, 
-  modelOverall2017 = value ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
+  modelOverall2017 = value ~  Inhabitantsperkm2 + voterTurnout2017 + IncomePerson2020 + childrenbelow3inprimarycare + 
     CDU2017 + SPD2017 + GRUENE2017 + FDP2017 + AFD2017 + LINKE2017 + 
-    peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+    peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
     ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung, 
-  modelFirstWave2021 = valueInitWave ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
-       CDU + SPD + GRUENE + FDP + AFD + LINKE +
-       peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+  modelFirstWave2021 = valueInitWave ~  Inhabitantsperkm2 + voterTurnout2021 + IncomePerson2020 + childrenbelow3inprimarycare + 
+       CDU2021 + SPD2021 + GRUENE2021 + FDP2021 + AFD2021 + LINKE2021 +
+       peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
        ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung,
-  modelFirstWave2017 = valueInitWave ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
+  modelFirstWave2017 = valueInitWave ~  Inhabitantsperkm2 + voterTurnout2017 + IncomePerson2020 + childrenbelow3inprimarycare + 
     CDU2017 + SPD2017 + GRUENE2017 + FDP2017 + AFD2017 + LINKE2017 +
-    peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+    peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
     ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung,
-  modelSecondWave2021 = valueSecondWave ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
-  CDU + SPD + GRUENE + FDP + AFD + LINKE + 
-    peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+  modelSecondWave2021 = valueSecondWave ~  Inhabitantsperkm2 + voterTurnout2021 + IncomePerson2020 + childrenbelow3inprimarycare + 
+  CDU2021 + SPD2021 + GRUENE2021 + FDP2021 + AFD2021 + LINKE2021 + 
+    peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
     ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung, 
-  modelSecondWave2017 = valueSecondWave ~  Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
+  modelSecondWave2017 = valueSecondWave ~  Inhabitantsperkm2 + voterTurnout2017 + IncomePerson2020 + childrenbelow3inprimarycare + 
     CDU2017 + SPD2017 + GRUENE2017 + FDP2017 + AFD2017 + LINKE2017 + 
-    peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+    peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
     ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung, 
-  model4 = Firstwave90percentile ~ valueInitWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022+ childrenbelow3inprimarycare + 
-       CDU + SPD + GRUENE + FDP + AFD + LINKE +
-     peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+  model4 = Firstwave90percentile ~ valueInitWave + Inhabitantsperkm2 + voterTurnout2021 + IncomePerson2020+ childrenbelow3inprimarycare + 
+       CDU2021 + SPD2021 + GRUENE2021 + FDP2021 + AFD2021 + LINKE2021 +
+     peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
        ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung, 
-  model5 = Secondwave90percentile ~ valueSecondWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare + 
-       CDU + SPD + GRUENE + FDP + AFD + LINKE +
-     peopleover65 + `Employment Rate` + `Average Age` + Alq2020 + 
+  model5 = Secondwave90percentile ~ valueSecondWave + Inhabitantsperkm2 + voterTurnout2021 + IncomePerson2020 + childrenbelow3inprimarycare + 
+       CDU2021 + SPD2021 + GRUENE2021 + FDP2021 + AFD2021 + LINKE2021 +
+     peopleover65 + EmploymentRate2020 + `Average Age` + Alq2020 + 
        ForstFischerei + ProduzierendesGewerbe  + Baugewerbe + Dienstleistungsgewerbe + HandelVerkehrGastgewerbe + FinanzVersicherung 
 )
 
@@ -253,9 +252,9 @@ summary(fitReacStrengthMedSecondWave, standardized = TRUE, ci = TRUE)
 #Again: Pos coefficient of voter turnout
 #FDP and peopleover65 change sign, as well as Alq2020 and FinanzVersicherung
 
-# Lavaan -> Reaction Strength FIRST WAVE -----------------------------------
+# Lavaan -> Reaction Strength FIRST WAVE 2017(!) -----------------------------------
 
-bestsubset <- results$model2
+bestsubset <- results$modelFirstWave2017
 
 subset_summary <- cbind(bestsubset$metrics[4], bestsubset$metrics[5], bestsubset$metrics[6], bestsubset$metrics[7], bestsubset$metrics[8], bestsubset$metrics[9], bestsubset$metrics[10], bestsubset$metrics[11],
                         bestsubset$metrics[12], bestsubset$metrics[13],  bestsubset$metrics[14])
@@ -314,18 +313,22 @@ left_panel <- ggplot(subset_summary %>% filter(name %in% c("R2", "Adjusted R2", 
     plot.title = element_text(size = 30),  # Plot title
     legend.position = "none"
   ) +
- ggtitle("First wave model selection")
+ ggtitle("First wave model selection (2017)")
 
 #Best statistics obsvered for the 9-variable model
 #Difference to exhaustive search for full time: Now AverageAge is included instead of peopleover65 
-#cor(valuetoplotRed$AverageAge, valuetoplotRed$peopleover65) #These are strongly(!!!) correlated, so this doesn't come as a surprise
-#A_names <- c("Inhabitantsperkm2", "voterTurnout", "IncomePerson2022", "GRUENE", "FDP", "AverageAge", "Alq2020", "ForstFischerei", "FinanzVersicherung")
+#cor(valuetoplotRed$AverageAge, valuetoplotRed$peopleover65) #These are strongly(!!!) negatively correlated, so this doesn't come as a surprise
+
+modelfirstwave <- lm(valueInitWave ~ Inhabitantsperkm2 + IncomePerson2020 + childrenbelow3inprimarycare + voterTurnout2017 + SPD2017 + GRUENE2017 + FDP2017 + AFD2017 + AverageAge + Alq2020 + ForstFischerei + ProduzierendesGewerbe, data = valuetoplotRed)
+summary(modelfirstwave)
+AIC(modelfirstwave)
+BIC(modelfirstwave)
+
+car::vif(modelfirstwave)
 
 #Lines above = irrelevant, we now use the following
-A_names <- c("Inhabitantsperkm2", "IncomePerson2022", "childrenbelow3inprimarycare", "voterTurnout", "CDU", "SPD", "GRUENE", "FDP", "AFD", "EmploymentRate", "AverageAge", "Alq2020", "ForstFischerei", "FinanzVersicherung")
+A_names <- c("Inhabitantsperkm2", "IncomePerson2020", "childrenbelow3inprimarycare", "voterTurnout2017", "SPD2017", "GRUENE2017", "FDP2017", "AFD2017", "AverageAge", "Alq2020", "ForstFischerei", "ProduzierendesGewerbe")
 
-testA <- lm(valueInitWave ~ Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + GRUENE + FDP + AverageAge + Alq2020 + ForstFischerei + FinanzVersicherung, data = valuetoplotRed)
-testB <- lm(valueInitWave ~ Inhabitantsperkm2 + IncomePerson2022 + childrenbelow3inprimarycare + voterTurnout + CDU + SPD + GRUENE + FDP + AFD + EmploymentRate + AverageAge + Alq2020 + ForstFischerei + FinanzVersicherung, data =valuetoplotRed)
 B_name <- "Firstwave90percentile"
 C_name <- "valueInitWave"
 
@@ -341,13 +344,15 @@ tot_defs <- paste(paste0("tot_", A_names, " := ", c_lab, " + ind_", A_names), co
 
 model <- paste(B_eq, C_eq, ind_defs, tot_defs, sep = "\n")
 
-fitReacStrengthSecondWave <- sem(model,
+fitReacStrengthFirstWave <- sem(model,
            data = valuetoplotRed,
            fixed.x = TRUE,        # treat A's as fixed exogenous
            se = "bootstrap",
            bootstrap = 1000)
 
-summary(fitReacStrengthFirstWave, standardized = TRUE, ci = TRUE)
+summary(fitReacStrengthFirstWave, standardized = TRUE, ci = TRUE, fit.measures=TRUE)
+
+
 #First fourteen are for Reac Strength Initial Wave
 parameterEstimates(fitReacStrengthFirstWave)[1,5] #Coefficient position
 parameterEstimates(fitReacStrengthFirstWave)[1,6] #Standard error --> lower = Coeff - 1.96 *standarderror, upper = Coeff + 1.96 *standarderror
@@ -364,10 +369,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                          parameterEstimates(fitReacStrengthFirstWave)[9+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[11+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[14+i,5]),
-                                        # parameterEstimates(fitReacStrengthFirstWave)[15+i,5]),
+                                         parameterEstimates(fitReacStrengthFirstWave)[12+i,5]),
+                                        # parameterEstimates(fitReacStrengthFirstWave)[13+i,5],
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthFirstWave)[1+i,5]),
                                           abs(parameterEstimates(fitReacStrengthFirstWave)[2+i,5]),
                                           abs(parameterEstimates(fitReacStrengthFirstWave)[3+i,5]),
@@ -379,10 +382,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           abs(parameterEstimates(fitReacStrengthFirstWave)[9+i,5]),
                                           abs(parameterEstimates(fitReacStrengthFirstWave)[10+i,5]),
                                           abs(parameterEstimates(fitReacStrengthFirstWave)[11+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthFirstWave)[12+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthFirstWave)[14+i,5])),
-                                          #abs(parameterEstimates(fitReacStrengthFirstWave)[15+i,5])),
+                                          abs(parameterEstimates(fitReacStrengthFirstWave)[12+i,5])),
+                                         # abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
                                 lower = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -394,10 +395,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[9+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6]),
-                                          #parameterEstimates(fitReacStrengthFirstWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6]),
+                                          #parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
                                 upper = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -409,25 +408,21 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[9+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6]),
-                                         # parameterEstimates(fitReacStrengthFirstWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6]),
+                                          #parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
                                 variable = c(#"Reaction strength first wave",
                                              "Population density",
                                              "Income",
                                              "Small children in childcare",
                                              "Voter turnout",
-                                             "CDU",
                                              "SPD",
                                              "Green party",
                                              "FDP",
                                              "AfD",
-                                             "Employment rate",
                                              "Average age",
                                              "Unemployment rate",
                                              "Agriculture, forestry, fisheries",
-                                             "Finance sector"))
+                                             "Manufacturiung sector"))
 
 #Determening Order
 (parameterEstimates(fitReacStrengthFirstWave)[12,5] + parameterEstimates(fitReacStrengthSecondWave)[12,5])/2 #Unemployment rate
@@ -444,15 +439,15 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
 (parameterEstimates(fitReacStrengthFirstWave)[13,5] + parameterEstimates(fitReacStrengthSecondWave)[13,5])/2 #Agriculture, forestry, fisheries
 (parameterEstimates(fitReacStrengthFirstWave)[8,5] + parameterEstimates(fitReacStrengthSecondWave)[8,5])/2 #FDP
 (parameterEstimates(fitReacStrengthFirstWave)[9,5] + parameterEstimates(fitReacStrengthSecondWave)[9,5])/2 #AfD
-
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength first wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+#"Reaction strength first wave",
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 panel_A <- ggplot(forestplotData, aes(y=fct_rev(variable))) + 
   geom_vline(xintercept = 0, linetype="dashed") +
   geom_linerange(aes(xmin=lower, xmax=upper), color = "darkblue", size = 2)+
   geom_point(aes(x=mean), color = "royalblue", size = 4) +
-  scale_x_continuous(limits = c(-0.8,0.6), breaks = c(-0.8,-0.4,0,0.4,0.8)) +
+  scale_x_continuous(limits = c(-0.8,0.7), breaks = c(-0.8,-0.4,0,0.4,0.8)) +
   theme_minimal() +
   theme(
     # Remove grid lines
@@ -480,8 +475,7 @@ panel_A <- ggplot(forestplotData, aes(y=fct_rev(variable))) +
   xlab("") +
   ggtitle("... reaction strength")
 
-
-i <- 166 #left panel total effect size
+i <- 131 #left panel total effect size
 forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[2+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[3+i,5],
@@ -493,10 +487,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                          parameterEstimates(fitReacStrengthFirstWave)[9+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[11+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[14+i,5]),
-                                # parameterEstimates(fitReacStrengthFirstWave)[15+i,5]),
+                                         parameterEstimates(fitReacStrengthFirstWave)[12+i,5]),
+                                # parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthFirstWave)[1+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[2+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[3+i,5]),
@@ -508,10 +500,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[9+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[10+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[11+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[12+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[14+i,5])),
-                                #abs(parameterEstimates(fitReacStrengthFirstWave)[15+i,5])),
+                                             abs(parameterEstimates(fitReacStrengthFirstWave)[12+i,5])),
+                                #abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5])),
                                 lower = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -523,10 +513,8 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[9+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6]),
-                                #parameterEstimates(fitReacStrengthFirstWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6]),
+                                #parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6]),
                                 upper = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -538,27 +526,23 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[9+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6]),
-                                # parameterEstimates(fitReacStrengthFirstWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6]),
+                                # parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6]),
                                 variable = c(#"Reaction strength first wave",
                                   "Population density",
                                   "Income",
                                   "Small children in childcare",
                                   "Voter turnout",
-                                  "CDU",
                                   "SPD",
                                   "Green party",
                                   "FDP",
                                   "AfD",
-                                  "Employment rate",
                                   "Average age",
                                   "Unemployment rate",
                                   "Agriculture, forestry, fisheries",
-                                  "Finance sector"))
+                                  "Manufacturiung sector"))
 
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength first wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 totEffectSize_leftpanel <- ggplot(forestplotData, aes(y=fct_rev(variable))) + 
@@ -594,7 +578,7 @@ totEffectSize_leftpanel <- ggplot(forestplotData, aes(y=fct_rev(variable))) +
   ggtitle("Peak incidence first wave")
 
 
-i <-15
+i <-13
 forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[2+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[3+i,5],
@@ -607,9 +591,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                          parameterEstimates(fitReacStrengthFirstWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[11+i,5],
                                          parameterEstimates(fitReacStrengthFirstWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[14+i,5],
-                                         parameterEstimates(fitReacStrengthFirstWave)[15+i,5]),
+                                         parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthFirstWave)[1+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[2+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[3+i,5]),
@@ -622,9 +604,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[10+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[11+i,5]),
                                              abs(parameterEstimates(fitReacStrengthFirstWave)[12+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[14+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthFirstWave)[15+i,5])),
+                                             abs(parameterEstimates(fitReacStrengthFirstWave)[13+i,5])),
                                 lower = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -637,9 +617,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6]),
                                 upper = c(parameterEstimates(fitReacStrengthFirstWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[3+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[3+i,6],
@@ -652,34 +630,29 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthFirst
                                           parameterEstimates(fitReacStrengthFirstWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[11+i,6],
                                           parameterEstimates(fitReacStrengthFirstWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[14+i,6],
-                                          parameterEstimates(fitReacStrengthFirstWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthFirstWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthFirstWave)[13+i,6]),
                                 variable = c("Reaction strength first wave",
-                                             "Population density",
-                                             "Income",
-                                             "Small children in childcare",
-                                             "Voter turnout",
-                                             "CDU",
-                                             "SPD",
-                                             "Green party",
-                                             "FDP",
-                                             "AfD",
-                                             "Employment rate",
-                                             "Average age",
-                                             "Unemployment rate",
-                                             "Agriculture, forestry, fisheries",
-                                             "Finance sector"))
+                                  "Population density",
+                                  "Income",
+                                  "Small children in childcare",
+                                  "Voter turnout",
+                                  "SPD",
+                                  "Green party",
+                                  "FDP",
+                                  "AfD",
+                                  "Average age",
+                                  "Unemployment rate",
+                                  "Agriculture, forestry, fisheries",
+                                  "Manufacturiung sector"))
 
-
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength first wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength first wave", "Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 panel_B <- ggplot(forestplotData, aes(y=fct_rev(variable))) + 
   geom_vline(xintercept = 0, linetype="dashed") +
   geom_linerange(aes(xmin=lower, xmax=upper), color = "darkblue", size = 2)+
   geom_point(aes(x=mean), color = "royalblue", size = 4) +
-  scale_x_reverse(limits = c(1.6,-0.8), breaks = c(1.6,1.2,0.8,0.4,0,-0.4,-0.8)) +
+  scale_x_reverse(limits = c(1,-0.8), breaks = c(1.6,1.2,0.8,0.4,0,-0.4,-0.8)) +
   theme_minimal() +
   theme(
     # Remove grid lines
@@ -710,16 +683,17 @@ panel_B <- ggplot(forestplotData, aes(y=fct_rev(variable))) +
 #Comparable results as for whole time
 
 #Correlation matrix
-corrMatFirstWave <- valuetoplotRed %>% ungroup() %>% dplyr::select(c(valueInitWave, Inhabitantsperkm2, IncomePerson2022, 
+colnames(valuetoplotRed)[36] <- "AverageAge"
+corrMatFirstWave <- valuetoplotRed %>% ungroup() %>% dplyr::select(c(valueInitWave, Inhabitantsperkm2, IncomePerson2020, 
                                                                      AverageAge,  peopleover65, childrenbelow3inprimarycare, 
-                                                                     voterTurnout, CDU, SPD, GRUENE, FDP, AFD,
-                                                                     EmploymentRate,  Alq2020, 
-                                                                     ForstFischerei, ProduzierendesGewerbe,  Baugewerbe, Dienstleistungsgewerbe, HandelVerkehrGastgewerbe, FinanzVersicherung))
+                                                                     Alq2020, EmploymentRate2020,
+                                                                     Dienstleistungsgewerbe, ProduzierendesGewerbe, HandelVerkehrGastgewerbe, FinanzVersicherung,  Baugewerbe, ForstFischerei,
+                                                                     voterTurnout2017, CDU2017, SPD2017, Afd2017, FDP2017, Linke2017, GRUENE2017))
 colnames(corrMatFirstWave) <- c("Reaction strength first wave", "Population density", "Income",
                                 "Average age", "65+ year olds", "Small children in childcare",
-                                "Voter turnout", "CDU", "SPD", "Green party", "FDP", "AfD",
-                                "Employment rate", "Unemployment rate",
-                                "Agriculture, forestry, fisheries", "Manufacturing sector", "Construction", "Service sectors", "TTHIC sectors", "Finance sectors")
+                                "Unemployment rate", "Employment rate", 
+                                "Service sectors", "Manufacturing sector", "TTHIC sectors", "Finance sectors", "Construction", "Agriculture, forestry, fisheries",
+                                "Voter turnout", "CDU", "SPD", "AfD", "FDP", "Left party", "Green party")
 
 corrmat <- cor(corrMatFirstWave)
 pdf(height = 10, width = 13, "CorrelationPlotFirstWave.pdf") 
@@ -727,9 +701,10 @@ corrplot(corrmat, method = "color", tl.col="black", type = "upper", tl.srt = 90,
 dev.off()
 
 
+
 # Lavaan -> Reaction Strength SECOND WAVE ----------------------------------
 
-bestsubset <- results$model3
+bestsubset <- results$modelSecondWave2017
 
 subset_summary <- cbind(bestsubset$metrics[4], bestsubset$metrics[5], bestsubset$metrics[6], bestsubset$metrics[7], bestsubset$metrics[8], bestsubset$metrics[9], bestsubset$metrics[10], bestsubset$metrics[11],
                         bestsubset$metrics[12], bestsubset$metrics[13],  bestsubset$metrics[14])
@@ -788,27 +763,22 @@ right_panel <- ggplot(subset_summary %>% filter(name %in% c("R2", "Adjusted R2",
     plot.title = element_text(size = 30),  # Plot title
     legend.position = "none"
   ) +
-  ggtitle("Second wave model selection")
+  ggtitle("Second wave model selection (2017)")
 
 ggarrange(left_panel, right_panel, labels = c("A", "B"), align="v", nrow = 1, ncol = 2, font.label = list(size = 37), legend = "none", heights = c(1,0.08,1))
 
 ggsave("ModelSelectionBothWaves.pdf", dpi = 500, h = 6, w = 24)
 ggsave("ModelSelectionBothWaves.png", dpi = 500, h = 6, w = 24)
 
-#Best statistics != as clear as for whole time and first wave
-#Adj r^2, pred r^2 -> 12 variable model
-#Mallow's C_p -> 11 variable model
-#AIC, BIC --> 11 variable model
+modelsecondwave <- lm(valueSecondWave ~ Inhabitantsperkm2 + IncomePerson2020 + childrenbelow3inprimarycare + voterTurnout2017 + SPD2017 + GRUENE2017 + FDP2017 + AFD2017 + AverageAge + Alq2020 + ForstFischerei + ProduzierendesGewerbe, data = valuetoplotRed)
+summary(modelsecondwave)
+AIC(modelsecondwave)
+BIC(modelsecondwave)
 
-#Considerin 11 variable model -> Interestingly population density disappears
-#A_names <- c("IncomePerson2022", "childrenbelow3inprimarycare", "CDU", "SPD", "FDP", "AFD", "peopleover65", "EmploymentRate", "AverageAge", "Alq2020", "ForstFischerei")
+car::vif(modelsecondwave)
 
-#A_names <- c("Inhabitantsperkm2", "voterTurnout", "IncomePerson2022", "GRUENE", "FDP", "AverageAge", "Alq2020", "ForstFischerei", "FinanzVersicherung")
-#A_names <- c("Inhabitantsperkm2", "IncomePerson2022", "childrenbelow3inprimarycare", "voterTurnout", "CDU", "SPD", "FDP", "AFD", "EmploymentRate", "AverageAge", "Alq2020", "ForstFischerei", "FinanzVersicherung")
-A_names <- c("Inhabitantsperkm2", "IncomePerson2022", "childrenbelow3inprimarycare", "voterTurnout", "CDU", "SPD", "GRUENE", "FDP", "AFD", "EmploymentRate", "AverageAge", "Alq2020", "ForstFischerei", "FinanzVersicherung")
-
-#testa <- lm(valueSecondWave ~ Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + GRUENE + FDP + AverageAge + Alq2020 + ForstFischerei + FinanzVersicherung, data = valuetoplotRed)
-testb <- lm(valueSecondWave ~ Inhabitantsperkm2 + IncomePerson2022 + childrenbelow3inprimarycare + voterTurnout + CDU + SPD + GRUENE + FDP + AFD + EmploymentRate + AverageAge + Alq2020 + ForstFischerei + FinanzVersicherung, data = valuetoplotRed)
+#Lines above = irrelevant, we now use the following
+A_names <- c("Inhabitantsperkm2", "IncomePerson2020", "childrenbelow3inprimarycare", "voterTurnout2017", "SPD2017", "GRUENE2017", "FDP2017", "AFD2017", "AverageAge", "Alq2020", "ForstFischerei", "ProduzierendesGewerbe")
 
 B_name <- "Secondwave90percentile"
 C_name <- "valueSecondWave"
@@ -844,10 +814,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                          parameterEstimates(fitReacStrengthSecondWave)[9+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[11+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[14+i,5]),
-                                        # parameterEstimates(fitReacStrengthSecondWave)[15+i,5]),
+                                         parameterEstimates(fitReacStrengthSecondWave)[12+i,5]),
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthSecondWave)[1+i,5]),
                                           abs(parameterEstimates(fitReacStrengthSecondWave)[2+i,5]),
                                           abs(parameterEstimates(fitReacStrengthSecondWave)[3+i,5]),
@@ -859,10 +826,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           abs(parameterEstimates(fitReacStrengthSecondWave)[9+i,5]),
                                           abs(parameterEstimates(fitReacStrengthSecondWave)[10+i,5]),
                                           abs(parameterEstimates(fitReacStrengthSecondWave)[11+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthSecondWave)[12+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthSecondWave)[13+i,5]),
-                                          abs(parameterEstimates(fitReacStrengthSecondWave)[14+i,5])),
-                                          #abs(parameterEstimates(fitReacStrengthSecondWave)[15+i,5])),
+                                          abs(parameterEstimates(fitReacStrengthSecondWave)[12+i,5])),
                                 lower = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[3+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[3+i,6],
@@ -874,10 +838,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[9+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6]),
-                                          #parameterEstimates(fitReacStrengthSecondWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6]),
                                 upper = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[3+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[3+i,6],
@@ -889,34 +850,29 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[9+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6]),
-                                         # parameterEstimates(fitReacStrengthSecondWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
-                                variable = c(#"Reaction strength first wave",
-                                             "Population density",
-                                             "Income",
-                                             "Small children in childcare",
-                                             "Voter turnout",
-                                             "CDU",
-                                             "SPD",
-                                             "Green party",
-                                             "FDP",
-                                             "AfD",
-                                             "Employment rate",
-                                             "Average age",
-                                             "Unemployment rate",
-                                             "Agriculture, forestry, fisheries",
-                                             "Finance sector"))
+                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6]),
+                                variable = c(#"Reaction strength second wave",
+                                  "Population density",
+                                  "Income",
+                                  "Small children in childcare",
+                                  "Voter turnout",
+                                  "SPD",
+                                  "Green party",
+                                  "FDP",
+                                  "AfD",
+                                  "Average age",
+                                  "Unemployment rate",
+                                  "Agriculture, forestry, fisheries",
+                                  "Manufacturiung sector"))
 
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength second wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 panel_C <- ggplot(forestplotData, aes(y=fct_rev(variable))) + 
   geom_vline(xintercept = 0, linetype="dashed") +
   geom_linerange(aes(xmin=lower, xmax=upper), color = "darkblue", size = 2)+
   geom_point(aes(x=mean), color = "royalblue", size = 4) +
-  scale_x_continuous(limits = c(-1,0.6), breaks = c(-0.8,-0.4,0,0.4,0.8)) +
+  scale_x_continuous(limits = c(-1,0.7), breaks = c(-0.8,-0.4,0,0.4,0.8)) +
   theme_minimal() +
   theme(
     # Remove grid lines
@@ -946,7 +902,7 @@ panel_C <- ggplot(forestplotData, aes(y=fct_rev(variable))) +
 
 #forestplotData <- add_row(forestplotData, .before = 1)
 
-i <- 166 #left panel
+i <- 131 #left panel
 forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[2+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[3+i,5],
@@ -958,9 +914,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                          parameterEstimates(fitReacStrengthSecondWave)[9+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[11+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[14+i,5]),
+                                         parameterEstimates(fitReacStrengthSecondWave)[12+i,5]),
                                 # parameterEstimates(fitReacStrengthSecondWave)[15+i,5]),
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthSecondWave)[1+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[2+i,5]),
@@ -973,9 +927,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[9+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[10+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[11+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[12+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[13+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[14+i,5])),
+                                             abs(parameterEstimates(fitReacStrengthSecondWave)[12+i,5])),
                                 #abs(parameterEstimates(fitReacStrengthSecondWave)[15+i,5])),
                                 lower = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
@@ -988,9 +940,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[9+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6]),
+                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6]),
                                 #parameterEstimates(fitReacStrengthSecondWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
                                 upper = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
@@ -1003,27 +953,23 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[9+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[9+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6]),
+                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6]),
                                 # parameterEstimates(fitReacStrengthSecondWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
                                 variable = c(#"Reaction strength first wave",
                                   "Population density",
                                   "Income",
                                   "Small children in childcare",
                                   "Voter turnout",
-                                  "CDU",
                                   "SPD",
                                   "Green party",
                                   "FDP",
                                   "AfD",
-                                  "Employment rate",
                                   "Average age",
                                   "Unemployment rate",
                                   "Agriculture, forestry, fisheries",
-                                  "Finance sector"))
+                                  "Manufacturiung sector"))
 
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength second wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 
@@ -1059,7 +1005,7 @@ totEffectSize_rightpanel <- ggplot(forestplotData, aes(y=fct_rev(variable))) +
   xlab("") +
   ggtitle("Peak incidence second wave")
 
-i <-15
+i <-13
 forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[2+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[3+i,5],
@@ -1072,9 +1018,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                          parameterEstimates(fitReacStrengthSecondWave)[10+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[11+i,5],
                                          parameterEstimates(fitReacStrengthSecondWave)[12+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[13+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[14+i,5],
-                                         parameterEstimates(fitReacStrengthSecondWave)[15+i,5]),
+                                         parameterEstimates(fitReacStrengthSecondWave)[13+i,5]),
                                 abscoeff = c(abs(parameterEstimates(fitReacStrengthSecondWave)[1+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[2+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[3+i,5]),
@@ -1087,9 +1031,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[10+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[11+i,5]),
                                              abs(parameterEstimates(fitReacStrengthSecondWave)[12+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[13+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[14+i,5]),
-                                             abs(parameterEstimates(fitReacStrengthSecondWave)[15+i,5])),
+                                             abs(parameterEstimates(fitReacStrengthSecondWave)[13+i,5])),
                                 lower = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[3+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[3+i,6],
@@ -1102,9 +1044,7 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[12+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[15+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] - 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6]),
                                 upper = c(parameterEstimates(fitReacStrengthSecondWave)[1+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[1+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[2+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[2+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[3+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[3+i,6],
@@ -1117,34 +1057,29 @@ forestplotData <-tibble::tibble(mean = c(parameterEstimates(fitReacStrengthSecon
                                           parameterEstimates(fitReacStrengthSecondWave)[10+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[10+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[11+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[11+i,6],
                                           parameterEstimates(fitReacStrengthSecondWave)[12+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[12+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[14+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[14+i,6],
-                                          parameterEstimates(fitReacStrengthSecondWave)[15+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[15+i,6]),
+                                          parameterEstimates(fitReacStrengthSecondWave)[13+i,5] + 1.96*parameterEstimates(fitReacStrengthSecondWave)[13+i,6]),
                                 variable = c("Reaction strength second wave",
-                                             "Population density",
-                                             "Income",
-                                             "Small children in childcare",
-                                             "Voter turnout",
-                                             "CDU",
-                                             "SPD",
-                                             "Green party",
-                                             "FDP",
-                                             "AfD",
-                                             "Employment rate",
-                                             "Average age",
-                                             "Unemployment rate",
-                                             "Agriculture, forestry, fisheries",
-                                             "Finance sector"))
+                                  "Population density",
+                                  "Income",
+                                  "Small children in childcare",
+                                  "Voter turnout",
+                                  "SPD",
+                                  "Green party",
+                                  "FDP",
+                                  "AfD",
+                                  "Average age",
+                                  "Unemployment rate",
+                                  "Agriculture, forestry, fisheries",
+                                  "Manufacturiung sector"))
 
-
-forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength second wave", "Unemployment rate", "Population density", "Income", "Green party", "Finance sector", "Average age", "Voter turnout", "Small children in childcare", "Employment rate", "SPD", "CDU", "Agriculture, forestry, fisheries", "FDP", "AfD"))
+forestplotData$variable <- ordered(forestplotData$variable, levels = c("Reaction strength second wave","Population density", "Income", "Unemployment rate", "Voter turnout", "Small children in childcare", "Average age", "SPD",  "FDP", "Green party","Manufacturiung sector", "AfD", "Agriculture, forestry, fisheries"))
 forestplotData <- forestplotData %>% arrange(variable)
 
 panel_D <- ggplot(forestplotData, aes(y=fct_rev(variable))) + 
   geom_vline(xintercept = 0, linetype="dashed") +
   geom_linerange(aes(xmin=lower, xmax=upper), color = "darkblue", size = 2)+
   geom_point(aes(x=mean), color = "royalblue", size = 4) +
-  scale_x_reverse(limits = c(1.6,-0.8), breaks = c(1.6,1.2,0.8,0.4,0,-0.4,-0.8)) +
+  scale_x_reverse(limits = c(1,-0.8), breaks = c(1.6,1.2,0.8,0.4,0,-0.4,-0.8)) +
   theme_minimal() +
   theme(
     # Remove grid lines
@@ -1182,17 +1117,16 @@ ggarrange(NULL, NULL, totEffectSize_leftpanel, totEffectSize_rightpanel, heights
 ggsave("ForestplotFigure18.pdf", w=18, h = 6.5)
 
 #Correlation matrix
-corrMatSecondWave <- valuetoplotRed %>% ungroup() %>% dplyr::select(c(valueSecondWave, Inhabitantsperkm2, IncomePerson2022, 
+corrMatSecondWave <- valuetoplotRed %>% ungroup() %>% dplyr::select(c(valueSecondWave, Inhabitantsperkm2, IncomePerson2020, 
                                                                      AverageAge,  peopleover65, childrenbelow3inprimarycare, 
-                                                                     voterTurnout, CDU, SPD, GRUENE, FDP, AFD,
-                                                                     EmploymentRate,  Alq2020, 
-                                                                     ForstFischerei, ProduzierendesGewerbe,  Baugewerbe, Dienstleistungsgewerbe, HandelVerkehrGastgewerbe, FinanzVersicherung))
+                                                                     Alq2020, EmploymentRate2020,
+                                                                     Dienstleistungsgewerbe, ProduzierendesGewerbe, HandelVerkehrGastgewerbe, FinanzVersicherung,  Baugewerbe, ForstFischerei,
+                                                                     voterTurnout2017, CDU2017, SPD2017, Afd2017, FDP2017, Linke2017, GRUENE2017))
 colnames(corrMatSecondWave) <- c("Reaction strength second wave", "Population density", "Income",
                                 "Average age", "65+ year olds", "Small children in childcare",
-                                "Voter turnout", "CDU", "SPD", "Green party", "FDP", "AfD",
-                                "Employment rate", "Unemployment rate",
-                                "Agriculture, forestry, fisheries", "Manufacturing sector", "Construction", "Service sectors", "TTHIC sectors", "Finance sectors")
-
+                                "Unemployment rate", "Employment rate", 
+                                "Service sectors", "Manufacturing sector", "TTHIC sectors", "Finance sectors", "Construction", "Agriculture, forestry, fisheries",
+                                "Voter turnout", "CDU", "SPD", "AfD", "FDP", "Left party", "Green party")
 corrmat <- cor(corrMatSecondWave)
 pdf(height = 10, width = 13, "CorrelationPlotSecondWave.pdf") 
 corrplot(corrmat, method = "color", tl.col="black", type = "upper", tl.srt = 90, tl.cex = 1.5, cl.pos = "b", diag = FALSE, cl.ratio = 0.25, cl.cex=1.25, mar = c(0,0,1.5,1))
@@ -1204,8 +1138,8 @@ dev.off()
 results$model4
 
 #Statistics favor 12 variable model
-TwelveVariableModelIncidenceFirstWave <- lm(Firstwave90percentile ~  valueInitWave + Inhabitantsperkm2 + voterTurnout + IncomePerson2022 + childrenbelow3inprimarycare +
-                                              SPD + GRUENE + FDP + AFD +
+TwelveVariableModelIncidenceFirstWave <- lm(Firstwave90percentile ~  valueInitWave + Inhabitantsperkm2 + voterTurnout2017 + IncomePerson2020 + childrenbelow3inprimarycare +
+                                              SPD2017 + GRUENE2017 + FDP2017 + AFD2017 +
                                               ForstFischerei + Baugewerbe + FinanzVersicherung, data = valuetoplotRed)
 summary(TwelveVariableModelIncidenceFirstWave)
 #Removing FinanzVersicherung as != significant

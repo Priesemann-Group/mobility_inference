@@ -73,8 +73,8 @@ RegVariables <- popDensity
 #https://www.statistikportal.de/de/vgrdl/ergebnisse-kreisebene/einkommen-kreise
 
 incomeDf <- read_xlsx("/Users/sydney/Downloads/vgrdl_r2b3_bs2023.xlsx", sheet=13, skip = 4)
-incomeDf <- incomeDf %>% dplyr::select(Land, Gebietseinheit, `2022`)
-colnames(incomeDf) <- c("fedStateshort", "LK_Name", "IncomePerson2022")
+incomeDf <- incomeDf %>% dplyr::select(Land, Gebietseinheit, `2020`)
+colnames(incomeDf) <- c("fedStateshort", "LK_Name", "IncomePerson2020")
 incomeDf <- incomeDf %>% filter(LK_Name != "Bremen")
 incomeDf <- incomeDf %>% mutate(LK_Name = case_when(
   LK_Name == "München, Landkreis" ~ "Landkreis München",
@@ -136,25 +136,29 @@ incomeDf$LK_Name <- str_replace(incomeDf$LK_Name, ", Hansestadt$", "")
 
 RegVariables <- left_join(RegVariables, incomeDf, by = c("LK_Name"))
 
-# Voter turnout, unemployment, elderly ------------------------------------
+# Elderly, children in childcare ------------------------------------
 
-# Data from https://www.deutschlandatlas.bund.de/DE/Service/Downloads/downloads_node.html
-voterturnout <- read_xlsx("/Users/sydney/Downloads/Deutschlandatlas-Daten.xlsx", sheet = 4)
-voterturnout <- voterturnout %>% mutate(Kreisname = case_when(
-  KRS1221 == "9671000" ~ "Landkreis Aschaffenburg",
-  KRS1221 == "9472000" ~ "Landkreis Bayreuth",
-  KRS1221 == "9679000" ~ "Landkreis Würzburg",
-  KRS1221 == "9571000" ~ "Landkreis Ansbach",
-  KRS1221 == "9471000" ~ "Landkreis Bamberg",
-  KRS1221 == "9473000" ~ "Landkreis Coburg",
-  KRS1221 == "9573000" ~ "Landkreis Fürth",
-  KRS1221 == "9475000" ~ "Landkreis Hof",
-  KRS1221 == "9274000" ~ "Landkreis Landshut",
-  KRS1221 == "9275000" ~ "Landkreis Passau",
-  KRS1221 == "9375000" ~ "Landkreis Regensburg",
-  KRS1221 == "9772000" ~ "Landkreis Augsburg",
-  KRS1221 == "9678000" ~ "Landkreis Schweinfurt",
-  KRS1221 == "9187000" ~ "Landkreis Rosenheim",
+#Used Deutschlandatlas from 2020
+# https://www.deutschlandatlas.bund.de/SharedDocs/Downloads/DE/HA20/Deutschlandatlas_KRS1218_HA20.html
+
+elderlySmallChildren <- read_csv2("/Users/sydney/Downloads/Deutschlandatlas2020.csv")
+elderlySmallChildren <- elderlySmallChildren %>% mutate(Kreisname = case_when(
+  KRS1218 == "9671000" ~ "Landkreis Aschaffenburg",
+  KRS1218 == "9472000" ~ "Landkreis Bayreuth",
+  KRS1218 == "9679000" ~ "Landkreis Würzburg",
+  KRS1218 == "9571000" ~ "Landkreis Ansbach",
+  KRS1218 == "9471000" ~ "Landkreis Bamberg",
+  KRS1218 == "9473000" ~ "Landkreis Coburg",
+  KRS1218 == "9573000" ~ "Landkreis Fürth",
+  KRS1218 == "9475000" ~ "Landkreis Hof",
+  KRS1218 == "9274000" ~ "Landkreis Landshut",
+  KRS1218 == "9275000" ~ "Landkreis Passau",
+  KRS1218 == "9375000" ~ "Landkreis Regensburg",
+  KRS1218 == "9772000" ~ "Landkreis Augsburg",
+  KRS1218 == "9678000" ~ "Landkreis Schweinfurt",
+  KRS1218 == "9187000" ~ "Landkreis Rosenheim",
+  KRS1218 == "8125000" ~ "Landkreis Heilbronn",
+  KRS1218 == "8215000" ~ "Landkreis Karlsruhe",
   Kreisname == "Region Hannover" ~ "Hannover",
   Kreisname == "Mühldorf a.Inn" ~ "Mühldorf am Inn",
   Kreisname == "Kassel" ~ "Landkreis Kassel",
@@ -170,88 +174,198 @@ voterturnout <- voterturnout %>% mutate(Kreisname = case_when(
   Kreisname == "Leipzig" ~ "Landkreis Leipzig",
   Kreisname == "Oldenburg" ~ "Landkreis Oldenburg",
   Kreisname == "Oldenburg (Oldenburg), Stadt" ~ "Oldenburg",
-  Kreisname == "Osnabrück" ~ "Landkreis Osnabrück",
+  Kreisname == "Osnabr\xfcck" ~ "Landkreis Osnabrück",
   Kreisname == "Nienburg (Weser)" ~ "Nienburg/Weser",
   Kreisname == "Rhein-Kreis Neuss" ~ "Rhein-Neuss",
   Kreisname == "Altenkirchen (Westerwald)" ~ "Altenkirchen",
-  Kreisname == "Heilbronn" ~ "Landkreis Heilbronn",
-  Kreisname == "Karlsruhe" ~ "Landkreis Karlsruhe",
   Kreisname == "Cottbus, Stadt" ~ "Cottbus - Chóśebuz",
   Kreisname == "Darmstadt, Wissenschaftsstadt" ~ "Darmstadt",
   Kreisname == "Hagen, Stadt der FernUniversität" ~ "Hagen",
   Kreisname == "Lindau (Bodensee)" ~ "Lindau",
   Kreisname == 	"Pfaffenhofen a.d.Ilm" ~ "Pfaffenhofen an der Ilm",
   Kreisname == "Solingen, Klingenstadt" ~ "Solingen",
+  Kreisname == "L\xfcbeck, Stadt" ~ "Lübeck",
+  Kreisname == "Neum\xfcnster, Stadt" ~ "Neumünster",
+  Kreisname == "Pl\xf6n" ~ "Plön",
+  Kreisname == "Wolfenb\xfcttel" ~ "Wolfenbüttel",
+  Kreisname == "G\xf6ttingen" ~ "Göttingen",
+  Kreisname == "L\xfcchow-Dannenberg" ~ "Lüchow-Dannenberg",
+  Kreisname == "L\xfcneburg" ~ "Lüneburg",
+  Kreisname == "Rotenburg (W\xfcmme)" ~ "Rotenburg (Wümme)",
+  Kreisname == "Osnabr\xfcck, Stadt" ~ "Osnabrück",
+  Kreisname == "D\xfcsseldorf, Stadt" ~ "Düsseldorf",
+  Kreisname == "M\xf6nchengladbach, Stadt" ~ "Mönchengladbach",
+  Kreisname == "M\xfclheim an der Ruhr, Stadt" ~ "Mülheim an der Ruhr",
+  Kreisname == "K\xf6ln, Stadt" ~ "Köln",
+  Kreisname == "St\xe4dteregion Aachen" ~ "Städteregion Aachen",
+  Kreisname == "D\xfcren" ~ "Düren",
+  Kreisname == "M\xfcnster, Stadt" ~ "Münster",
+  Kreisname == "G\xfctersloh" ~ "Gütersloh",
+  Kreisname == "H\xf6xter" ~ "Höxter",
+  Kreisname == "Minden-L\xfcbbecke" ~ "Minden-Lübbecke",
+  Kreisname == "M\xe4rkischer Kreis" ~ "Märkischer Kreis",
+  Kreisname ==  "Bergstra\xdfe" ~  "Bergstraße",
+  Kreisname == "Gro\xdf-Gerau" ~ "Groß-Gerau",
+  Kreisname == "Gie\xdfen" ~ "Gießen",
+  Kreisname == "Werra-Mei\xdfner-Kreis" ~ "Werra-Meißner-Kreis",
+  Kreisname == "Rhein-Hunsr\xfcck-Kreis" ~ "Rhein-Hunsrück-Kreis",
+  Kreisname == "Neustadt an der Weinstra\xdfe, Stadt"  ~ "Neustadt an der Weinstraße",
+  Kreisname == "Zweibr\xfccken, Stadt"  ~ "Zweibrücken",
+  Kreisname == "Bad D\xfcrkheim" ~ "Bad Dürkheim",
+  Kreisname ==  "S\xfcdliche Weinstra\xdfe" ~  "Südliche Weinstraße",
+  Kreisname == "S\xfcdwestpfalz"  ~ "Südwestpfalz",
+  Kreisname == "B\xf6blingen" ~ "Böblingen",
+  Kreisname == "G\xf6ppingen" ~ "Göppingen",
+  Kreisname == "Schw\xe4bisch Hall" ~ "Schwäbisch Hall",
+  Kreisname == "L\xf6rrach" ~ "Lörrach",
+  Kreisname == "T\xfcbingen" ~ "Tübingen",
+  Kreisname == "M\xfcnchen, Stadt" ~ "München",
+  Kreisname == "Weiden i.d.OPf., Stadt" ~ "Weiden in der Oberpfalz",
+  Kreisname == "Alt\xf6tting" ~ "Altötting",
+  Kreisname == "Bad T\xf6lz-Wolfratshausen" ~ "Bad Tölz-Wolfratshausen",
+  Kreisname == "Eichst\xe4tt" ~   "Eichstätt",
+  Kreisname == "F\xfcrstenfeldbruck" ~ "Fürstenfeldbruck",
+  Kreisname == "M\xfchldorf a.Inn" ~ "Mühldorf am Inn",
+  Kreisname == "M\xfcnchen" ~ "Landkreis München",
+  Kreisname == "F\xfcrth, Stadt"  ~ "Fürth",
+  Kreisname == "N\xfcrnberg, Stadt" ~ "Nürnberg",
+  Kreisname == "Erlangen-H\xf6chstadt"  ~ "Erlangen-Höchstadt",
+  Kreisname == "N\xfcrnberger Land" ~ "Nürnberger Land",
+  Kreisname == "Wei\xdfenburg-Gunzenhausen" ~ "Weißenburg-Gunzenhausen",
+  Kreisname == "W\xfcrzburg, Stadt"  ~ "Würzburg",
+  Kreisname == "Rh\xf6n-Grabfeld" ~ "Rhön-Grabfeld",
+  Kreisname == "Ha\xdfberge" ~ "Haßberge",
+  Kreisname == "W\xfcrzburg" ~ "Landkreis Würzburg",
+  Kreisname == "Kempten (Allg\xe4u), Stadt" ~ "Kempten (Allgäu)",
+  Kreisname == "G\xfcnzburg" ~ "Günzburg",
+  Kreisname ==  "Ostallg\xe4u" ~ "Ostallgäu",
+  Kreisname ==  "Unterallg\xe4u"  ~ "Unterallgäu",
+  Kreisname == "Oberallg\xe4u" ~ "Oberallgäu",
+  Kreisname ==  "Regionalverband Saarbr\xfccken" ~ "Regionalverband Saarbrücken",
+  Kreisname == "M\xe4rkisch-Oderland" ~ "Märkisch-Oderland",
+  Kreisname ==  "Spree-Nei\xdfe" ~  "Spree-Neiße",
+  Kreisname == "Teltow-Fl\xe4ming" ~ "Teltow-Fläming",
+  Kreisname == "Vorpommern-R\xfcgen"  ~ "Vorpommern-Rügen",
+  Kreisname ==  "G\xf6rlitz" ~ "Görlitz",
+  Kreisname == "Mei\xdfen" ~ "Meißen",
+  Kreisname == "S\xe4chsische Schweiz-Osterzgebirge" ~ "Sächsische Schweiz-Osterzgebirge",
+  Kreisname == "Dessau-Ro\xdflau, Stadt" ~ "Dessau-Roßlau",
+  Kreisname == "B\xf6rde" ~ "Börde",
+  Kreisname == "Mansfeld-S\xfcdharz" ~ "Mansfeld-Südharz",
+  Kreisname == "Kyffh\xe4userkreis" ~ "Kyffhäuserkreis",
+  Kreisname == "S\xf6mmerda" ~ "Sömmerda",
+  Kreisname == "Rendsburg-Eckernf\xf6rde" ~ "Rendsburg-Eckernförde",
+  Kreisname == 	"Eifelkreis Bitburg-Pr\xfcm" ~ "Eifelkreis Bitburg-Prüm",
   .default = Kreisname
 ))
-voterturnout <- voterturnout %>% dplyr::select(c(Kreisname, wahl_beteil, alq, bev_18_65, bev_ue65, kbetr_u3))
-colnames(voterturnout) <- c("LK_Name", "voterTurnout", "unemploymentQuota", "share1865", "peopleover65", "childrenbelow3inprimarycare")
-# voterturnout <- voterturnout %>% mutate(voterTurnoutDiscrete = case_when(voterTurnout < 65 ~ "[0%,65%)",
-#                                                                          voterTurnout < 70 ~ "[65%,70%)",
-#                                                                          voterTurnout < 75 ~ "[70%,75%)",
-#                                                                          voterTurnout < 80 ~ "[75%,80%)",
-#                                                                          voterTurnout < 85 ~ "[80%,85%)",
-#                                                                          .default = "[85%,100%]"))
-# voterturnout <- voterturnout %>% mutate(unemploymentQuotaDiscrete = case_when(unemploymentQuota < 3 ~ "[0%,3%)",
-#                                                                               unemploymentQuota < 6 ~ "[3%,6%)",
-#                                                                               unemploymentQuota < 9 ~ "[6%,9%)",
-#                                                                               unemploymentQuota < 100 ~ "[9%,100%)"))
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Kreis$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Stadt$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Freie und Hansestadt$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", kreisfreie Stadt$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Landeshauptstadt$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Stadtkreis$", "")
-voterturnout$LK_Name <- str_replace(voterturnout$LK_Name, ", Hansestadt$", "")
-RegVariables <- left_join(RegVariables, voterturnout)
 
-# Voted right wing, average age, employment rate
+elderlySmallChildren <- elderlySmallChildren %>% dplyr::select(c(Kreisname, bev_18_65, bev_ue65, kbetr_u3))
+colnames(elderlySmallChildren) <- c("LK_Name","share1865", "peopleover65", "childrenbelow3inprimarycare")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Kreis$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Stadt$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Freie und Hansestadt$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", kreisfreie Stadt$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Landeshauptstadt$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Stadtkreis$", "")
+elderlySmallChildren$LK_Name <- str_replace(elderlySmallChildren$LK_Name, ", Hansestadt$", "")
+RegVariables <- left_join(RegVariables, elderlySmallChildren)
+
+
+
+# Election results --------------------------------------------------------
+
+
+# Voter turnout -----------------------------------------------------------
+
+#data from https://www.german-elections.com/election-data/
+#Usage of unharmonized data
+
+voterTurnout2017 <- read_delim("/Users/sydney/Downloads/VoterTurnout.txt")
+voterTurnout2017 <- voterTurnout2017 %>% filter(year == 2017)
+colnames(voterTurnout2017)[1] <- "schluessel"
+colnames(voterTurnout2017)[10] <- "voterTurnout2017"
+voterTurnout2017 <- voterTurnout2017 %>% select(c(schluessel, voterTurnout2017))
+
+voterTurnout2021 <- read_delim("/Users/sydney/Downloads/VoterTurnout.txt")
+voterTurnout2021 <- voterTurnout2021 %>% filter(year == 2021)
+colnames(voterTurnout2021)[1] <- "schluessel"
+colnames(voterTurnout2021)[10] <- "voterTurnout2021"
+voterTurnout2021 <- voterTurnout2021 %>% select(c(schluessel, voterTurnout2021))
+
+# Party votes -------------------------------------------------------------
 
 #Data from: regionalatlas.statistikportal.de
-ZweitstimmeCdu <- read_delim("/Users/sydney/Downloads/ZweitstimmeCDU.csv", skip=2)
-colnames(ZweitstimmeCdu)[3] <- "CDU"
-ZweitstimmeSpd <- read_delim("/Users/sydney/Downloads/ZweitstimmeSPD.csv", skip=2)
-colnames(ZweitstimmeSpd)[3] <- "SPD"
-ZweitstimmeFdp <- read_delim("/Users/sydney/Downloads/ZweitstimmeFDP.csv", skip=2)
-colnames(ZweitstimmeFdp)[3] <- "FDP"
-ZweitstimmeGruen <- read_delim("/Users/sydney/Downloads/ZweitstimmeGruene.csv", skip=9)
-colnames(ZweitstimmeGruen)[3] <- "GRUENE"
-ZweitstimmeAfd <- read_delim("/Users/sydney/Downloads/ZweitstimmeAfd.csv", skip=2)
-colnames(ZweitstimmeAfd)[3] <- "Afd"
+#GENERAL ELECTION 2021
+ZweitstimmeCdu2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeCDU.csv", skip=2)
+colnames(ZweitstimmeCdu2021)[3] <- "CDU2021"
+ZweitstimmeSpd2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeSPD.csv", skip=2)
+colnames(ZweitstimmeSpd2021)[3] <- "SPD2021"
+ZweitstimmeFdp2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeFDP.csv", skip=2)
+colnames(ZweitstimmeFdp2021)[3] <- "FDP2021"
+ZweitstimmeGruen2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeGruene.csv", skip=9)
+colnames(ZweitstimmeGruen2021)[3] <- "GRUENE2021"
+ZweitstimmeAfd2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeAfd.csv", skip=2)
+colnames(ZweitstimmeAfd2021)[3] <- "Afd2021"
+ZweitstimmeLinke2021 <- read_delim("/Users/sydney/Downloads/ZweitstimmeLinke.csv", skip=2)
+colnames(ZweitstimmeLinke2021)[3] <- "Linke2021"
 
-Zweitstimme <- left_join(ZweitstimmeCdu, ZweitstimmeSpd)
-Zweitstimme <- left_join(Zweitstimme, ZweitstimmeFdp)
-Zweitstimme <- left_join(Zweitstimme, ZweitstimmeGruen)
-Zweitstimme <- left_join(Zweitstimme, ZweitstimmeAfd)
+Zweitstimme <- left_join(ZweitstimmeCdu2021, ZweitstimmeSpd2021)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeFdp2021)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeGruen2021)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeAfd2021)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeLinke2021)
+Zweitstimme <- left_join(Zweitstimme, voterTurnout2021)
 
-Zweitstimme <- Zweitstimme %>% mutate(GRUENE = case_when(regionaleinheit == "Regionalverband Saarbrücken" ~ 0.0, #Gruene Landesliste bei Bundestagswahl im Saarland nicht zugelassen --> Zweitstimme für Grüne nicht möglich
+#GENERAL ELECTION 2017
+ZweitstimmeCdu2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeCDU2017.csv", skip=2)
+colnames(ZweitstimmeCdu2017)[3] <- "CDU2017"
+ZweitstimmeSpd2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeSPD2017.csv", skip=2)
+colnames(ZweitstimmeSpd2017)[3] <- "SPD2017"
+ZweitstimmeFdp2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeFDP2017.csv", skip=2)
+colnames(ZweitstimmeFdp2017)[3] <- "FDP2017"
+ZweitstimmeGruen2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeGruene2017.csv", skip=2)
+colnames(ZweitstimmeGruen2017)[3] <- "GRUENE2017"
+ZweitstimmeAfd2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeAfD2017.csv", skip=2)
+colnames(ZweitstimmeAfd2017)[3] <- "Afd2017"
+ZweitstimmeLinke2017 <- read_delim("/Users/sydney/Downloads/ZweitstimmeLinke2017.csv", skip=2)
+colnames(ZweitstimmeLinke2017)[3] <- "Linke2017"
+
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeCdu2017)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeSpd2017)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeFdp2017)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeGruen2017)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeAfd2017)
+Zweitstimme <- left_join(Zweitstimme, ZweitstimmeLinke2017)
+Zweitstimme <- left_join(Zweitstimme, voterTurnout2017)
+
+Zweitstimme <- Zweitstimme %>% mutate(GRUENE2021 = case_when(regionaleinheit == "Regionalverband Saarbrücken" ~ 0.0, #Gruene Landesliste bei Bundestagswahl im Saarland nicht zugelassen --> Zweitstimme für Grüne nicht möglich
                                                          regionaleinheit == "Neunkirchen" ~ 0.0, 
                                                          regionaleinheit == "Saarlouis" ~ 0.0, 
                                                          regionaleinheit == "Merzig-Wadern" ~ 0.0, 
                                                          regionaleinheit == "Saarpfalz-Kreis" ~ 0.0, 
                                                          regionaleinheit == "St. Wendel" ~ 0.0,
-                                                         .default = GRUENE))
+                                                         .default = GRUENE2021))
 
-Zweitstimme <- Zweitstimme %>% mutate(`Voted for Parting Government` = CDU + SPD) %>%
-  mutate(`Voted for Incoming Government` = SPD + FDP + GRUENE)
+Zweitstimme <- Zweitstimme %>% mutate(`Voted for Parting Government` = CDU2021 + SPD2021) %>%
+  mutate(`Voted for Incoming Government` = SPD2021 + FDP2021 + GRUENE2021)
 
 
 #Gewerbeanteile
-ForstFischerei <- read_delim("/Users/sydney/Downloads/ForstwirtschaftFischerei.csv", skip = 2)
+ForstFischerei <- read_delim("/Users/sydney/Downloads/ForstwirtschaftFischerei2020.csv", skip = 2)
 colnames(ForstFischerei)[3] <- "ForstFischerei"
-ProduzierendesGewerbe <- read_delim("/Users/sydney/Downloads/ProduzierendesGewerbe.csv", skip = 2)
+ProduzierendesGewerbe <- read_delim("/Users/sydney/Downloads/ProduzierendesGewerbe2020.csv", skip = 2)
 colnames(ProduzierendesGewerbe)[3] <- "ProduzierendesGewerbe"
-VerarbeitendesGewerbe <- read_delim("/Users/sydney/Downloads/VerarbeitendesGewerbe.csv", skip = 2)
+VerarbeitendesGewerbe <- read_delim("/Users/sydney/Downloads/VerarbeitendesGewerbe2020.csv", skip = 2)
 colnames(VerarbeitendesGewerbe)[3] <- "VerarbeitendesGewerbe"
 Baugewerbe <- read_delim("/Users/sydney/Downloads/Baugewerbe.csv", skip = 2)
 colnames(Baugewerbe)[3] <- "Baugewerbe"
-Dienstleistungsgewerbe <- read_delim("/Users/sydney/Downloads/Dienstleistungsgewerbe.csv", skip = 2)
+Dienstleistungsgewerbe <- read_delim("/Users/sydney/Downloads/Dienstleistungsgewerbe2020.csv", skip = 2)
 colnames(Dienstleistungsgewerbe)[3] <- "Dienstleistungsgewerbe"
-HandelVerkehrGastgewerbe <- read_delim("/Users/sydney/Downloads/HandelVerkehrGastgewerbe.csv", skip = 2)
+HandelVerkehrGastgewerbe <- read_delim("/Users/sydney/Downloads/HandelVerkehrGastgewerbe2020.csv", skip = 2)
 colnames(HandelVerkehrGastgewerbe)[3] <- "HandelVerkehrGastgewerbe"
-FinanzVersicherung <- read_delim("/Users/sydney/Downloads/FinanzVersicherung.csv", skip = 2)
+FinanzVersicherung <- read_delim("/Users/sydney/Downloads/FinanzVersicherung2020.csv", skip = 2)
 colnames(FinanzVersicherung)[3] <- "FinanzVersicherung"
-OeffentlichSonstigeDienstleistungen <- read_delim("/Users/sydney/Downloads/OeffentlichSonstigeDienstleistungen.csv", skip = 2)
+OeffentlichSonstigeDienstleistungen <- read_delim("/Users/sydney/Downloads/OeffentlichSonstigeDienstleistungen2020.csv", skip = 2)
 colnames(OeffentlichSonstigeDienstleistungen)[3] <- "OeffentlichSonstigeDienstleistungen"
 
 Gewerbe <- left_join(ForstFischerei, ProduzierendesGewerbe)
@@ -373,7 +487,8 @@ Alq2019$regionaleinheit <- str_replace(Alq2019$regionaleinheit, ", kr.f. St.$", 
 Alq2019$regionaleinheit <- str_replace(Alq2019$regionaleinheit, ",St.$", "")
 Alq2019$regionaleinheit <- str_replace(Alq2019$regionaleinheit, ", St.$", "")
 
-AverageAge  <- read_delim("/Users/sydney/Downloads/AverageAge.csv", skip=2)
+#Average age in 2020, from https://regionalatlas.statistikportal.de/
+AverageAge  <- read_delim("/Users/sydney/Downloads/AverageAge2020.csv", skip=2)
 colnames(AverageAge)[3] <- "Average Age"
 AverageAge <- AverageAge  %>% mutate(regionaleinheit = case_when(
   regionaleinheit == "Mühldorf a.Inn" ~ "Mühldorf a. Inn",
@@ -386,8 +501,9 @@ AverageAge <- AverageAge  %>% mutate(regionaleinheit = case_when(
   regionaleinheit == "Dillingen a.d.Donau" ~ "Dillingen a.d. Donau",
   .default = regionaleinheit))
 
-BeschaeftigtenQuote <- read_delim("/Users/sydney/Downloads/Beschaeftigtenquote.csv", skip=2)
-colnames(BeschaeftigtenQuote)[3] <- "Employment Rate"
+#Beschaeftigungsquote Dec 2020, from https://statistik.arbeitsagentur.de/SiteGlobals/Forms/Suche/Einzelheftsuche_Formular.html?gtp=15084_list%253D2&topic_f=beschaeftigung-sozbe-bq-heft
+BeschaeftigtenQuote <- read_delim("/Users/sydney/Downloads/Beschaeftigungsquote2020.csv", skip=9)
+colnames(BeschaeftigtenQuote)[3] <- "EmploymentRate2020"
 BeschaeftigtenQuote <- BeschaeftigtenQuote  %>% mutate(regionaleinheit = case_when(
   regionaleinheit == "Mühldorf a.Inn" ~ "Mühldorf a. Inn",
   regionaleinheit == "Pfaffenhofen a.d.Ilm" ~ "Pfaffenhofen a.d. Ilm",
@@ -398,6 +514,25 @@ BeschaeftigtenQuote <- BeschaeftigtenQuote  %>% mutate(regionaleinheit = case_wh
   regionaleinheit == "Neustadt a.d.Aisch-Bad Windsheim" ~ "Neustadt a.d. Aisch-Bad Windsheim",
   regionaleinheit == "Dillingen a.d.Donau" ~ "Dillingen a.d. Donau",
   .default = regionaleinheit))
+
+BeschaeftigtenQuote2021 <- read_delim("/Users/sydney/Downloads/Beschaeftigungsquote2021.csv", skip=2)
+colnames(BeschaeftigtenQuote2021)[3] <- "EmploymentRate2021"
+BeschaeftigtenQuote2021 <- BeschaeftigtenQuote2021  %>% mutate(regionaleinheit = case_when(
+  regionaleinheit == "Mühldorf a.Inn" ~ "Mühldorf a. Inn",
+  regionaleinheit == "Pfaffenhofen a.d.Ilm" ~ "Pfaffenhofen a.d. Ilm",
+  regionaleinheit == "Weiden i.d.OPf." ~ "Weiden i.d. OPf.",
+  regionaleinheit == "Neumarkt i.d.OPf." ~ "Neumarkt i.d. OPf.",
+  regionaleinheit == "Neustadt a.d.Waldnaab" ~ "Neustadt a.d. Waldnaab",
+  regionaleinheit == "Wunsiedel i.Fichtelgebirge" ~ "Wunsiedel i. Fichtelgebirge",
+  regionaleinheit == "Neustadt a.d.Aisch-Bad Windsheim" ~ "Neustadt a.d. Aisch-Bad Windsheim",
+  regionaleinheit == "Dillingen a.d.Donau" ~ "Dillingen a.d. Donau",
+  .default = regionaleinheit))
+
+BeschaeftigtenQuote <- left_join(BeschaeftigtenQuote, BeschaeftigtenQuote2021)
+
+BeschaeftigtenQuote <- BeschaeftigtenQuote %>% mutate(EmploymentRate2020 = case_when(EmploymentRate2020 == 5555555555.0 ~ EmploymentRate2021, 
+                                                                                     .default = EmploymentRate2020))
+
 
 AfdAgeEmployment <- left_join(Zweitstimme, AverageAge)
 AfdAgeEmployment <- left_join(AfdAgeEmployment, BeschaeftigtenQuote)

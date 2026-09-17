@@ -15,11 +15,9 @@ model <- "fourhundred"
 
 consideredWave <- "firstwave"
 
-#run <- "2025-07-02_400LK_exp_UsedForPostprocessing"
-
 outcomeVariable <- "exponential"
 run <- "2025-09-14_400_cluster_expdecay_wideealpha"
-#run <- "2025-09-14_400_cluster_expdecay_middleealpha"
+
 source("Postprocessing_Clean.R")
 
 disFac_post <- postprocessing_clean(model, consideredWave, run, outcomeVariable)
@@ -208,7 +206,7 @@ forestplotData <-tibble::tibble(mean = c(round(model8variables$coefficients[2],2
                                   round(summary(model8variables)$coefficients[,4][8],3),
                                   round(summary(model8variables)$coefficients[,4][9],3)
                                 ),
-                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Forestry, fishing industry", "Manufacturing industry", "Small children in childcare", "Construction"))
+                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Agriculture, forestry, fisheries", "Manufacturing sector", "Small children in childcare", "Construction"))
 
 
 pdf("ForestplotFinalModel.pdf", width = 11, height = 3)
@@ -272,7 +270,7 @@ forestplotData <-tibble::tibble(mean = c(round(RegressionFirstWave$coefficients[
                                   round(summary(RegressionFirstWave)$coefficients[,4][8],3),
                                   round(summary(RegressionFirstWave)$coefficients[,4][9],3)
                                 ),
-                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Forestry, fishing industry", "Manufacturing industry", "Small children in childcare", "Construction"))
+                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Agriculture, forestry, fisheries", "Manufacturing sector", "Small children in childcare", "Construction"))
 
 
 pdf("ForestplotFinalModelFirstWave.pdf", width = 6, height = 5)
@@ -318,7 +316,7 @@ forestplotData <-tibble::tibble(mean = c(round(RegressionSecondWave$coefficients
                                   round(summary(RegressionSecondWave)$coefficients[,4][8],3),
                                   "<0.001"
                                 ),
-                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Forestry, fishing industry", "Manufacturing industry", "Small children in childcare", "Construction"))
+                                variable = c("Population density", "Unemployment rate", "Voter turnout", "Income", "Agriculture, forestry, fisheries", "Manufacturing sector", "Small children in childcare", "Construction"))
 
 
 pdf("ForestplotFinalModelSecondWave.pdf", width = 6, height = 5)
