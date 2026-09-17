@@ -108,55 +108,6 @@ def holiday_factor(holiday_data_in, fedState_idx):
 
 ## temperature factor
 #sigmoid
-# def temperature_factor(temperature_in, fedState_x):
-#     """
-#     Args:
-#        temperature_data_in: Temperature data
-
-#     Returns:
-#         T_star: Temperature sensitivity
-
-#     """
-
-#     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
-
-#     mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 1)
-#     #mu_amp_temp = pm.Lognormal("mu_amp_temp", mu = np.log(1.3), sigma = 0.5)
-#     #sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
-#     #sigma_amp_temp = pm.Gamma(f"sigma_amp_temp", alpha = 2, beta = 1)
-#     sigma_amp_temp = pm.Exponential("sigma_amp_temp", 10)
-#     #amplitude_temperature = pm.Normal("amplitude_temperature", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
-#     amplitude_temperature_tilde = pm.Normal("amplitude_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
-#     amplitude_temperature = pm.Deterministic("amplitude_temperature", mu_amp_temp + sigma_amp_temp*amplitude_temperature_tilde, dims=("fedState"))
-
-#     #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
-#     #mu_shift_temp = pm.Normal("mu_shift_temp", mu = 15, sigma = 3)
-#     mu_shift_temp = pm.Normal("mu_shift_temp", mu = 13.5, sigma = 1)
-#     #sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
-#     sigma_shift_temp = pm.Exponential(f"sigma_shift_temp", 10)
-#     #shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
-#     shift_temperature_tilde = pm.Normal("shift_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
-#     shift_temperature = pm.Deterministic("shift_temperature", mu_shift_temp + sigma_shift_temp*shift_temperature_tilde, dims=("fedState"))
-
-#     #mu_slope_temp = pm.Normal("mu_slope_log_temp", mu = np.log(4), sigma = 0.5)
-#     mu_slope_temp = pm.Normal("mu_slope_log_temp", mu = np.log(2), sigma = 0.25) #for Telegram-inclusion
-#     mu_slope_exp_temp = pm.Deterministic("mu_slope_temp", at.exp(mu_slope_temp))
-#     #sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
-#     #sigma_slope_temp = pm.Gamma(f"sigma_slope_temp", alpha = 2, beta = 1)
-#     sigma_slope_temp = pm.Exponential("sigma_slope_temp", 10)
-#     #slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
-#     slope_temperature_tilde = pm.Normal("slope_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
-#     slope_temperature = pm.Deterministic("slope_temperature", at.exp(mu_slope_temp + sigma_slope_temp*slope_temperature_tilde), dims=("fedState"))
-
-#     #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(1), sigma = 0.1, dims = "fedState")
-#     #intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(15/slope_temperature-shift_temperature)))), dims = "fedState")
-#     intercept_temperature = pm.Deterministic("intercept_temperature", 1-amplitude_temperature/2)
-
-#     temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature[fedState_x]*(1/(1+np.exp(-(Tmax_2020-shift_temperature[fedState_x])/(slope_temperature[fedState_x]+0.05)))) + intercept_temperature[fedState_x], dims = "obs_id")
-
-#     return temperature_factor
-
-#sine
 def temperature_factor(temperature_in, fedState_x):
     """
     Args:
@@ -169,17 +120,66 @@ def temperature_factor(temperature_in, fedState_x):
 
     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
 
-    mu_amp_temp = pm.Normal("mu_amp_temp", mu=0.5, sigma = 0.1)
+    mu_amp_temp = pm.HalfCauchy("mu_amp_temp", beta = 1)
+    #mu_amp_temp = pm.Lognormal("mu_amp_temp", mu = np.log(1.3), sigma = 0.5)
+    #sigma_amp_temp = pm.HalfCauchy("sigma_amp_temp", beta = 10)
+    #sigma_amp_temp = pm.Gamma(f"sigma_amp_temp", alpha = 2, beta = 1)
     sigma_amp_temp = pm.Exponential("sigma_amp_temp", 10)
+    #amplitude_temperature = pm.Normal("amplitude_temperature", mu = mu_amp_temp, sigma = sigma_amp_temp, dims = "fedState")
     amplitude_temperature_tilde = pm.Normal("amplitude_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
     amplitude_temperature = pm.Deterministic("amplitude_temperature", mu_amp_temp + sigma_amp_temp*amplitude_temperature_tilde, dims=("fedState"))
 
-    mu_shift_temp = pm.Normal("mu_shift_temp", mu=-20, sigma=2)
-    sigma_shift_temp = pm.Exponential("sigma_shift_temp", 10)
+    #shift_temperature = pm.LogNormal("shift_temperature", mu = np.log(20), sigma = 0.2)
+    #mu_shift_temp = pm.Normal("mu_shift_temp", mu = 15, sigma = 3)
+    mu_shift_temp = pm.Normal("mu_shift_temp", mu = 13.5, sigma = 1)
+    #sigma_shift_temp = pm.HalfCauchy("sigma_shift_temp", beta = 10)
+    sigma_shift_temp = pm.Exponential(f"sigma_shift_temp", 10)
+    #shift_temperature = pm.Normal("shift_temperature", mu = mu_shift_temp, sigma = sigma_shift_temp, dims = "fedState") #Updated according to J's recommendation 
     shift_temperature_tilde = pm.Normal("shift_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
     shift_temperature = pm.Deterministic("shift_temperature", mu_shift_temp + sigma_shift_temp*shift_temperature_tilde, dims=("fedState"))
 
-    return pm.Deterministic("temperature_factor", np.sin(amplitude_temperature[fedState_x]*(Tmax_2020+shift_temperature[fedState_x])), dims = "obs_id")
+    #mu_slope_temp = pm.Normal("mu_slope_log_temp", mu = np.log(4), sigma = 0.5)
+    mu_slope_temp = pm.Normal("mu_slope_log_temp", mu = np.log(2), sigma = 0.25) #for Telegram-inclusion
+    mu_slope_exp_temp = pm.Deterministic("mu_slope_temp", at.exp(mu_slope_temp))
+    #sigma_slope_temp = pm.HalfCauchy("sigma_slope_temp", beta = 10)
+    #sigma_slope_temp = pm.Gamma(f"sigma_slope_temp", alpha = 2, beta = 1)
+    sigma_slope_temp = pm.Exponential("sigma_slope_temp", 10)
+    #slope_temperature = pm.Normal("slope_temperature", mu = mu_slope_temp, sigma = sigma_slope_temp, dims = "fedState")
+    slope_temperature_tilde = pm.Normal("slope_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+    slope_temperature = pm.Deterministic("slope_temperature", at.exp(mu_slope_temp + sigma_slope_temp*slope_temperature_tilde), dims=("fedState"))
+
+    #intercept_temperature = pm.LogNormal("intercept_temperature", mu = np.log(1), sigma = 0.1, dims = "fedState")
+    #intercept_temperature = pm.Deterministic("intercept_temperature", 1 - amplitude_temperature*(1/(1+np.exp(-(15/slope_temperature-shift_temperature)))), dims = "fedState")
+    intercept_temperature = pm.Deterministic("intercept_temperature", 1-amplitude_temperature/2)
+
+    temperature_factor = pm.Deterministic("temperature_factor", amplitude_temperature[fedState_x]*(1/(1+np.exp(-(Tmax_2020-shift_temperature[fedState_x])/(slope_temperature[fedState_x]+0.05)))) + intercept_temperature[fedState_x], dims = "obs_id")
+
+    return temperature_factor
+
+#sine
+# def temperature_factor(temperature_in, fedState_x):
+#     """
+#     Args:
+#        temperature_data_in: Temperature data
+
+#     Returns:
+#         T_star: Temperature sensitivity
+
+#     """
+
+#     Tmax_2020 = pm.MutableData("max_Temp", temperature_in["temperature"], dims = ("obs_id",))
+
+#     mu_amp_temp = pm.Normal("mu_amp_temp", mu=0.5, sigma = 0.1)
+#     sigma_amp_temp = pm.Exponential("sigma_amp_temp", 10)
+#     amplitude_temperature_tilde = pm.Normal("amplitude_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+#     amplitude_temperature = pm.Deterministic("amplitude_temperature", mu_amp_temp + sigma_amp_temp*amplitude_temperature_tilde, dims=("fedState"))
+
+#     mu_shift_temp = pm.Normal("mu_shift_temp", mu=-20, sigma=2)
+#     sigma_shift_temp = pm.Exponential("sigma_shift_temp", 10)
+#     shift_temperature_tilde = pm.Normal("shift_temperature_tilde", mu = 0, sigma = 1, dims=("fedState"))
+#     shift_temperature = pm.Deterministic("shift_temperature", mu_shift_temp + sigma_shift_temp*shift_temperature_tilde, dims=("fedState"))
+
+#     return pm.Deterministic("temperature_factor", np.sin(amplitude_temperature[fedState_x]*(Tmax_2020+shift_temperature[fedState_x])), dims = "obs_id")
 
 ## temperature factor
 # ##x^4

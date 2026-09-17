@@ -1615,7 +1615,7 @@ def get_precipitation(chosen_model):
 
 ## Temperature
 
-def get_temperature(chosen_model, incl2024):
+def get_temperature(chosen_model, incl2024, only2024):
     """Get weekly average temperature data from preprocessed data set.
 
     Args:
@@ -1679,6 +1679,8 @@ def get_temperature(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_temp = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_temp = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_temp = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1709,7 +1711,7 @@ def get_temperature(chosen_model, incl2024):
 
 ## Daylight
 
-def get_daylight(chosen_model, incl2024):
+def get_daylight(chosen_model, incl2024, only2024):
     """Get weekly average of daylight data from preprocessed data set.
 
     Args:
@@ -1783,7 +1785,7 @@ def get_pop_density(chosen_model):
 
 ## Federal states
 
-def get_federal_states(chosen_model, incl2024):
+def get_federal_states(chosen_model, incl2024, only2024):
     """Get index-array
 
     Args:
@@ -1846,6 +1848,8 @@ def get_federal_states(chosen_model, incl2024):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_fedStates = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -1868,7 +1872,7 @@ def get_federal_states(chosen_model, incl2024):
 
     return fedState, fed_States, obs_id
 
-def get_lk(chosen_model, incl2024=True):
+def get_lk(chosen_model, incl2024=True, only2024=False):
     """Get index-array
 
     Args:
@@ -1919,6 +1923,8 @@ def get_lk(chosen_model, incl2024=True):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourhundred.csv"
+        elif only2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataonly2024_fourhundred.csv"
         else:
             path_fedStates = "./data/input_data_hierarchical/inputData_fourhundred.csv"
     if chosen_model == "thirdfourthhundred":
@@ -2020,7 +2026,7 @@ def get_federal_states_long(chosen_model, incl2024):
 
     return fedState, fed_States, obs_id
 
-def get_lk_long(chosen_model, incl2024 = True):
+def get_lk_long(chosen_model, incl2024 = True, only2024 = False):
     """Get index-array
 
     Args:
@@ -2069,6 +2075,8 @@ def get_lk_long(chosen_model, incl2024 = True):
     if chosen_model == "fourhundred":
         if incl2024 == True:
             path_fedStates = "./data/input_data_hierarchical/inputDataincl2024_fourhundred_long.csv"
+        elif only2024 == True:
+            path_fedStates = "./data/input_data_hierarchical/inputDataonly2024_fourhundred_long.csv"
         else:
             path_fedStates = "./data/input_data_hierarchical/inputData_fourhundred_long.csv"
     if chosen_model == "thirdfourthhundred":
