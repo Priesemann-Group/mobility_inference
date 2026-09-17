@@ -1,398 +1,404 @@
-﻿LK_Name;Wetter_ID
-Flensburg;D1666
-Kiel;EDHK0
-Lübeck;10156
-Neumünster;10143
-Dithmarschen;
-Herzogentum Lauenburg;10249
-Nordfriesland;
-Ostholstein;
-Pinneberg;10146
-Plön ;10150
-Rendsburg-Eckernförde;10038
-Schleswig-Flensburg;
-Segeberg;D5280
-Steinburg;
-Stormarn;
-Hamburg;10147
-Braunschweig;10348
-Salzgitter;10348
-Wolfsburg;D5676
-Gifhorn;D5676
-Goslar;D2839
-Helmstedt;D3777
-Northeim;D3650
-Peine;D3699
-Wolfenbüttel;D1278
-Göttingen;10444
-Hannover;D2011
-Diepholz;10321
-Hameln-Pyrmont;D3675
-Hildesheim;10442
-Holzminden;D2323
-Nienburg/Weser;D3612
-Schaumburg;
-Celle;D0848
-Cuxhaven;10131
-Harburg;D1981
-Lüchow-Dannenberg;10253
-Lüneburg;D6093
-Osterholz;EDXU0
-Rotenburg (Wümme);EDXQ0
-Heidekreis;
-Stade;D4857
-Uelzen;D5146
-Verden;D5209
-Delmenhorst;10224
-Emden;10203
-Oldenburg;10215
-Osnabrück;10317
-Wilhelmshaven;10125
-Ammerland;
-Aurich;10126
-Cloppenburg;10218
-Emsland;
-Friesland;
-Gradschaft Bentheim;D0357
-Leer;EDWF0
-Oldenburg;10215
-Osnabrück;10317
-Vechta;D0988
-Wesermarsch;
-Wittmund;10126
-Bremen;01024
-Bremerhaven;10129
-Düsseldorf;10400
-Duisburg;D3670
-Essen;10410
-Krefeld;D5064
-Mönchengladbach;10403
-Mülheim an der Ruhr;10410
-Oberhausen;DR5GH
-Remscheid;D5717
-Solingen;D4741
-Wuppertal;D5717
-Kleve;D2629
-Mettmann;D5717
-Rhein-Neuss;10400
-Viersen;D5064
-Wesel;D0989
-Bonn;10517
-Köln;D2968
-Leverkusen;D2968
-Städteregion Aachen;10501
-Düren;D3623
-Rhein-Erft-Kreis;
-Euskirchen;D1327
-Heinsberg;D2110
-Oberbergischer Kreis;
-Rheinisch-Bergischer Kreis;
-Rhein-Sieg-Kreis;
-Bottrop;DR5GH
-Gelsenkirchen;C36OI
-Münster;D3669
-Borken;D0617
-Coesfeld;D0871
-Recklinghausen;D1595
-Steinfurt;D4849
-Warendorf;D3669
-Bielefeld;D7106
-Gütersloh;10320
-Herford;10325
-Höxter;10432
-Lippe;
-Mindchen-Lübbecke;D3081
-Paderborn;10430
-Bochum;EUMPC
-Dortmund;10416
-Hagen ;7R4VU
-Hamm;D1046
-Herne;EUMPC
-Ennepe-Ruhr-Kreis;
-Hochsauerlandkreis;
-Märkischer Kreis;
-Olpe;D0216
-Siegen-Wittgenstein;
-Soest;LCUV3
-Unna;10416
-Darmstadt;D0917
-Frankfurt am Main;D1424
-Offenbach am Main;10641
-Wiesbaden;D5542
-Bergstraße;
-Darmstadt-Dieburg;D0917
-Groß-Gerau;D1814
-Hochtaunuskreis;
-Main-Kinzig-Kreis;
-Main-Taunus-Kreis;
-Odenwaldkreis;
-Offenbach am Main;10641
-Rheingau-Taunus-Kreis;
-Wetteraukreis;
-Gießen;10532
-Lahn-Dill-Kreis;
-Limburg-Weilburg;D0978
-Marburg-Biedenkopf;D3164
-Vogelsbergkreis;
-Kassel;10438
-Fulda;D1526
-Hersfeld-Rotenburg;
-Kassel;10438
-Schwam-Eder-Kreis;
-Waldeck-Frankenberg;
-Werra-Meißner-Kreis;
-Koblenz;10516
-Ahrweiler;D3490
-Altenkirchen;D2211
-Bad Kreuznach;10627
-Birkenfeld;D3925
-Cochem-Zell;D0723
-Mayen-Koblenz;10516
-Neuwied;D0161
-Rhein-Hunsrück-Kreis;
-Rhein-Lahn-Kreis;
-Westerwaldkreis;
-Trier;10609
-Bernkastel-Wittlich;10617
-Eifelkreis Bitburg-Prüm;
-Vulkaneifel;
-Trier-Saarburg;D3904
-Frankenthal (Pfalz);EDFV0
-Kaiserslautern;ETED0
-Landau in der Pfalz;D0377
-Ludwigshafen am Rhein;10730
-Mainz;D3137
-Neustadt an der Weinstraße;10724
-Pirmasens;EDIV0
-Speyer;D5275
-Worms;EDFV0
-Zweibrücken;10714
-Alzey-Worms;EDFV0
-Bad Dürkheim;EDRF0
-Donnersbergkreis;
-Germersheim;D4310
-Kaiserslautern;ETED0
-Kusel;D1650
-Südliche Weinstraße;
-Rhein-Pfalz-Kreis;
-Mainz-Bingen;D3137
-Südwestpfalz;
-Stuttgart;10739
-Böblingen;D4160
-Esslingen;10738
-Göppingen;KIBCV
-Ludwigsburg;10739
-Rems-Murr-Kreis;
-Heilbronn;D3734
-Heilbronn;D3734
-Hohenlohekreis;
-Schwäbisch Hall;EDTY0
-Main-Tauber-Kreis;
-Heidenheim;D3972
-Ostalbkreis;
-Baden-Baden;D0257
-Karlsruhe;10727
-Rastatt;10702
-Heidelberg;10734
-Mannheim;10730
-Neckar-Odenwald-Kreis;
-Rhein-Neckar-Kreis;
-Pforzheim;D3925
-Calw;7M2XN
-Enzkreis;
-Freudenstadt;10815
-Freiburg im Breisgau;10803
-Breisgau-Hochschwarzwald;
-Emmendingen;D1224
-Rottweil;D4300
-Schwarzwald-Baar-Kreis;
-Tuttlingen;D3519
-Konstanz;10929
-Lörrach;EDTR0
-Waldshut;06666
-Reutlingen;D3278
-Tübingen;D4294
-Zollernalbkreis;
-Ulm;10838
-Alb-Donau-Kreis;
-Biberach;D2349
-Bodenseekreis;
-Ravensburg;D4094
-Sigmaringen;10828
-Ingolstadt;D2700
-München;10865
-Rosenheim;D4261
-Altötting;D5123
-Berchtesgadener Land;D6190
-Bad Tölz-Wolfratshausen;D5262
-Dachau;10868
-Ebersberg;D1103
-Eichstätt;D1161
-Erding;10866
-Freising;10863
-Fürstenfeldbruck;10858
-Garmisch-Partenkirchen;10963
-Landsberg am Lech;10857
-Miesbach;CUUXN
-Mühldorf am Inn;10875
-München;10865
-Neuburg-Schrobenhausen;10853
-Pfaffenhofen an der Ilm;D4441
-Rosenheim;D4261
-Starnberg;D4413
-Weilheim-Schongau;D5538
-Traunstein;D7105
-Landshut;D3710
-Passau;10893
-Straubing;10788
-Deggendorf;EDMW0
-Freyung-Grafenau;D1735
-Kelheim;D4185
-Landshut;D3710
-Passau;10893
-Regen;10776
-Rottal-Inn;D1332
-Straubing-Bogen;10788
-Dingolfing-Landau;10872
-Amberg;10771
-Regensburg;10776
-Weiden in der Oberpfalz;10688
-Amberg-Sulzbach;10771
-Cham;
-Neumarkt in der Oberpfalz;EDPO0
-Neustadt an der Waldnaab;10688
-Regensburg;10776
-Schwandorf;D4592
-Tirschenreuth;D5046
-Bamberg;10675
-Bayreuth;D0320
-Coburg;10671
-Hof;10685
-Bamberg;10675
-Bayreuth;D0320
-Coburg;10671
-Forchheim;D1279
-Hof;10685
-Kronach;D2750
-Kulmbach;D3497
-Lichtenfels;NHP5I
-Wunsiedel im Fichtelgebirge;10686
-Ansbach;10755
-Erlangen;D1279
-Fürth;10763
-Nürnberg;10763
-Schwabach;D4599
-Ansbach;10755
-Erlangen-Höchstadt;D1279
-Fürth;10763
-Nürnberger Land;10763
-Neustadt an der Aisch-Bad Windsheim;D2860
-Roth;10765
-Weißenburg-Gunzenhausen;10761
-Aschaffenburg;D4411
-Schweinfurt;D6347
-Würzburg;10655
-Aschaffenburg;D4411
-Bad Kissingen;10658
-Rhön-Grabfeld;
-Haßberge;D3612
-Kitzingen;D2600
-Miltenberg;D3319
-Main-Spessart;D3490
-Schweinfurt;D6347
-Würzburg;10655
-Augsburg;10852
-Kaufbeuren;MX3JY
-Kempten (Allgäu);10946
-Memmingen;10947
-Aichach-Friedberg;GDOVT
-Augsburg;10852
-Dillingen an der Donau;10704
-Günzburg;EDMG0
-Neu-Ulm;10838
-Lindau;D4704
-Ostallgäu;
-Unterallgäu;
-Donau-Ries;
-Oberallgäu;
-Regionalverband Saarbrücken;D6217
-Merzig-Wadern;D3263
-Neunkirchen;D3545
-Saarlouis;10704
-Saarpfalz-Kreis;
-St. Wendell;
-Berlin;10389
-Brandenburg an der Havel;D6265
-Cottbus - Chóśebuz;10492
-Frankfurt (Oder);12310
-Potsdam;10379
-Barnim;
-Dahme-Spreewald;D2278
-Elbe-Elster;
-Havelland;
-Märkisch-Oderland;
-Oberhavel;
-Oberspreewald-Lausitz;D6129
-Oder-Spree;
-Ostprignitz-Ruppin;
-Potsdam-Mittelmark;10379
-Prignitz;D2531
-Spree-Neiße;
-Teltow-Fläming;10381
-Uckermark;D3308
-Rostock;10170
-Schwerin;10162
-Mecklenburgische Seenplatte;
-Landkreis Rostock;10170
-Vorpommern-Rügen;10093
-Nordwestmecklenburg;
-Vorpommern-Greifswald;10184
-Ludgwigslust-Parchim;D1717
-Chemnitz;10577
-Erzgebirgskreis;
-Mittelsachsen;
-Vogtlandkreis;
-Zwickau;D5797
-Dresden;D1051
-Bautzen;D0314
-Görlitz;10499
-Meißen;D3234
-Sächsische Schweiz-Osterzgebirge;
-Leipzig;10471
-Nordsachsen;
-Dessau-Roßlau;D1067
-Halle (Saale);10466
-Magdeburg;10361
-Altmarkkreis Salzwedel;10253
-Anhalt-Bitterfeld;D7364
-Börde;
-Burgenlandkreis;
-Harz;
-Jerichower Land;D1770
-Mansfeld-Südharz;D5814
-Saalekreis;
-Salzlandkreis;
-Stendal;D6273
-Wittenberg;10474
-Erfurt;10554
-Gera;10567
-Jena;D2444
-Suhl;10552
-Weimar;10555
-Eichsfeld;D5084
-Nordhausen;D5484
-Wartburgkreis;
-Unstrut-Hainich-Kreis;
-Kyffhäuserkreis;
-Schmalkalden-Meiningen;10548
-Gotha;P9LDV
-Sömmerda;D0087
-Hildburghausen;D7428
-Ilm-Kreis;
-Weimarer Land;10555
-Sonneberg;10558
-Saalfeld-Rudolstadt;D3711
-Saale-Holzland-Kreis;
-Saale-Orla-Kreis;
-Greiz;D7419
-Altenburger Land;
+LK_Name,Wetter_ID, Neighbor1, Neighbor2, Neighbor3, Neighbor4, Neighbor5, Neighbor6, Neighbor7, Neighbor8
+Flensburg,10033
+Kiel,10046
+Lübeck,10156
+Neumünster,10143
+Dithmarschen,10130
+Herzogtum Lauenburg,10249
+Nordfriesland,D7298
+Ostholstein,10063
+Pinneberg,10146
+Plön,10150
+Rendsburg-Eckernförde,10038
+Schleswig-Flensburg,10035
+Segeberg,D5280
+Steinburg,10142
+Stormarn,NA,Segeberg,Lübeck,Herzogtum Lauenburg,Ostholstein,Hamburg
+Hamburg,10147
+Braunschweig,10348
+Salzgitter,10348
+Wolfsburg,D5676
+Gifhorn,D5676
+Goslar,D2039
+Helmstedt,D3777
+Eisenach, 10540
+Northeim,NA, Holzminden,Hildesheim,Goslar,Göttingen
+Peine,NA, Hannover,Gifhorn,Braunschweig,Salzgitter,Hildesheim
+Wolfenbüttel,NA, Helmstedt,Harz,Goslar,Salzgitter,Braunschweig
+Göttingen,10444
+Hannover,10338
+Diepholz,10321
+Hameln-Pyrmont,D3675
+Hildesheim,10442
+Holzminden,D2323
+Nienburg/Weser,D3612
+Schaumburg,10335
+Celle,10343
+Cuxhaven,10131
+Harburg,D1981
+Lüchow-Dannenberg,10253
+Lüneburg,D6093
+Osterholz,EDXU0
+Rotenburg (Wümme),EDXQ0
+Heidekreis,10235
+Stade,D4857
+Uelzen,D5146
+Verden,NA,Osterholz, Rotenburg (Wümme), Heidekreise, Nienburg/Weser, Diepholz, Bremen
+Delmenhorst,10224
+Emden,10203
+Oldenburg,10215
+Osnabrück,10317
+Wilhelmshaven,10125
+Ammerland,NA,Friesland,Oldenburg,Landkreis Oldenburg,Cloppenburg,Leer
+Aurich,10126
+Cloppenburg,10218
+Emsland,10306
+Friesland,10122
+Grafschaft Bentheim,NA,Emsland,Steinfurt,Borken
+Leer,EDWR0
+Landkreis Oldenburg,10215
+Landkreis Osnabrück,10317
+Vechta,NA, Landkreis Oldenburg, Diepholz, Osnabrück, Cloppenburg
+Wesermarsch,NA,Bremerhaven,Cuxhaven,Osterholz,Bremen,Delmenhorst,Oldenburg,Landkreis Oldenburg,Friesland
+Wittmund,10126
+Bremen,10224
+Bremerhaven,10129
+Düsseldorf,10400
+Duisburg,D3670	
+Essen,10410
+Krefeld,D5064
+Mönchengladbach,10403
+Mülheim an der Ruhr,10410
+Oberhausen,NA,Essen,Mülheim an der Ruhr,Duisburg
+Remscheid,D5717
+Solingen,NA,Wuppertal,Remscheid,Mettmann,
+Wuppertal,D5717
+Kleve,D2629
+Mettmann,D5717
+Rhein-Neuss,10400
+Viersen,D5064
+Wesel,NA,Borken,Recklinghausen,Duisburg,Krefeld,Viersen,Kleve
+Bonn,10517
+Köln,D2968
+Leverkusen,D2968
+Städteregion Aachen,10501
+Düren,D3591
+Rhein-Erft-Kreis,NA,Rhein-Neuss, Köln, Rhein-Sieg-Kreis, Euskirchen, Düren
+Euskirchen,D1327
+Heinsberg,D2110
+Oberbergischer Kreis,D4127
+Rheinisch-Bergischer Kreis,NA,Köln,Leverkusen,Remscheid,Oberbergischer Kreis, Rhein-Sieg-Kreis
+Rhein-Sieg-Kreis,D3540
+Bottrop,NA,Recklinghausen,Essen
+Gelsenkirchen,NA,Essen,Recklinghausen
+Münster,10315
+Borken,D0617
+Coesfeld,D6337
+Recklinghausen,D3696
+Steinfurt,10306
+Warendorf,D1246
+Bielefeld,D7106
+Gütersloh,10320
+Herford,10325
+Höxter,10432
+Lippe,10325
+Mindchen-Lübbecke,D3081
+Paderborn,10430
+Bochum,NA,Recklinghausen,Dortmund,Ennepe-Ruhr-Kreis,Essen
+Dortmund,10416
+Hagen,7R4VU
+Hamm,NA,Unna,Soest,Warendorf,Coesfeld
+Herne,NA,Recklinghausen
+Ennepe-Ruhr-Kreis,7R4VU
+Hochsauerlandkreis,D7330
+Märkischer Kreis,10418
+Olpe,D2947
+Siegen-Wittgenstein,10521
+Soest,D3031
+Unna,10416
+Darmstadt,D0917
+Frankfurt am Main,D1424
+Offenbach am Main,10641
+Wiesbaden,10633
+Bergstraße,NA,Groß-Gerau,Darmstadt-Dieburg,Odenwaldkreis,Rhein-Neckar-Kreis,Mannheim
+Darmstadt-Dieburg,D0917
+Groß-Gerau,D4090
+Hochtaunuskreis,NA,Limburg-Weilburg,Lahn-Dill-Kreis,Frankfurt am Main,Rheingau-Taunus-Kreis
+Main-Kinzig-Kreis,D1863
+Main-Taunus-Kreis, NA, Frankfurt am Main, Groß-Gerau,Wiesbaden,Rheingau-Taunus-Kreis
+Schwalm-Eder-Kreis, 10439
+Odenwaldkreis,D3284
+Offenbach,10641
+Rheingau-Taunus-Kreis,D5300
+Wetteraukreis,NA,Gießen,Vogelsbergkreis,Main-Kinzig-Kreis,Frankfurt am Main,Lahn-Dill-Kreis
+Gießen,10532
+Lahn-Dill-Kreis,D0979
+Limburg-Weilburg,D6344
+Marburg-Biedenkopf,D3164
+Vogelsbergkreis,D0091
+Kassel,10438
+Fulda,D1526
+Hersfeld-Rotenburg,10542
+Landkreis Kassel,10438
+Schwam-Eder-Kreis,10439
+Waldeck-Frankenberg,D5133
+Werra-Meißner-Kreis,D1297
+Koblenz,10516
+Ahrweiler,D3490
+Altenkirchen,D2211
+Bad Kreuznach,10627
+Birkenfeld,D3925
+Cochem-Zell,10613
+Mayen-Koblenz,10516
+Neuwied,D0161
+Rhein-Hunsrück-Kreis,D4709
+Rhein-Lahn-Kreis,NA, Westerwaldkreis, Limburg-Weilburg, Rheingau-Taunus-Kreis, Mainz-Bingen, Rhein-Hunsrück-Kreis, Mayen-Koblenz, Koblenz
+Westerwaldkreis,D3340
+Trier,10609
+Bernkastel-Wittlich,D3155
+Eifelkreis Bitburg-Prüm, D1964
+Vulkaneifel,NA,Euskirchen,Ahrweiler,Mayen-Koblenz,Cochem-Zell,Bernkastel-Wittlich,Eifelkreis Bitburg-Prüm
+Trier-Saarburg,10609
+Frankenthal (Pfalz),EDFV0
+Kaiserslautern,ETED0
+Landau in der Pfalz,D0377
+Ludwigshafen am Rhein,NA,Bad Dürkheim, Rhein-Neckar-Kreis
+Mainz,D3137
+Neustadt an der Weinstraße,10724
+Pirmasens,EDIV0
+Speyer,D5275
+Worms,EDFV0
+Ortenaukreis,10805
+Zweibrücken,10714
+Alzey-Worms,EDFV0
+Bad Dürkheim,EDRF0
+Donnersbergkreis,D4323
+Germersheim,NA,Landkreis Karlsruhe,Karlsruhe,Speyer,Landau in der Pfalz, Südliche Weinstraße
+Landkreis Kaiserslautern,ETED0
+Kusel,NA,Birkenfeld,Bad Kreuznach, Donnersbergkreis,Kaiserslautern,Neunkirchen
+Südliche Weinstraße,D0377
+Rhein-Pfalz-Kreis,NA,Rhein-Neckar-Kreis,Landkreis Karlsruhe,Worms,Frankenthal (Pfalz), Südliche Weinstraße
+Mainz-Bingen,D3137
+Südwestpfalz,EDIV0
+Stuttgart,10739
+Böblingen,D4160
+Esslingen,NA,Reutlingen,Böblingen,Stuttgart
+Göppingen,NA,Ostalbkreis,Heidenheim,Alb-Donau-Kreis,Reutlingen
+Ludwigsburg,10739
+Rems-Murr-Kreis,NA,Stuttgart,Ludwigsburg,Heilbronn,Schwäbisch Hall,Ostalbkreis
+Heilbronn,D3734
+Landkreis Heilbronn,D3734
+Hohenlohekreis,10742
+Schwäbisch Hall,EDTY0
+Main-Tauber-Kreis,D3257
+Heidenheim,D7331
+Ostalbkreis,D1197
+Baden-Baden,D0257
+Karlsruhe,10727
+Landkreis Karlsruhe, 10727
+Rastatt,10702
+Heidelberg,NA,Rhein-Neckar-Kreis,Mannheim
+Mannheim,10729
+Neckar-Odenwald-Kreis,D0755
+Rhein-Neckar-Kreis,10735
+Pforzheim,D3925
+Calw,D5562
+Enzkreis,10736
+Freudenstadt,10815
+Freiburg im Breisgau,10803
+Breisgau-Hochschwarzwald,D0259
+Emmendingen,D1224
+Rottweil,D4300
+Schwarzwald-Baar-Kreis,D5229
+Tuttlingen,10818
+Konstanz,10929
+Lörrach,EDTR0
+Waldshut,06666
+Reutlingen,D3278
+Tübingen,NA,Böblingen,Reutlingen,Zollernalbkreis,Freudenstadt,Calw
+Zollernalbkreis,10827
+Ulm,10838
+Alb-Donau-Kreis,10837
+Biberach,10837
+Bodenseekreis,10935
+Ravensburg,D4094
+Sigmaringen,10828
+Ingolstadt,D2700
+München,10865
+Landkreis München,10865
+Altötting,D0808
+Berchtesgadener Land,D7424
+Bad Tölz-Wolfratshausen,NA,Garmisch-Partenkirchen,Weilheim-Schonau,München,Miesbach
+Dachau,D0142
+Ebersberg,D1103
+Eichstätt,D1161
+Erding,10866
+Freising,10863
+Fürstenfeldbruck,10858
+Garmisch-Partenkirchen,10963
+Landsberg am Lech,10857
+Miesbach,D2319
+Mühldorf am Inn,10875
+Neuburg-Schrobenhausen,10853
+Pfaffenhofen an der Ilm,NA,Ingolstadt,Eichstätt,Kelheim,Freising,Dachau,Neuburg-Schrobenhausen
+Rosenheim,D4261
+Landkreis Rosenheim,D4261
+Starnberg,NA,Fürstenfeldbruck,München,Weilheim-Schongau,Landsberg am Lech
+Weilheim-Schongau,D5538
+Traunstein,D7105
+Landshut,D3710
+Passau,10893
+Straubing,10788
+Deggendorf,EDMW0
+Freyung-Grafenau,D1735
+Kelheim,D7075
+Landkreis Landshut,D3710
+Landkreis Passau,10893
+Regen,10776
+Rottal-Inn,D1332
+Straubing-Bogen,10788
+Dingolfing-Landau,10872
+Amberg,10771
+Regensburg,10776
+Weiden in der Oberpfalz,10688
+Amberg-Sulzbach,10771
+Cham,D4559
+Neumarkt in der Oberpfalz,D3875
+Neustadt an der Waldnaab,10688
+Landkreis Regensburg,10776
+Schwandorf,D4592
+Tirschenreuth,D5046
+Bamberg,10675
+Bayreuth,D0320
+Coburg,10671
+Hof,10685
+Landkreis Bamberg,10675
+Landkreis Bayreuth,D0320
+Landkreis Coburg,10671
+Forchheim,D1279
+Landkreis Hof,10685
+Kronach,D2750
+Kulmbach,NA,Kronach,Hof,Bayreuth,Litchenfels
+Lichtenfels,NA,Coburg,Kronach,Kulbach,Bayreuth,Bamberg
+Wunsiedel im Fichtelgebirge,10686
+Ansbach,10755
+Erlangen,D1279
+Fürth,10763
+Nürnberg,10763
+Schwabach,10765
+Landkreis Ansbach,10755
+Erlangen-Höchstadt,D1279
+Landkreis Fürth,10763
+Nürnberger Land,10763
+Neustadt an der Aisch-Bad Windsheim,D5149
+Roth,10765
+Weißenburg-Gunzenhausen,10761
+Aschaffenburg,D4411
+Schweinfurt,D6347
+Würzburg,10655
+Landkreis Aschaffenburg,D4411
+Bad Kissingen,10658
+Rhön-Grabfeld,D3836
+Haßberge,D3612
+Kitzingen,D2600
+Miltenberg,D3319
+Main-Spessart,D6336
+Landkreis Schweinfurt,D6347
+Landkreis Würzburg,10655
+Augsburg,10852
+Kaufbeuren,MX3JY
+Kempten (Allgäu),10946
+Memmingen,10947
+Aichach-Friedberg,NA,Donau-Ries,Neuburg-Schrobenhausen,Dachau,Fürstenfeldbruck,Landsberg am Lech, Landkreis Augsburg, Augsburg
+Landkreis Augsburg,10852
+Dillingen an der Donau,D0983
+Günzburg,EDMG0
+Neu-Ulm,10838
+Lindau,NA,Bodenseekreis,Landkreis Ravensburg
+Ostallgäu,NA,Landkreis Augsburg,Oberallgäu,Landsberg am Lech,Weilheim-Schongau,Garmisch-Partenkirchen
+Unterallgäu,NA,Neu-Ulm,Günzurg,Augsburg,Oberallgäu,Ravensburg,Biberach,Memmingen
+Donau-Ries,D7319
+Oberallgäu,10948
+Regionalverband Saarbrücken,D6217
+Merzig-Wadern,D5433
+Neunkirchen,D3545
+Saarlouis,10704
+Saarpfalz-Kreis,NA,Regionalverband Saarbrücken, Neunkirchen, Kaiserslautern, Südwestpfalz, Zweibrücken,
+St. Wendel,NA,Trier-Saarburg,Birkenfeld,Neunkirchen,Saarlouis,Merzig-Wadern
+Berlin,10389
+Brandenburg an der Havel,D6265
+Cottbus - Chóśebuz,10492
+Frankfurt (Oder),12310
+Potsdam,10379
+Barnim,NA,Uckermark,Oberhavel,Berlin,Märkisch-Oderland
+Dahme-Spreewald,D3083
+Elbe-Elster,10490
+Havelland,NA,Potsdam,Potsdam-Mittelmark,Brandenburg,Stendal,Jerichower Land
+Märkisch-Oderland,D7389
+Oberhavel,D5745
+Oberspreewald-Lausitz,D2627
+Oder-Spree,D6170
+Ostprignitz-Ruppin,10270
+Potsdam-Mittelmark,10368
+Prignitz,D2951
+Spree-Neiße,10493
+Teltow-Fläming,EDBO0
+Uckermark,10289
+Rostock,10170
+Schwerin,10162
+Mecklenburgische Seenplatte,10281
+Landkreis Rostock,10170
+Vorpommern-Rügen,10093
+Nordwestmecklenburg,D2578
+Vorpommern-Greifswald,10184
+Ludwigslust-Parchim,10264
+Chemnitz,10577
+Erzgebirgskreis,10579
+Mittelsachsen,D0131
+Vogtlandkreis,D7329
+Zwickau,D5797
+Dresden,D1050
+Minden-Lübbecke, D4063
+Bautzen,D0314
+Görlitz,10499
+Meißen,D3234
+Sächsische Schweiz-Osterzgebirge,D0991
+Leipzig,10471
+Landkreis Leipzig,10471
+Nordsachsen,D2641
+Dessau-Roßlau,D7364
+Halle (Saale),10466
+Magdeburg,10361
+Altmarkkreis Salzwedel,10359
+Anhalt-Bitterfeld,D7364
+Börde,10356
+Burgenlandkreis,D7420
+Harz,D6266
+Jerichower Land,D1052
+Mansfeld-Südharz,NA,Harz,Salzlandkreis,Saalekreis
+Saalekreis,D2878
+Salzlandkreis,D0445
+Stendal,D6273
+Wittenberg,10474
+Erfurt,10554
+Gera,10567
+Jena,D2444
+Suhl,10552
+Weimar,10555
+Eichsfeld,10449
+Nordhausen,NA,Harz,Eichsfeld,Göttingen, Goslar
+Wartburgkreis,10540
+Unstrut-Hainich-Kreis,D6305
+Kyffhäuserkreis,NA,Saalekreis,Burgenlandkreis
+Schmalkalden-Meiningen,10548
+Gotha,D5335
+Sömmerda,D7321
+Hildburghausen,D7428
+Ilm-Kreis,D3204
+Weimarer Land,10555
+Sonneberg,10558
+Saalfeld-Rudolstadt,D4605
+Saale-Holzland-Kreis,NA, Burgenlandkreis,Groß-Gerau,Saale-Orla-Kreis,Weimarer Land, Jena,Saalfeld-Rudolstadt
+Saale-Orla-Kreis,D3711
+Greiz,D7419
+Altenburger Land,D4997
